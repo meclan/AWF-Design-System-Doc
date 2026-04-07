@@ -1,0 +1,514 @@
+[
+  {
+    "name": "add",
+    "label": "Add / Ajouter",
+    "category": "Actions & verbs",
+    "component": "Plus",
+    "tags": ["add", "ajouter", "create", "new", "plus"]
+  },
+  {
+    "name": "createNew",
+    "label": "Create new / Nouveau",
+    "category": "Actions & verbs",
+    "component": "CirclePlus",
+    "tags": ["create", "new", "nouveau", "add", "optional", "optionnel"]
+  },
+  {
+    "name": "edit",
+    "label": "Edit / Modifier",
+    "category": "Actions & verbs",
+    "component": "Pencil",
+    "tags": ["edit", "modifier", "pencil", "update", "rename"]
+  },
+  {
+    "name": "save",
+    "label": "Save / Enregistrer",
+    "category": "Actions & verbs",
+    "component": "Save",
+    "tags": ["save", "enregistrer", "store", "commit", "disk"]
+  },
+  {
+    "name": "delete",
+    "label": "Delete / Supprimer",
+    "category": "Actions & verbs",
+    "component": "Trash",
+    "tags": ["delete", "supprimer", "remove", "trash", "destroy", "bin"]
+  },
+  {
+    "name": "close",
+    "label": "Close / Fermer / Annuler",
+    "category": "Actions & verbs",
+    "component": "X",
+    "tags": ["close", "cancel", "dismiss", "fermer", "annuler", "remove"]
+  },
+  {
+    "name": "confirm",
+    "label": "Confirm / Apply / Valider",
+    "category": "Actions & verbs",
+    "component": "Check",
+    "tags": ["confirm", "apply", "validate", "valider", "appliquer", "ok", "done"]
+  },
+  {
+    "name": "search",
+    "label": "Search / Rechercher",
+    "category": "Actions & verbs",
+    "component": "Search",
+    "tags": ["search", "find", "lookup", "rechercher", "query", "loupe"]
+  },
+  {
+    "name": "filter",
+    "label": "Filter / Filtrer",
+    "category": "Actions & verbs",
+    "component": "ListFilter",
+    "tags": ["filter", "filtrer", "refine", "facet", "funnel"]
+  },
+  {
+    "name": "sort",
+    "label": "Sort / Trier",
+    "category": "Actions & verbs",
+    "component": "ChevronsUpDown",
+    "tags": ["sort", "order", "trier", "reorder", "ascending", "descending"]
+  },
+  {
+    "name": "refresh",
+    "label": "Refresh / Reload",
+    "category": "Actions & verbs",
+    "component": "RefreshCw",
+    "tags": ["refresh", "reload", "sync", "actualiser", "recharger", "update"]
+  },
+  {
+    "name": "download",
+    "label": "Download / Télécharger",
+    "category": "Actions & verbs",
+    "component": "Download",
+    "tags": ["download", "télécharger", "export file", "retrieve", "save file"]
+  },
+  {
+    "name": "upload",
+    "label": "Upload / Téléverser",
+    "category": "Actions & verbs",
+    "component": "Upload",
+    "tags": ["upload", "téléverser", "import file", "send", "envoyer fichier"]
+  },
+  {
+    "name": "import",
+    "label": "Import",
+    "category": "Actions & verbs",
+    "component": "Import",
+    "tags": ["import", "ingest", "charger", "bring in", "load data"]
+  },
+  {
+    "name": "export",
+    "label": "Export",
+    "category": "Actions & verbs",
+    "component": "SquareArrowRightExit",
+    "tags": ["export", "extract", "exporter", "out", "external"]
+  },
+  {
+    "name": "copy",
+    "label": "Copy / Copier",
+    "category": "Actions & verbs",
+    "component": "Copy",
+    "tags": ["copy", "copier", "duplicate", "clone", "clipboard"]
+  },
+  {
+    "name": "paste",
+    "label": "Paste / Coller",
+    "category": "Actions & verbs",
+    "component": "ClipboardPaste",
+    "tags": ["paste", "coller", "insert", "clipboard", "presse-papier"]
+  },
+  {
+    "name": "cut",
+    "label": "Cut / Couper",
+    "category": "Actions & verbs",
+    "component": "Scissors",
+    "tags": ["cut", "couper", "scissors", "move", "clipboard"]
+  },
+  {
+    "name": "undo",
+    "label": "Undo / Annuler",
+    "category": "Actions & verbs",
+    "component": "Undo2",
+    "tags": ["undo", "annuler", "revert", "rollback", "back"]
+  },
+  {
+    "name": "redo",
+    "label": "Redo / Rétablir",
+    "category": "Actions & verbs",
+    "component": "Redo2",
+    "tags": ["redo", "rétablir", "restore", "repeat", "forward"]
+  },
+  {
+    "name": "openExternal",
+    "label": "Open in new / Lien externe",
+    "category": "Actions & verbs",
+    "component": "SquareArrowOutUpRight",
+    "tags": ["open in new", "external", "new tab", "externe", "lien externe", "link out"]
+  },
+  {
+    "name": "view",
+    "label": "View / Afficher",
+    "category": "Actions & verbs",
+    "component": "Eye",
+    "tags": ["view", "show", "preview", "afficher", "see", "visible"]
+  },
+  {
+    "name": "hide",
+    "label": "Hide / Masquer",
+    "category": "Actions & verbs",
+    "component": "EyeOff",
+    "tags": ["hide", "mask", "masquer", "conceal", "invisible", "eye off"]
+  },
+  {
+    "name": "share",
+    "label": "Share / Partager",
+    "category": "Actions & verbs",
+    "component": "Share2",
+    "tags": ["share", "partager", "send link", "distribute", "diffuser"]
+  },
+  {
+    "name": "settings",
+    "label": "Settings / Paramètres",
+    "category": "Actions & verbs",
+    "component": "Settings",
+    "tags": ["settings", "preferences", "config", "paramètres", "configuration", "gear"]
+  },
+  {
+    "name": "pin",
+    "label": "Pin object",
+    "category": "Actions & verbs",
+    "component": "Pin",
+    "tags": ["pin", "fix", "épingler", "favorite", "attach", "anchor"]
+  },
+  {
+    "name": "send",
+    "label": "Send / Envoyer",
+    "category": "Actions & verbs",
+    "component": "Send",
+    "tags": ["send", "envoyer", "submit", "dispatch", "message"]
+  },
+  {
+    "name": "back",
+    "label": "Exit / Retour",
+    "category": "Actions & verbs",
+    "component": "ArrowLeft",
+    "tags": ["back", "return", "exit", "retour", "précédent", "go back"]
+  },
+  {
+    "name": "logIn",
+    "label": "Log in / Connexion",
+    "category": "Actions & verbs",
+    "component": "LogIn",
+    "tags": ["log in", "signin", "connexion", "authentification", "login"]
+  },
+  {
+    "name": "logOut",
+    "label": "Log out / Déconnexion",
+    "category": "Actions & verbs",
+    "component": "LogOut",
+    "tags": ["log out", "signout", "déconnexion", "logout", "exit session"]
+  },
+
+  {
+    "name": "menu",
+    "label": "Menu (hamburger)",
+    "category": "Navigation & disclosure",
+    "component": "Menu",
+    "tags": ["menu", "hamburger", "navigation", "sidebar", "toggle nav"]
+  },
+  {
+    "name": "mainMenu",
+    "label": "Main menu / Accueil nav",
+    "category": "Navigation & disclosure",
+    "component": "House",
+    "tags": ["home", "main menu", "accueil", "house", "start", "début"]
+  },
+  {
+    "name": "sidebarToggle",
+    "label": "Sidebar Toggle",
+    "category": "Navigation & disclosure",
+    "component": "PanelLeft",
+    "tags": ["sidebar", "toggle", "panel", "collapse sidebar", "hide sidebar"]
+  },
+  {
+    "name": "smallMenu",
+    "label": "Small menu / Legend",
+    "category": "Navigation & disclosure",
+    "component": "SquareMenu",
+    "tags": ["menu", "small", "legend", "mini menu", "list icon"]
+  },
+  {
+    "name": "moreHorizontal",
+    "label": "More actions (horizontal)",
+    "category": "Navigation & disclosure",
+    "component": "Ellipsis",
+    "tags": ["more", "actions", "overflow", "horizontal", "ellipsis", "options", "..."]
+  },
+  {
+    "name": "moreVertical",
+    "label": "More actions (vertical)",
+    "category": "Navigation & disclosure",
+    "component": "EllipsisVertical",
+    "tags": ["more", "actions", "overflow", "vertical", "ellipsis", "kebab", "options", "⋮"]
+  },
+  {
+    "name": "expand",
+    "label": "Expand / Accordion open",
+    "category": "Navigation & disclosure",
+    "component": "ChevronDown",
+    "tags": ["expand", "open", "accordion", "down", "show more", "dérouler"]
+  },
+  {
+    "name": "collapse",
+    "label": "Collapse / Accordion close",
+    "category": "Navigation & disclosure",
+    "component": "ChevronUp",
+    "tags": ["collapse", "close", "accordion", "up", "show less", "réduire"]
+  },
+  {
+    "name": "next",
+    "label": "Next / Right",
+    "category": "Navigation & disclosure",
+    "component": "ChevronRight",
+    "tags": ["next", "right", "forward", "suivant", "droite", "chevron right"]
+  },
+  {
+    "name": "previous",
+    "label": "Back / Left",
+    "category": "Navigation & disclosure",
+    "component": "ChevronLeft",
+    "tags": ["back", "left", "previous", "précédent", "gauche", "chevron left"]
+  },
+  {
+    "name": "dragVertical",
+    "label": "Drag handle (vertical)",
+    "category": "Navigation & disclosure",
+    "component": "GripVertical",
+    "tags": ["drag", "drop", "move", "reorder", "handle", "vertical", "glisser"]
+  },
+  {
+    "name": "dragHorizontal",
+    "label": "Drag handle (horizontal)",
+    "category": "Navigation & disclosure",
+    "component": "GripHorizontal",
+    "tags": ["drag", "drop", "move", "reorder", "handle", "horizontal", "glisser"]
+  },
+  {
+    "name": "grip",
+    "label": "Drag grip",
+    "category": "Navigation & disclosure",
+    "component": "Grip",
+    "tags": ["grip", "drag", "grab", "handle", "reorder", "poignée"]
+  },
+
+  {
+    "name": "info",
+    "label": "Information",
+    "category": "Status & feedback",
+    "component": "Info",
+    "tags": ["info", "information", "help", "aide", "note", "detail"]
+  },
+  {
+    "name": "success",
+    "label": "Success / Succès",
+    "category": "Status & feedback",
+    "component": "CheckCircleRounded",
+    "library": "mui",
+    "lucideFallback": "CircleCheck",
+    "tags": ["success", "succès", "done", "complete", "valid", "ok", "check circle"]
+  },
+  {
+    "name": "warning",
+    "label": "Warning / Avertissement",
+    "category": "Status & feedback",
+    "component": "WarningRounded",
+    "library": "mui",
+    "lucideFallback": "TriangleAlert",
+    "tags": ["warning", "avertissement", "caution", "alert", "attention", "triangle"]
+  },
+  {
+    "name": "error",
+    "label": "Error / Erreur",
+    "category": "Status & feedback",
+    "component": "ErrorRounded",
+    "library": "mui",
+    "lucideFallback": "CircleAlert",
+    "tags": ["error", "erreur", "danger", "critical", "problem", "fail"]
+  },
+  {
+    "name": "loading",
+    "label": "Loading / Chargement",
+    "category": "Status & feedback",
+    "component": "LoaderCircle",
+    "tags": ["loading", "spinner", "progress", "chargement", "wait", "processing", "sync"]
+  },
+  {
+    "name": "locked",
+    "label": "Locked / Verrouillé",
+    "category": "Status & feedback",
+    "component": "Lock",
+    "tags": ["lock", "locked", "secure", "verrouillé", "restricted", "protected"]
+  },
+  {
+    "name": "unlocked",
+    "label": "Unlocked / Déverrouillé",
+    "category": "Status & feedback",
+    "component": "LockOpen",
+    "tags": ["unlock", "open", "unlocked", "déverrouillé", "accessible", "free"]
+  },
+
+  {
+    "name": "home",
+    "label": "Home / Accueil",
+    "category": "Objects & concepts",
+    "component": "House",
+    "tags": ["home", "accueil", "start", "page", "main", "house", "début"]
+  },
+  {
+    "name": "dashboard",
+    "label": "Dashboard",
+    "category": "Objects & concepts",
+    "component": "LayoutDashboard",
+    "tags": ["dashboard", "overview", "tableau de bord", "widgets", "summary"]
+  },
+  {
+    "name": "layoutGrid",
+    "label": "Layout / Grid",
+    "category": "Objects & concepts",
+    "component": "LayoutGrid",
+    "tags": ["layout", "grid", "grille", "view", "tiles", "mosaic", "card view"]
+  },
+  {
+    "name": "user",
+    "label": "User / Utilisateur",
+    "category": "Objects & concepts",
+    "component": "PersonRounded",
+    "library": "mui",
+    "lucideFallback": "User",
+    "tags": ["user", "utilisateur", "person", "profile", "account", "compte"]
+  },
+  {
+    "name": "users",
+    "label": "Users / Group",
+    "category": "Objects & concepts",
+    "component": "PeopleRounded",
+    "library": "mui",
+    "lucideFallback": "Users",
+    "tags": ["users", "group", "groupe", "people", "team", "members", "équipe"]
+  },
+  {
+    "name": "team",
+    "label": "Team / Équipe",
+    "category": "Objects & concepts",
+    "component": "GroupsRounded",
+    "library": "mui",
+    "lucideFallback": "UsersRound",
+    "tags": ["team", "équipe", "group", "organisation", "collective", "crowd"]
+  },
+  {
+    "name": "notifications",
+    "label": "Notifications",
+    "category": "Objects & concepts",
+    "component": "Bell",
+    "tags": ["bell", "notification", "alert", "reminder", "cloche", "notify"]
+  },
+  {
+    "name": "message",
+    "label": "Message / Comment",
+    "category": "Objects & concepts",
+    "component": "MessageCircle",
+    "tags": ["message", "comment", "chat", "discussion", "feedback", "commentaire"]
+  },
+  {
+    "name": "calendar",
+    "label": "Calendar / Date",
+    "category": "Objects & concepts",
+    "component": "Calendar",
+    "tags": ["calendar", "date", "schedule", "agenda", "calendrier", "planning"]
+  },
+  {
+    "name": "time",
+    "label": "Time / Heure",
+    "category": "Objects & concepts",
+    "component": "Clock",
+    "tags": ["time", "heure", "clock", "duration", "horloge", "timestamp"]
+  },
+  {
+    "name": "folder",
+    "label": "Folder / Dossier",
+    "category": "Objects & concepts",
+    "component": "Folder",
+    "tags": ["folder", "dossier", "directory", "container", "files", "répertoire"]
+  },
+  {
+    "name": "file",
+    "label": "File / Document",
+    "category": "Objects & concepts",
+    "component": "FileText",
+    "tags": ["file", "document", "fichier", "text", "page", "record"]
+  },
+  {
+    "name": "attachment",
+    "label": "Attachment / Pièce jointe",
+    "category": "Objects & concepts",
+    "component": "Paperclip",
+    "tags": ["attachment", "pièce jointe", "paperclip", "attach", "file link", "annexe"]
+  },
+  {
+    "name": "link",
+    "label": "Link / Lien",
+    "category": "Objects & concepts",
+    "component": "Link2",
+    "tags": ["link", "lien", "url", "hyperlink", "connect", "chain"]
+  },
+  {
+    "name": "tag",
+    "label": "Tag / Label",
+    "category": "Objects & concepts",
+    "component": "Tag",
+    "tags": ["tag", "label", "étiquette", "badge", "category", "mark"]
+  },
+  {
+    "name": "favorite",
+    "label": "Favorite / Favori",
+    "category": "Objects & concepts",
+    "component": "Star",
+    "tags": ["favorite", "favori", "star", "étoile", "bookmark", "save", "important"]
+  },
+  {
+    "name": "database",
+    "label": "Database / Base de données",
+    "category": "Objects & concepts",
+    "component": "Database",
+    "tags": ["database", "base de données", "data", "storage", "sql", "stockage"]
+  },
+  {
+    "name": "server",
+    "label": "Server / Serveur",
+    "category": "Objects & concepts",
+    "component": "Server",
+    "tags": ["server", "serveur", "infrastructure", "host", "backend", "dns"]
+  },
+  {
+    "name": "api",
+    "label": "API / Webhook",
+    "category": "Objects & concepts",
+    "component": "Webhook",
+    "tags": ["api", "webhook", "integration", "endpoint", "connect", "http"]
+  },
+  {
+    "name": "workflow",
+    "label": "Workflow / Integration",
+    "category": "Objects & concepts",
+    "component": "Workflow",
+    "tags": ["workflow", "integration", "process", "pipeline", "automation", "flux"]
+  },
+  {
+    "name": "security",
+    "label": "Security / Sécurité",
+    "category": "Objects & concepts",
+    "component": "Shield",
+    "tags": ["security", "sécurité", "shield", "protection", "safe", "guard"]
+  }
+]
