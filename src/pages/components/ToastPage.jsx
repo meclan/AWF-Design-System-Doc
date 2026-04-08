@@ -104,33 +104,36 @@ function TokenTable({ tokens, prefix }) {
 }
 
 // ─── Toast type config ────────────────────────────────────────────────────────
-// White-bg variant (for dark UI context) — icon color = status, icon bg = soft 25%
+// Two variants:
+//   dark  (default) — bg #1c252e, white text   → used on LIGHT pages for high contrast
+//   light           — bg #ffffff, dark text     → used on DARK pages for high contrast
+// Icon: color = status color, bg = soft 16% of status color (both variants)
 
 const TOAST_TYPES = {
   success: {
     strokeColor: '#02bf2b',
-    iconBg:      '#02bf2b28',   // green @~16% — token: color.bg.success.default-25%
-    iconColor:   '#02bf2b',     // token: color.icon.success
+    iconBg:      '#02bf2b28',  // token: color.bg.success.default-25%
+    iconColor:   '#02bf2b',    // token: color.icon.success
   },
   warning: {
     strokeColor: '#f6873f',
-    iconBg:      '#f6873f28',   // orange @~16% — token: color.bg.warning.default-25%
-    iconColor:   '#f6873f',     // token: color.icon.warning
+    iconBg:      '#f6873f28',  // token: color.bg.warning.default-25%
+    iconColor:   '#f6873f',    // token: color.icon.warning
   },
   danger: {
     strokeColor: '#f6643f',
-    iconBg:      '#f6643f28',   // red @~16% — token: color.bg.danger.default-25%
-    iconColor:   '#f6643f',     // token: color.icon.danger
+    iconBg:      '#f6643f28',  // token: color.bg.danger.default-25%
+    iconColor:   '#f6643f',    // token: color.icon.danger
   },
   info: {
     strokeColor: '#0190f6',
-    iconBg:      '#0190f628',   // blue @~16% — token: color.bg.info
-    iconColor:   '#0190f6',     // token: color.icon.info
+    iconBg:      '#0190f628',  // token: color.bg.info
+    iconColor:   '#0190f6',    // token: color.icon.info
   },
   loading: {
     strokeColor: '#919eab',
-    iconBg:      '#919eab28',   // neutral @~16%
-    iconColor:   '#919eab',     // token: color.icon.info (loading)
+    iconBg:      '#919eab28',
+    iconColor:   '#919eab',
   },
 }
 
@@ -183,14 +186,17 @@ function ToastIcon({ type }) {
 
 // ─── Toast item component ─────────────────────────────────────────────────────
 
-function ToastItem({ type = 'success', title, description, actionLabel, dismissible = true, onDismiss }) {
+// variant="dark"  → bg #1c252e, white text  (for use on LIGHT UI pages)
+// variant="light" → bg #ffffff, dark text   (for use on DARK UI pages)
+function ToastItem({ type = 'success', title, description, actionLabel, dismissible = true, onDismiss, variant = 'dark' }) {
   const cfg = TOAST_TYPES[type] || TOAST_TYPES.info
+  const isDark = variant === 'dark'
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 10,
-      background: '#ffffff',      // white bg — token: color.bg.primary (light toast variant)
-      borderRadius: 10,           // token: toast.radius
-      padding: 8,                 // token: toast.padding
+      background: isDark ? '#1c252e' : '#ffffff',  // token: toast.bg
+      borderRadius: 10,                             // token: toast.radius
+      padding: 8,                                   // token: toast.padding
       border: `1.5px solid ${cfg.strokeColor}`,
       boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
       width: '100%',
@@ -199,11 +205,11 @@ function ToastItem({ type = 'success', title, description, actionLabel, dismissi
     }}>
       <ToastIcon type={type} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 16, fontWeight: 400, color: '#141a21', lineHeight: 1.4, textTransform: 'capitalize' }}>
+        <div style={{ fontSize: 16, fontWeight: 400, color: isDark ? '#ffffff' : '#141a21', lineHeight: 1.4, textTransform: 'capitalize' }}>
           {title}
         </div>
         {description && (
-          <div style={{ fontSize: 14, color: '#637381', lineHeight: 1.55, marginTop: 2 }}>{description}</div>
+          <div style={{ fontSize: 14, color: isDark ? '#c4cdd5' : '#637381', lineHeight: 1.55, marginTop: 2 }}>{description}</div>
         )}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
@@ -221,7 +227,8 @@ function ToastItem({ type = 'success', title, description, actionLabel, dismissi
             onClick={onDismiss}
             style={{
               background: 'none', border: 'none', padding: 4, cursor: 'pointer',
-              color: '#637381', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: isDark ? '#ffffff' : '#637381',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               borderRadius: 4, lineHeight: 1,
             }}
             aria-label="Dismiss notification"
@@ -235,37 +242,90 @@ function ToastItem({ type = 'success', title, description, actionLabel, dismissi
 }
 
 // ─── Toast stack illustration ─────────────────────────────────────────────────
+// Collapsed: top toast visible, 2 ghost toasts peek below
+// Hover: expand → show up to 3 toasts + "x more" pill
+// Click "x more": show all toasts
+
+const STACK_TOASTS = [
+  { id: 1, type: 'success', title: 'Changes saved',       description: 'Your profile was updated.' },
+  { id: 2, type: 'info',    title: 'Information message', description: null },
+  { id: 3, type: 'danger',  title: 'Danger message',      description: null },
+  { id: 4, type: 'warning', title: 'Session expiring',    description: null },
+  { id: 5, type: 'loading', title: 'Syncing records',     description: null },
+]
 
 function ToastStack() {
+  const [hovered,   setHovered]   = useState(false)
+  const [expanded,  setExpanded]  = useState(false)
+
+  const SHOW_ON_HOVER = 3   // toasts visible while hovering (before "more" click)
+  const total   = STACK_TOASTS.length
+  const visible = expanded ? total : (hovered ? SHOW_ON_HOVER : 1)
+  const extra   = total - SHOW_ON_HOVER  // toasts hidden behind "x more" pill
+
   return (
-    <div style={{ position: 'relative', height: 120, width: '100%', maxWidth: 420, margin: '0 auto' }}>
-      {/* Back toast */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: '50%',
-        transform: 'translateX(-50%) scale(0.92) translateY(-12px)',
-        transformOrigin: 'bottom center',
-        opacity: 0.4, width: '100%',
-      }}>
-        <ToastItem type="info" title="Upload complete" dismissible={false} />
-      </div>
-      {/* Middle toast */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: '50%',
-        transform: 'translateX(-50%) scale(0.96) translateY(-6px)',
-        transformOrigin: 'bottom center',
-        opacity: 0.7, width: '100%',
-      }}>
-        <ToastItem type="warning" title="Session expiring soon" dismissible={false} />
-      </div>
-      {/* Front toast */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: '50%',
-        transform: 'translateX(-50%) scale(1) translateY(0)',
-        transformOrigin: 'bottom center',
-        opacity: 1, width: '100%',
-      }}>
-        <ToastItem type="success" title="Changes saved" description="Your profile was updated." dismissible={false} />
-      </div>
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setHovered(false); setExpanded(false) }}
+      style={{ width: '100%', maxWidth: 420, margin: '0 auto', userSelect: 'none' }}
+    >
+      {/* ── Collapsed state — top toast + 2 ghost peeks below ── */}
+      {!hovered && (
+        <div style={{ position: 'relative', paddingBottom: 14 }}>
+          {/* Ghost peek 2 (deepest) */}
+          <div style={{
+            position: 'absolute', top: 10, left: '50%',
+            transform: 'translateX(-50%) scaleX(0.88)',
+            transformOrigin: 'top center',
+            width: '100%', opacity: 0.35, pointerEvents: 'none',
+          }}>
+            <ToastItem type="warning" title="Session expiring" dismissible={false} />
+          </div>
+          {/* Ghost peek 1 */}
+          <div style={{
+            position: 'absolute', top: 5, left: '50%',
+            transform: 'translateX(-50%) scaleX(0.94)',
+            transformOrigin: 'top center',
+            width: '100%', opacity: 0.6, pointerEvents: 'none',
+          }}>
+            <ToastItem type="info" title="Information message" dismissible={false} />
+          </div>
+          {/* Front toast */}
+          <div style={{ position: 'relative', zIndex: 3 }}>
+            <ToastItem type="success" title="Changes saved" description="Your profile was updated." dismissible={false} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Hover / Expanded state — list of toasts ── */}
+      {hovered && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {STACK_TOASTS.slice(0, visible).map(t => (
+            <ToastItem key={t.id} type={t.type} title={t.title} description={t.description} dismissible={false} />
+          ))}
+          {/* "x more notifications" pill */}
+          {!expanded && extra > 0 && (
+            <button
+              onClick={() => setExpanded(true)}
+              style={{
+                alignSelf: 'flex-end',
+                background: '#f4f6f8',
+                border: '1px solid #919eab',
+                borderRadius: 8,
+                padding: '4px 12px',
+                fontSize: 13,
+                fontWeight: 500,
+                color: '#454545',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                transition: 'background 120ms',
+              }}
+            >
+              {extra} more notification{extra > 1 ? 's' : ''}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -293,7 +353,7 @@ function ToastLive() {
   return (
     <div>
       <div style={{
-        background: 'var(--bg-secondary)', borderRadius: 12, padding: '28px 24px',
+        background: 'var(--bg-primary)', borderRadius: 12, padding: '28px 24px',
         border: '1px solid var(--stroke-primary)',
         minHeight: 280, position: 'relative',
       }}>
@@ -309,6 +369,7 @@ function ToastLive() {
               title={toast.title}
               description={toast.description}
               onDismiss={() => dismiss(toast.id)}
+              variant="dark"
             />
           ))}
           {visible.length === 0 && (
@@ -494,10 +555,10 @@ export default function ToastPage() {
 
         {/* Annotated toast */}
         <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden', marginBottom: 24 }}>
-          <div style={{ padding: '28px 32px', background: '#0f1923', display: 'flex', flexDirection: 'column', gap: 28 }}>
-            {/* Annotated visual */}
+          <div style={{ padding: '28px 32px', background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', gap: 28 }}>
+            {/* Annotated visual — dark toast on light bg = light UI context */}
             <div style={{ position: 'relative', maxWidth: 420 }}>
-              <ToastItem type="success" title="Changes saved" description="Your profile was updated successfully." actionLabel="Undo" />
+              <ToastItem type="success" title="Changes saved" description="Your profile was updated successfully." actionLabel="Undo" variant="dark" />
               {/* Annotation labels */}
               <div style={{ position: 'absolute', top: -22, left: 8, fontSize: 9, color: '#64748b', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' }}>① Icon box</div>
               <div style={{ position: 'absolute', top: -22, left: 70, fontSize: 9, color: '#64748b', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' }}>② Content</div>
@@ -531,7 +592,7 @@ export default function ToastPage() {
           Five semantic types map directly to a specific intent. The type drives the left border color, icon background, and icon color.
         </Lead>
 
-        <div style={{ background: '#0f1923', borderRadius: 12, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 12, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {[
             { type: 'success', title: 'File exported',       description: 'report-2024-q4.xlsx was downloaded to your device.' },
             { type: 'danger',  title: 'Deletion failed',     description: 'The record is referenced by 3 other items.' },
@@ -539,7 +600,7 @@ export default function ToastPage() {
             { type: 'info',    title: 'Update available',    description: 'Version 3.2.0 is ready. Refresh to apply.' },
             { type: 'loading', title: 'Syncing records',     description: 'Importing 1 402 rows — this may take a moment.' },
           ].map(cfg => (
-            <ToastItem key={cfg.type} type={cfg.type} title={cfg.title} description={cfg.description} dismissible={false} />
+            <ToastItem key={cfg.type} type={cfg.type} title={cfg.title} description={cfg.description} dismissible={false} variant="dark" />
           ))}
         </div>
 
@@ -621,32 +682,32 @@ export default function ToastPage() {
         <SectionAnchor id="stacking" />
         <H2>Stacking</H2>
         <Lead>
-          When multiple toasts are queued, they stack with a perspective effect: the newest toast is in the foreground at full scale and opacity; older toasts scale down and fade behind it.
+          When multiple toasts are queued, they collapse into a stacked view — newest toast on top, older toasts peek below. Hover to expand up to 3 toasts; click <em>"x more notifications"</em> to reveal all.
         </Lead>
 
         <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 12, overflow: 'hidden', marginBottom: 20 }}>
-          <div style={{ padding: '40px 24px 32px', background: '#0f1923' }}>
+          <div style={{ padding: '40px 24px 32px', background: 'var(--bg-secondary)' }}>
             <ToastStack />
           </div>
           <div style={{ padding: '12px 20px', background: 'var(--bg-primary)', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             {[
-              { label: 'Front (newest)', scale: 'scale(1.00)', opacity: '100%', translate: 'translateY(0)' },
-              { label: 'Middle',         scale: 'scale(0.96)', opacity: '70%',  translate: 'translateY(-6px)' },
-              { label: 'Back (oldest)', scale: 'scale(0.92)', opacity: '40%',  translate: 'translateY(-12px)' },
+              { label: 'Collapsed',     desc: 'Top toast visible, 2 ghost toasts peek below at reduced scale.' },
+              { label: 'Hover',         desc: 'Stack expands into a vertical list showing up to 3 toasts.' },
+              { label: '"x more" pill', desc: 'Shown when >3 toasts queued. Click to reveal all remaining.' },
             ].map(row => (
               <div key={row.label} style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                 <strong style={{ color: 'var(--text-primary)', display: 'block', marginBottom: 2 }}>{row.label}</strong>
-                {row.scale} · opacity {row.opacity} · {row.translate}
+                {row.desc}
               </div>
             ))}
           </div>
         </div>
 
         <InfoBox type="info">
-          The stack collapses on hover to show each toast individually — a common pattern in design systems. This page illustrates the collapsed stack visual; the expanded-on-hover behavior is handled in the toast manager implementation.
+          Hover the stack above to see the expand interaction. The "x more notifications" pill appears when more than 3 toasts are queued; clicking it reveals all of them.
         </InfoBox>
         <P>
-          Limit the visible stack to <strong>3 toasts maximum</strong>. If a fourth arrives before the first is dismissed, the oldest drops off the queue automatically. This prevents the notification area from becoming overwhelming.
+          Limit automatic expansion to <strong>3 toasts</strong>. If a fourth arrives, the oldest drops off the queue. The "x more" pill is a safety valve — not a default UI.
         </P>
 
         <Divider />

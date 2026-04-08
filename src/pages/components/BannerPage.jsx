@@ -195,19 +195,17 @@ function BannerComp({ type = 'info', title, description, actions, dismissible = 
       {/* Header row: icon + title + close button */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Icon — solid colored circle with white icon */}
+          {/* Icon — no bg, status color only */}
           <div style={{
             width: 32,
             height: 32,
-            borderRadius: 8,         // token: numbers.radius.lg
-            background: cfg.iconBg,  // soft status color ~16%
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            color: cfg.icon,         // status color
+            color: cfg.icon,   // token: color.icon.[type]
           }}>
-            <BannerMuiIcon type={type} size={18} />
+            <BannerMuiIcon type={type} size={24} />
           </div>
           <div style={{ fontSize: 16, fontWeight: 500, color: '#141a21', lineHeight: 1.4, textTransform: 'capitalize' }}>
             {title}
@@ -251,14 +249,14 @@ function BannerComp({ type = 'info', title, description, actions, dismissible = 
             </div>
           )}
           {actions && (
-            <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
               {actions.map((action, i) => (
                 <button
                   key={i}
                   style={{
-                    padding: '10px 20px',
-                    fontSize: 16,
-                    fontWeight: 400,
+                    padding: '6px 14px',      // medium size — token: button.size.md
+                    fontSize: 14,
+                    fontWeight: 500,
                     borderRadius: 8,
                     border: i === 0 ? '1.5px solid #c4cdd5' : 'none',
                     background: '#ffffff',
@@ -266,6 +264,7 @@ function BannerComp({ type = 'info', title, description, actions, dismissible = 
                     cursor: 'pointer',
                     lineHeight: 1.5,
                     textTransform: 'capitalize',
+                    fontFamily: 'inherit',
                   }}
                 >
                   {action}
@@ -446,52 +445,32 @@ export default function BannerPage() {
         <SectionAnchor id="anatomy" />
         <H2>Anatomy</H2>
         <Lead>
-          Each banner has four parts: a colored <strong>left border accent</strong>, an <strong>icon</strong> representing the type, a <strong>content area</strong> (title, description, optional actions), and an optional <strong>close button</strong>.
+          Each banner has five parts: a <strong>full border accent</strong> in the status color, a <strong>status icon</strong>, a <strong>title</strong>, an optional <strong>description + actions</strong>, and an optional <strong>close button</strong>.
         </Lead>
 
         <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden', marginBottom: 24 }}>
           <div style={{ padding: '28px 32px', background: 'var(--bg-primary)' }}>
-            {/* Annotated banner */}
-            <div style={{ position: 'relative', marginBottom: 40 }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 10,
-                padding: '20px 20px',
-                background: '#feede2',
-                borderRadius: 10,
-                borderLeft: '4px solid #f6873f',
-              }}>
-                {/* Icon */}
-                <div style={{ width: 32, height: 32, borderRadius: 6, background: '#f6873f20', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#f6873f' }}>
-                  {BANNER_TYPES.warning.iconSvg}
-                </div>
-                {/* Content */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 15, fontWeight: 500, color: '#141a21', marginBottom: 4 }}>Your trial expires in 2 days</div>
-                  <div style={{ fontSize: 13, color: '#637381', lineHeight: 1.6, marginBottom: 10 }}>Upgrade your plan to keep access to all features.</div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button style={{ padding: '4px 12px', fontSize: 12, fontWeight: 500, borderRadius: 5, border: '1.5px solid #f6873f', background: 'transparent', color: '#f6873f', cursor: 'default' }}>Upgrade now</button>
-                    <button style={{ padding: '4px 12px', fontSize: 12, fontWeight: 500, borderRadius: 5, border: '1.5px solid #919eab', background: 'transparent', color: '#637381', cursor: 'default' }}>Remind me</button>
-                  </div>
-                </div>
-                {/* Close */}
-                <div style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#454f5b' }}>
-                  <IcoClose />
-                </div>
-              </div>
-
-              {/* Annotation callouts */}
-              <div style={{ display: 'flex', gap: 24, marginTop: 16, flexWrap: 'wrap' }}>
+            {/* Annotated banner — reuse BannerComp directly */}
+            <div style={{ position: 'relative', marginBottom: 16 }}>
+              <BannerComp
+                type="warning"
+                title="Your trial expires in 2 days"
+                description="Upgrade your plan to keep access to all features."
+                actions={['Upgrade now', 'Remind me']}
+                dismissible
+                onDismiss={() => {}}
+              />
+              {/* Annotation pins */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 16px', marginTop: 20 }}>
                 {[
-                  ['① Left border', 'Colored 4 px accent. Maps to banner.stroke.[type]'],
-                  ['② Icon',        'Type icon in a tinted square. Color from banner.icon.[type]'],
-                  ['③ Title',       'Short imperative label. font-weight 500, 16 px'],
-                  ['④ Description', 'Supporting context. font-weight 400, secondary color'],
-                  ['⑤ Actions',     'Optional outlined action buttons below the description'],
-                  ['⑥ Close ×',     'Dismiss control. Color from banner.close-icon token'],
+                  ['① Border',      'Full 1px stroke in status color. Token: banner.stroke.[type]'],
+                  ['② Icon',        '24px MUI icon, status color. No background. Token: color.icon.[type]'],
+                  ['③ Title',       'Short label, font-weight 500, 16px. Token: banner.text.title'],
+                  ['④ Description', 'Supporting text, 16px, secondary color. Token: banner.text.description'],
+                  ['⑤ Actions',     'Medium-size outlined buttons (14px, padding 6×14px)'],
+                  ['⑥ Close ×',     'MUI CloseRounded, 32px hit area. Token: color.icon.secondary'],
                 ].map(([name, desc]) => (
-                  <div key={name} style={{ display: 'flex', gap: 8, alignItems: 'baseline', minWidth: 220 }}>
+                  <div key={name} style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{name}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55 }}>{desc}</span>
                   </div>
