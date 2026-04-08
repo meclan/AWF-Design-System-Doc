@@ -104,104 +104,79 @@ function TokenTable({ tokens, prefix }) {
 }
 
 // ─── Toast type config ────────────────────────────────────────────────────────
+// White-bg variant (for dark UI context) — icon color = status, icon bg = soft 25%
 
 const TOAST_TYPES = {
   success: {
     strokeColor: '#02bf2b',
-    iconBg:      '#02bf2b',
-    iconColor:   '#ffffff',
+    iconBg:      '#02bf2b28',   // green @~16% — token: color.bg.success.default-25%
+    iconColor:   '#02bf2b',     // token: color.icon.success
   },
   warning: {
     strokeColor: '#f6873f',
-    iconBg:      '#f6873f',
-    iconColor:   '#ffffff',
+    iconBg:      '#f6873f28',   // orange @~16% — token: color.bg.warning.default-25%
+    iconColor:   '#f6873f',     // token: color.icon.warning
   },
   danger: {
     strokeColor: '#f6643f',
-    iconBg:      '#f6643f',
-    iconColor:   '#ffffff',
+    iconBg:      '#f6643f28',   // red @~16% — token: color.bg.danger.default-25%
+    iconColor:   '#f6643f',     // token: color.icon.danger
   },
   info: {
     strokeColor: '#0190f6',
-    iconBg:      '#0190f6',
-    iconColor:   '#ffffff',
+    iconBg:      '#0190f628',   // blue @~16% — token: color.bg.info
+    iconColor:   '#0190f6',     // token: color.icon.info
   },
   loading: {
     strokeColor: '#919eab',
-    iconBg:      '#454f5b',
-    iconColor:   '#ffffff',
+    iconBg:      '#919eab28',   // neutral @~16%
+    iconColor:   '#919eab',     // token: color.icon.info (loading)
   },
 }
 
-// ─── Inline SVG icons ─────────────────────────────────────────────────────────
+// ─── MUI-style SVG icons (embedded paths — same rendering as @mui/icons-material) ─
 
-function IconSuccess() {
+// Shared renderer — fill="currentColor" mirrors MUI's SvgIcon behaviour
+function MuiSvg({ path, size = 24, spin = false }) {
   return (
-    <svg viewBox="0 0 24 24" width="24" height="24">
-      <path d="M5 12L9.5 17L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <svg
+      viewBox="0 0 24 24" width={size} height={size}
+      fill="currentColor" aria-hidden="true"
+      style={spin ? { animation: 'toast-spin 1s linear infinite' } : undefined}
+    >
+      <path d={path} />
     </svg>
   )
 }
 
-function IconWarning() {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24">
-      <path d="M12 3L21.5 20H2.5L12 3Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinejoin="round" />
-      <line x1="12" y1="10" x2="12" y2="14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="12" cy="17" r="1" fill="currentColor" />
-    </svg>
-  )
-}
-
-function IconDanger() {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
-      <path d="M8 8L16 16M16 8L8 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function IconInfo() {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
-      <line x1="12" y1="11" x2="12" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="12" cy="8" r="1" fill="currentColor" />
-    </svg>
-  )
-}
-
-function IconLoading() {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24" style={{ animation: 'toast-spin 1s linear infinite' }}>
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" strokeOpacity=".3" />
-      <path d="M12 3a9 9 0 0 1 9 9" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function IconClose() {
-  return (
-    <svg viewBox="0 0 12 12" width="12" height="12">
-      <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  )
+// MUI icon path registry
+const MUI_PATHS = {
+  // CheckCircleRounded
+  success: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+  // WarningRounded
+  warning: 'M4.47 21h15.06c1.54 0 2.5-1.67 1.73-3L13.73 4.99c-.77-1.33-2.69-1.33-3.46 0L2.74 18c-.77 1.33.19 3 1.73 3zM12 14c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm1 4h-2v-2h2v2z',
+  // ErrorRounded
+  danger:  'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z',
+  // InfoRounded
+  info:    'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z',
+  // CachedRounded (loading / progress)
+  loading: 'M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z',
+  // CloseRounded
+  close:   'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
 }
 
 function ToastIcon({ type }) {
   const cfg = TOAST_TYPES[type] || TOAST_TYPES.info
-  const icons = { success: <IconSuccess />, warning: <IconWarning />, danger: <IconDanger />, info: <IconInfo />, loading: <IconLoading /> }
   return (
     <div style={{
       width: 48, height: 48,
-      borderRadius: type === 'loading' ? 10 : '50%',
+      borderRadius: 10,           // token: numbers.radius.lg
       flexShrink: 0,
       background: cfg.iconBg,
       color: cfg.iconColor,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
-      {icons[type] || icons.info}
+      <MuiSvg path={MUI_PATHS[type] || MUI_PATHS.info} size={24} spin={type === 'loading'} />
     </div>
   )
 }
@@ -213,9 +188,9 @@ function ToastItem({ type = 'success', title, description, actionLabel, dismissi
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 10,
-      background: '#1c252e',
-      borderRadius: 10,
-      padding: 8,
+      background: '#ffffff',      // white bg — token: color.bg.primary (light toast variant)
+      borderRadius: 10,           // token: toast.radius
+      padding: 8,                 // token: toast.padding
       border: `1.5px solid ${cfg.strokeColor}`,
       boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
       width: '100%',
@@ -224,9 +199,11 @@ function ToastItem({ type = 'success', title, description, actionLabel, dismissi
     }}>
       <ToastIcon type={type} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 16, fontWeight: 400, color: '#ffffff', lineHeight: 1.4, textTransform: 'capitalize' }}>{title}</div>
+        <div style={{ fontSize: 16, fontWeight: 400, color: '#141a21', lineHeight: 1.4, textTransform: 'capitalize' }}>
+          {title}
+        </div>
         {description && (
-          <div style={{ fontSize: 14, color: '#c4cdd5', lineHeight: 1.55, marginTop: 2 }}>{description}</div>
+          <div style={{ fontSize: 14, color: '#637381', lineHeight: 1.55, marginTop: 2 }}>{description}</div>
         )}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
@@ -244,12 +221,12 @@ function ToastItem({ type = 'success', title, description, actionLabel, dismissi
             onClick={onDismiss}
             style={{
               background: 'none', border: 'none', padding: 4, cursor: 'pointer',
-              color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#637381', display: 'flex', alignItems: 'center', justifyContent: 'center',
               borderRadius: 4, lineHeight: 1,
             }}
             aria-label="Dismiss notification"
           >
-            <IconClose />
+            <MuiSvg path={MUI_PATHS.close} size={14} />
           </button>
         )}
       </div>
@@ -316,11 +293,12 @@ function ToastLive() {
   return (
     <div>
       <div style={{
-        background: '#0f1923', borderRadius: 12, padding: '28px 24px',
+        background: 'var(--bg-secondary)', borderRadius: 12, padding: '28px 24px',
+        border: '1px solid var(--stroke-primary)',
         minHeight: 280, position: 'relative',
       }}>
         {/* Corner label */}
-        <div style={{ position: 'absolute', top: 12, left: 16, fontSize: 10, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: '#4b5a68' }}>
+        <div style={{ position: 'absolute', top: 12, left: 16, fontSize: 10, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
           Live preview
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 16 }}>
@@ -373,21 +351,21 @@ const TOC = [
 // ─── Hardcoded token set (DOT theme) for TokenTable ───────────────────────────
 
 const TOAST_TOKENS_STATIC = {
-  'toast.bg':                      '#1c252e',
-  'toast.title':                   '#ffffff',
-  'toast.description':             '#c4cdd5',
-  'toast.close-icon':              '#ffffff',
+  'toast.bg':                      '#ffffff',
+  'toast.title':                   '#141a21',
+  'toast.description':             '#637381',
+  'toast.close-icon':              '#637381',
   'toast.action-link':             '#0190f6',
   'toast.icon.color.success':      '#02bf2b',
   'toast.icon.color.warning':      '#f6873f',
   'toast.icon.color.danger':       '#f6643f',
   'toast.icon.color.info':         '#0190f6',
-  'toast.icon.color.loading':      '#0190f6',
-  'toast.icon.bg.success':         '#02bf2b40',
-  'toast.icon.bg.warning':         '#f6873f40',
-  'toast.icon.bg.danger':          '#f6643f40',
-  'toast.icon.bg.info':            '#454f5b',
-  'toast.icon.bg.loading':         '#454f5b',
+  'toast.icon.color.loading':      '#919eab',
+  'toast.icon.bg.success':         '#02bf2b28',
+  'toast.icon.bg.warning':         '#f6873f28',
+  'toast.icon.bg.danger':          '#f6643f28',
+  'toast.icon.bg.info':            '#0190f628',
+  'toast.icon.bg.loading':         '#919eab28',
   'toast.icon.bg-size':            '48',
   'toast.icon.icon-size':          '24',
   'toast.icon.bg.radius':          '10',

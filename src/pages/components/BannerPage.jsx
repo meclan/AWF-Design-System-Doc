@@ -103,76 +103,74 @@ function TokenTable({ tokens, prefix }) {
   )
 }
 
+// ─── MUI-style SVG icons (embedded paths — same rendering as @mui/icons-material) ─
+
+const BANNER_MUI_PATHS = {
+  // InfoRounded
+  info:    'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z',
+  // WarningRounded
+  warning: 'M4.47 21h15.06c1.54 0 2.5-1.67 1.73-3L13.73 4.99c-.77-1.33-2.69-1.33-3.46 0L2.74 18c-.77 1.33.19 3 1.73 3zM12 14c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm1 4h-2v-2h2v2z',
+  // ErrorRounded
+  danger:  'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z',
+  // CheckCircleRounded
+  success: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+  // NotificationsRounded (neutral)
+  neutral: 'M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z',
+  // CloseRounded
+  close:   'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
+}
+
+function BannerMuiIcon({ type, size = 18 }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+      <path d={BANNER_MUI_PATHS[type] || BANNER_MUI_PATHS.info} />
+    </svg>
+  )
+}
+
 // ─── Banner type config ───────────────────────────────────────────────────────
 
 const BANNER_TYPES = {
   info: {
-    bg: '#f9fafb',
-    stroke: '#0190f6',
-    icon: '#0190f6',
+    bg:      '#f9fafb',          // token: banner.bg.info → color.bg.subtle
+    stroke:  '#0190f6',          // token: banner.stroke.info
+    iconBg:  '#0190f628',        // soft blue ~16% — token: color.bg.info
+    icon:    '#0190f6',          // token: color.icon.info
     label: 'Info',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-        <line x1="8" y1="7" x2="8" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="8" cy="5" r=".75" fill="currentColor" />
-      </svg>
-    ),
   },
   warning: {
-    bg: '#feede2',
-    stroke: '#f6873f',
-    icon: '#f6873f',
+    bg:      '#feede2',          // token: banner.bg.warning → color.bg.warning.subtlest
+    stroke:  '#f6873f',          // token: banner.stroke.warning
+    iconBg:  '#f6873f28',        // soft orange ~16%
+    icon:    '#f6873f',          // token: color.icon.warning
     label: 'Warning',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <path d="M8 2L14.5 13H1.5L8 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <line x1="8" y1="6.5" x2="8" y2="9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="8" cy="11" r=".75" fill="currentColor" />
-      </svg>
-    ),
   },
   danger: {
-    bg: '#fee8e2',
-    stroke: '#f6643f',
-    icon: '#f6643f',
+    bg:      '#fee8e2',          // token: banner.bg.danger → color.bg.danger.subtlest
+    stroke:  '#f6643f',          // token: banner.stroke.danger
+    iconBg:  '#f6643f28',        // soft red ~16%
+    icon:    '#f6643f',          // token: color.icon.danger
     label: 'Danger',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
   },
   success: {
-    bg: '#d9f6df',
-    stroke: '#02bf2b',
-    icon: '#02bf2b',
+    bg:      '#d9f6df',          // token: banner.bg.success → color.bg.success.subtlest
+    stroke:  '#02bf2b',          // token: banner.stroke.success
+    iconBg:  '#02bf2b28',        // soft green ~16%
+    icon:    '#02bf2b',          // token: color.icon.success
     label: 'Success',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M5 8L7 10.5L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
   },
   neutral: {
-    bg: '#f9fafb',
-    stroke: '#919eab',
-    icon: '#454f5b',
+    bg:      '#f9fafb',          // token: banner.bg.neutral → color.bg.subtle
+    stroke:  '#919eab',          // token: banner.stroke.neutral
+    iconBg:  '#919eab28',        // soft neutral ~16%
+    icon:    '#454f5b',          // token: color.icon.secondary
     label: 'Neutral',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <path d="M8 2a4 4 0 0 1 4 4v3l1.5 2H2.5L4 9V6a4 4 0 0 1 4-4Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M6.5 12a1.5 1.5 0 0 0 3 0" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    ),
   },
 }
 
 const IcoClose = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ display: 'block' }}>
-    <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" style={{ display: 'block' }}>
+    <path d={BANNER_MUI_PATHS.close} />
   </svg>
 )
 
@@ -201,15 +199,15 @@ function BannerComp({ type = 'info', title, description, actions, dismissible = 
           <div style={{
             width: 32,
             height: 32,
-            borderRadius: '50%',
-            background: cfg.stroke,
+            borderRadius: 8,         // token: numbers.radius.lg
+            background: cfg.iconBg,  // soft status color ~16%
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            color: '#ffffff',
+            color: cfg.icon,         // status color
           }}>
-            {cfg.iconSvg}
+            <BannerMuiIcon type={type} size={18} />
           </div>
           <div style={{ fontSize: 16, fontWeight: 500, color: '#141a21', lineHeight: 1.4, textTransform: 'capitalize' }}>
             {title}
