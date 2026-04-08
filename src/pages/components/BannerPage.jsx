@@ -103,76 +103,74 @@ function TokenTable({ tokens, prefix }) {
   )
 }
 
+// ─── MUI-style SVG icons (embedded paths — same rendering as @mui/icons-material) ─
+
+const BANNER_MUI_PATHS = {
+  // InfoRounded
+  info:    'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z',
+  // WarningRounded
+  warning: 'M4.47 21h15.06c1.54 0 2.5-1.67 1.73-3L13.73 4.99c-.77-1.33-2.69-1.33-3.46 0L2.74 18c-.77 1.33.19 3 1.73 3zM12 14c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm1 4h-2v-2h2v2z',
+  // ErrorRounded
+  danger:  'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z',
+  // CheckCircleRounded
+  success: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+  // NotificationsRounded (neutral)
+  neutral: 'M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z',
+  // CloseRounded
+  close:   'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
+}
+
+function BannerMuiIcon({ type, size = 18 }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
+      <path d={BANNER_MUI_PATHS[type] || BANNER_MUI_PATHS.info} />
+    </svg>
+  )
+}
+
 // ─── Banner type config ───────────────────────────────────────────────────────
 
 const BANNER_TYPES = {
   info: {
-    bg: '#f9fafb',
-    stroke: '#0190f6',
-    icon: '#0190f6',
+    bg:      '#f9fafb',          // token: banner.bg.info → color.bg.subtle
+    stroke:  '#0190f6',          // token: banner.stroke.info
+    iconBg:  '#0190f628',        // soft blue ~16% — token: color.bg.info
+    icon:    '#0190f6',          // token: color.icon.info
     label: 'Info',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-        <line x1="8" y1="7" x2="8" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="8" cy="5" r=".75" fill="currentColor" />
-      </svg>
-    ),
   },
   warning: {
-    bg: '#feede2',
-    stroke: '#f6873f',
-    icon: '#f6873f',
+    bg:      '#feede2',          // token: banner.bg.warning → color.bg.warning.subtlest
+    stroke:  '#f6873f',          // token: banner.stroke.warning
+    iconBg:  '#f6873f28',        // soft orange ~16%
+    icon:    '#f6873f',          // token: color.icon.warning
     label: 'Warning',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <path d="M8 2L14.5 13H1.5L8 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <line x1="8" y1="6.5" x2="8" y2="9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="8" cy="11" r=".75" fill="currentColor" />
-      </svg>
-    ),
   },
   danger: {
-    bg: '#fee8e2',
-    stroke: '#f6643f',
-    icon: '#f6643f',
+    bg:      '#fee8e2',          // token: banner.bg.danger → color.bg.danger.subtlest
+    stroke:  '#f6643f',          // token: banner.stroke.danger
+    iconBg:  '#f6643f28',        // soft red ~16%
+    icon:    '#f6643f',          // token: color.icon.danger
     label: 'Danger',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
   },
   success: {
-    bg: '#d9f6df',
-    stroke: '#02bf2b',
-    icon: '#02bf2b',
+    bg:      '#d9f6df',          // token: banner.bg.success → color.bg.success.subtlest
+    stroke:  '#02bf2b',          // token: banner.stroke.success
+    iconBg:  '#02bf2b28',        // soft green ~16%
+    icon:    '#02bf2b',          // token: color.icon.success
     label: 'Success',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M5 8L7 10.5L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
   },
   neutral: {
-    bg: '#f9fafb',
-    stroke: '#919eab',
-    icon: '#454f5b',
+    bg:      '#f9fafb',          // token: banner.bg.neutral → color.bg.subtle
+    stroke:  '#919eab',          // token: banner.stroke.neutral
+    iconBg:  '#919eab28',        // soft neutral ~16%
+    icon:    '#454f5b',          // token: color.icon.secondary
     label: 'Neutral',
-    iconSvg: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-        <path d="M8 2a4 4 0 0 1 4 4v3l1.5 2H2.5L4 9V6a4 4 0 0 1 4-4Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M6.5 12a1.5 1.5 0 0 0 3 0" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    ),
   },
 }
 
 const IcoClose = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ display: 'block' }}>
-    <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" style={{ display: 'block' }}>
+    <path d={BANNER_MUI_PATHS.close} />
   </svg>
 )
 
@@ -185,90 +183,96 @@ function BannerComp({ type = 'info', title, description, actions, dismissible = 
   return (
     <div style={{
       display: 'flex',
-      alignItems: 'flex-start',
+      flexDirection: 'column',
       gap: 10,
-      padding: '24px 24px',
+      padding: '24px',
       background: cfg.bg,
       borderRadius: 10,
-      borderLeft: `4px solid ${cfg.stroke}`,
+      border: `1px solid ${cfg.stroke}`,
       width: '100%',
       boxSizing: 'border-box',
     }}>
-      {/* Icon area */}
-      <div style={{
-        width: 32,
-        height: 32,
-        borderRadius: 6,
-        background: cfg.stroke + '20',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-        color: cfg.icon,
-        marginTop: 1,
-      }}>
-        {cfg.iconSvg}
-      </div>
-
-      {/* Content */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 16, fontWeight: 500, color: '#141a21', lineHeight: 1.4, marginBottom: description || actions ? 4 : 0 }}>
-          {title}
-        </div>
-        {description && (
-          <div style={{ fontSize: 14, fontWeight: 400, color: '#637381', lineHeight: 1.6, marginBottom: actions ? 10 : 0 }}>
-            {description}
-          </div>
-        )}
-        {actions && (
-          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-            {actions.map((action, i) => (
-              <button
-                key={i}
-                style={{
-                  padding: '5px 14px',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  borderRadius: 6,
-                  border: `1.5px solid ${i === 0 ? cfg.stroke : '#919eab'}`,
-                  background: 'transparent',
-                  color: i === 0 ? cfg.stroke : '#637381',
-                  cursor: 'pointer',
-                  lineHeight: 1.4,
-                }}
-              >
-                {action}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Close button */}
-      {dismissible && (
-        <button
-          onClick={onDismiss}
-          onMouseEnter={() => setHoverClose(true)}
-          onMouseLeave={() => setHoverClose(false)}
-          style={{
-            width: 28,
-            height: 28,
+      {/* Header row: icon + title + close button */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Icon — no bg, status color only */}
+          <div style={{
+            width: 32,
+            height: 32,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: 'none',
-            background: hoverClose ? 'rgba(69,79,91,.1)' : 'transparent',
-            borderRadius: 6,
-            cursor: 'pointer',
-            color: '#454f5b',
             flexShrink: 0,
-            padding: 0,
-            transition: 'background 120ms',
-          }}
-          aria-label="Dismiss banner"
-        >
-          <IcoClose />
-        </button>
+            color: cfg.icon,   // token: color.icon.[type]
+          }}>
+            <BannerMuiIcon type={type} size={24} />
+          </div>
+          <div style={{ fontSize: 16, fontWeight: 500, color: '#141a21', lineHeight: 1.4, textTransform: 'capitalize' }}>
+            {title}
+          </div>
+        </div>
+
+        {/* Close button */}
+        {dismissible && (
+          <button
+            onClick={onDismiss}
+            onMouseEnter={() => setHoverClose(true)}
+            onMouseLeave={() => setHoverClose(false)}
+            style={{
+              width: 32,
+              height: 32,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              background: hoverClose ? 'rgba(69,79,91,.12)' : 'transparent',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              color: '#454f5b',
+              flexShrink: 0,
+              padding: 0,
+              transition: 'background 120ms',
+            }}
+            aria-label="Dismiss banner"
+          >
+            <IcoClose />
+          </button>
+        )}
+      </div>
+
+      {/* Body — indented 40px (32px icon + 8px gap) */}
+      {(description || actions) && (
+        <div style={{ paddingLeft: 40, display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {description && (
+            <div style={{ fontSize: 16, fontWeight: 400, color: '#637381', lineHeight: 1.6 }}>
+              {description}
+            </div>
+          )}
+          {actions && (
+            <div style={{ display: 'flex', gap: 8 }}>
+              {actions.map((action, i) => (
+                <button
+                  key={i}
+                  style={{
+                    padding: '6px 14px',      // medium size — token: button.size.md
+                    fontSize: 14,
+                    fontWeight: 500,
+                    borderRadius: 8,
+                    border: i === 0 ? '1.5px solid #c4cdd5' : 'none',
+                    background: '#ffffff',
+                    color: '#454f5b',
+                    cursor: 'pointer',
+                    lineHeight: 1.5,
+                    textTransform: 'capitalize',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {action}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
@@ -441,52 +445,32 @@ export default function BannerPage() {
         <SectionAnchor id="anatomy" />
         <H2>Anatomy</H2>
         <Lead>
-          Each banner has four parts: a colored <strong>left border accent</strong>, an <strong>icon</strong> representing the type, a <strong>content area</strong> (title, description, optional actions), and an optional <strong>close button</strong>.
+          Each banner has five parts: a <strong>full border accent</strong> in the status color, a <strong>status icon</strong>, a <strong>title</strong>, an optional <strong>description + actions</strong>, and an optional <strong>close button</strong>.
         </Lead>
 
         <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden', marginBottom: 24 }}>
           <div style={{ padding: '28px 32px', background: 'var(--bg-primary)' }}>
-            {/* Annotated banner */}
-            <div style={{ position: 'relative', marginBottom: 40 }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 10,
-                padding: '20px 20px',
-                background: '#feede2',
-                borderRadius: 10,
-                borderLeft: '4px solid #f6873f',
-              }}>
-                {/* Icon */}
-                <div style={{ width: 32, height: 32, borderRadius: 6, background: '#f6873f20', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#f6873f' }}>
-                  {BANNER_TYPES.warning.iconSvg}
-                </div>
-                {/* Content */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 15, fontWeight: 500, color: '#141a21', marginBottom: 4 }}>Your trial expires in 2 days</div>
-                  <div style={{ fontSize: 13, color: '#637381', lineHeight: 1.6, marginBottom: 10 }}>Upgrade your plan to keep access to all features.</div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button style={{ padding: '4px 12px', fontSize: 12, fontWeight: 500, borderRadius: 5, border: '1.5px solid #f6873f', background: 'transparent', color: '#f6873f', cursor: 'default' }}>Upgrade now</button>
-                    <button style={{ padding: '4px 12px', fontSize: 12, fontWeight: 500, borderRadius: 5, border: '1.5px solid #919eab', background: 'transparent', color: '#637381', cursor: 'default' }}>Remind me</button>
-                  </div>
-                </div>
-                {/* Close */}
-                <div style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#454f5b' }}>
-                  <IcoClose />
-                </div>
-              </div>
-
-              {/* Annotation callouts */}
-              <div style={{ display: 'flex', gap: 24, marginTop: 16, flexWrap: 'wrap' }}>
+            {/* Annotated banner — reuse BannerComp directly */}
+            <div style={{ position: 'relative', marginBottom: 16 }}>
+              <BannerComp
+                type="warning"
+                title="Your trial expires in 2 days"
+                description="Upgrade your plan to keep access to all features."
+                actions={['Upgrade now', 'Remind me']}
+                dismissible
+                onDismiss={() => {}}
+              />
+              {/* Annotation pins */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 16px', marginTop: 20 }}>
                 {[
-                  ['① Left border', 'Colored 4 px accent. Maps to banner.stroke.[type]'],
-                  ['② Icon',        'Type icon in a tinted square. Color from banner.icon.[type]'],
-                  ['③ Title',       'Short imperative label. font-weight 500, 16 px'],
-                  ['④ Description', 'Supporting context. font-weight 400, secondary color'],
-                  ['⑤ Actions',     'Optional outlined action buttons below the description'],
-                  ['⑥ Close ×',     'Dismiss control. Color from banner.close-icon token'],
+                  ['① Border',      'Full 1px stroke in status color. Token: banner.stroke.[type]'],
+                  ['② Icon',        '24px MUI icon, status color. No background. Token: color.icon.[type]'],
+                  ['③ Title',       'Short label, font-weight 500, 16px. Token: banner.text.title'],
+                  ['④ Description', 'Supporting text, 16px, secondary color. Token: banner.text.description'],
+                  ['⑤ Actions',     'Medium-size outlined buttons (14px, padding 6×14px)'],
+                  ['⑥ Close ×',     'MUI CloseRounded, 32px hit area. Token: color.icon.secondary'],
                 ].map(([name, desc]) => (
-                  <div key={name} style={{ display: 'flex', gap: 8, alignItems: 'baseline', minWidth: 220 }}>
+                  <div key={name} style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{name}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55 }}>{desc}</span>
                   </div>
