@@ -108,28 +108,28 @@ function TokenTable({ tokens, prefix }) {
 const TOAST_TYPES = {
   success: {
     strokeColor: '#02bf2b',
-    iconBg:      '#02bf2b40',
-    iconColor:   '#02bf2b',
+    iconBg:      '#02bf2b',
+    iconColor:   '#ffffff',
   },
   warning: {
     strokeColor: '#f6873f',
-    iconBg:      '#f6873f40',
-    iconColor:   '#f6873f',
+    iconBg:      '#f6873f',
+    iconColor:   '#ffffff',
   },
   danger: {
     strokeColor: '#f6643f',
-    iconBg:      '#f6643f40',
-    iconColor:   '#f6643f',
+    iconBg:      '#f6643f',
+    iconColor:   '#ffffff',
   },
   info: {
     strokeColor: '#0190f6',
-    iconBg:      '#454f5b',
-    iconColor:   '#0190f6',
+    iconBg:      '#0190f6',
+    iconColor:   '#ffffff',
   },
   loading: {
     strokeColor: '#919eab',
     iconBg:      '#454f5b',
-    iconColor:   '#0190f6',
+    iconColor:   '#ffffff',
   },
 }
 
@@ -194,7 +194,9 @@ function ToastIcon({ type }) {
   const icons = { success: <IconSuccess />, warning: <IconWarning />, danger: <IconDanger />, info: <IconInfo />, loading: <IconLoading /> }
   return (
     <div style={{
-      width: 48, height: 48, borderRadius: 10, flexShrink: 0,
+      width: 48, height: 48,
+      borderRadius: type === 'loading' ? 10 : '50%',
+      flexShrink: 0,
       background: cfg.iconBg,
       color: cfg.iconColor,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -210,23 +212,24 @@ function ToastItem({ type = 'success', title, description, actionLabel, dismissi
   const cfg = TOAST_TYPES[type] || TOAST_TYPES.info
   return (
     <div style={{
-      display: 'flex', alignItems: 'flex-start', gap: 12,
+      display: 'flex', alignItems: 'center', gap: 10,
       background: '#1c252e',
       borderRadius: 10,
       padding: 8,
-      borderLeft: `3px solid ${cfg.strokeColor}`,
+      border: `1.5px solid ${cfg.strokeColor}`,
+      boxShadow: '0 4px 4px rgba(0,0,0,0.25)',
       width: '100%',
       boxSizing: 'border-box',
       position: 'relative',
     }}>
       <ToastIcon type={type} />
-      <div style={{ flex: 1, minWidth: 0, paddingTop: 4 }}>
-        <div style={{ fontSize: 16, fontWeight: 500, color: '#ffffff', lineHeight: 1.4 }}>{title}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 16, fontWeight: 400, color: '#ffffff', lineHeight: 1.4, textTransform: 'capitalize' }}>{title}</div>
         {description && (
           <div style={{ fontSize: 14, color: '#c4cdd5', lineHeight: 1.55, marginTop: 2 }}>{description}</div>
         )}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingTop: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
         {actionLabel && (
           <button style={{
             background: 'none', border: 'none', padding: '0 4px', cursor: 'pointer',

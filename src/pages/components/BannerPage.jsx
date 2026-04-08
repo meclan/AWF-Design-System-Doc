@@ -185,90 +185,97 @@ function BannerComp({ type = 'info', title, description, actions, dismissible = 
   return (
     <div style={{
       display: 'flex',
-      alignItems: 'flex-start',
+      flexDirection: 'column',
       gap: 10,
-      padding: '24px 24px',
+      padding: '24px',
       background: cfg.bg,
       borderRadius: 10,
-      borderLeft: `4px solid ${cfg.stroke}`,
+      border: `1px solid ${cfg.stroke}`,
       width: '100%',
       boxSizing: 'border-box',
     }}>
-      {/* Icon area */}
-      <div style={{
-        width: 32,
-        height: 32,
-        borderRadius: 6,
-        background: cfg.stroke + '20',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-        color: cfg.icon,
-        marginTop: 1,
-      }}>
-        {cfg.iconSvg}
-      </div>
-
-      {/* Content */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 16, fontWeight: 500, color: '#141a21', lineHeight: 1.4, marginBottom: description || actions ? 4 : 0 }}>
-          {title}
-        </div>
-        {description && (
-          <div style={{ fontSize: 14, fontWeight: 400, color: '#637381', lineHeight: 1.6, marginBottom: actions ? 10 : 0 }}>
-            {description}
-          </div>
-        )}
-        {actions && (
-          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-            {actions.map((action, i) => (
-              <button
-                key={i}
-                style={{
-                  padding: '5px 14px',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  borderRadius: 6,
-                  border: `1.5px solid ${i === 0 ? cfg.stroke : '#919eab'}`,
-                  background: 'transparent',
-                  color: i === 0 ? cfg.stroke : '#637381',
-                  cursor: 'pointer',
-                  lineHeight: 1.4,
-                }}
-              >
-                {action}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Close button */}
-      {dismissible && (
-        <button
-          onClick={onDismiss}
-          onMouseEnter={() => setHoverClose(true)}
-          onMouseLeave={() => setHoverClose(false)}
-          style={{
-            width: 28,
-            height: 28,
+      {/* Header row: icon + title + close button */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Icon — solid colored circle with white icon */}
+          <div style={{
+            width: 32,
+            height: 32,
+            borderRadius: '50%',
+            background: cfg.stroke,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: 'none',
-            background: hoverClose ? 'rgba(69,79,91,.1)' : 'transparent',
-            borderRadius: 6,
-            cursor: 'pointer',
-            color: '#454f5b',
             flexShrink: 0,
-            padding: 0,
-            transition: 'background 120ms',
-          }}
-          aria-label="Dismiss banner"
-        >
-          <IcoClose />
-        </button>
+            color: '#ffffff',
+          }}>
+            {cfg.iconSvg}
+          </div>
+          <div style={{ fontSize: 16, fontWeight: 500, color: '#141a21', lineHeight: 1.4, textTransform: 'capitalize' }}>
+            {title}
+          </div>
+        </div>
+
+        {/* Close button */}
+        {dismissible && (
+          <button
+            onClick={onDismiss}
+            onMouseEnter={() => setHoverClose(true)}
+            onMouseLeave={() => setHoverClose(false)}
+            style={{
+              width: 32,
+              height: 32,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              background: hoverClose ? 'rgba(69,79,91,.12)' : 'transparent',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              color: '#454f5b',
+              flexShrink: 0,
+              padding: 0,
+              transition: 'background 120ms',
+            }}
+            aria-label="Dismiss banner"
+          >
+            <IcoClose />
+          </button>
+        )}
+      </div>
+
+      {/* Body — indented 40px (32px icon + 8px gap) */}
+      {(description || actions) && (
+        <div style={{ paddingLeft: 40, display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {description && (
+            <div style={{ fontSize: 16, fontWeight: 400, color: '#637381', lineHeight: 1.6 }}>
+              {description}
+            </div>
+          )}
+          {actions && (
+            <div style={{ display: 'flex', gap: 12 }}>
+              {actions.map((action, i) => (
+                <button
+                  key={i}
+                  style={{
+                    padding: '10px 20px',
+                    fontSize: 16,
+                    fontWeight: 400,
+                    borderRadius: 8,
+                    border: i === 0 ? '1.5px solid #c4cdd5' : 'none',
+                    background: '#ffffff',
+                    color: '#454f5b',
+                    cursor: 'pointer',
+                    lineHeight: 1.5,
+                    textTransform: 'capitalize',
+                  }}
+                >
+                  {action}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
