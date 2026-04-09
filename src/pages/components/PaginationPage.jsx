@@ -144,7 +144,7 @@ function getPages(current, total, siblings = 1, boundaries = 1, truncation = tru
 function getVariantCfg(t) {
   return {
     default:    { bg: t['pagination.container.bg']          || '#ecf6fa', text: '#637381', label: 'Default'  },
-    'in-table': { bg: t['pagination.container.bg-in-table'] || '#c8e5eb', text: '#454f5b', label: 'In Table' },
+    strong: { bg: t['pagination.container.bg-in-table'] || '#c8e5eb', text: t['pagination.container.text-inverse'] || '#ffffff', label: 'Strong' },
     ghost:      { bg: 'transparent',                                       text: '#637381', label: 'Ghost'    },
     neutral:    { bg: t['pagination.container.bg-neutral']  || '#f4f6f8', text: '#637381', label: 'Neutral'  },
   }
@@ -377,7 +377,7 @@ function PaginationLive({ t = {} }) {
   return (
     <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 12, overflow: 'hidden', marginBottom: 24 }}>
       {/* Preview area */}
-      <div style={{ padding: '28px 24px', background: 'var(--bg-secondary)', minHeight: 90, display: 'flex', alignItems: 'center' }}>
+      <div style={{ padding: '28px 24px', background: 'var(--bg-primary)', minHeight: 90, display: 'flex', alignItems: 'center' }}>
         <div style={{ width: '100%' }}>
           <PaginationBar
             totalItems={totalItems}
@@ -662,8 +662,8 @@ export default function PaginationPage() {
               bg: 'var(--bg-secondary)',
             },
             {
-              variant: 'in-table',
-              title: 'In Table',
+              variant: 'strong',
+              title: 'Strong',
               desc: 'Slightly more saturated brand teal. Use as a table footer directly attached to a data grid, providing visual continuity with the table header.',
               bg: 'var(--bg-secondary)',
             },

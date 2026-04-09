@@ -66,7 +66,29 @@
       "Bash(node -e \"const d=require\\('./src/data/tokens/source/components.json'\\); Object.keys\\(d\\).forEach\\(k=>console.log\\(k\\)\\)\")",
       "Bash(node -e \"const d=require\\('./src/data/tokens/source/components.json'\\); console.log\\(JSON.stringify\\(d.toast, null, 2\\)\\)\")",
       "Bash(node -e \"const d=require\\('./src/data/tokens/source/components.json'\\); console.log\\(JSON.stringify\\(d.banner, null, 2\\)\\)\")",
-      "Bash(node -e \"const d=require\\('./src/data/tokens/source/components.json'\\); console.log\\(JSON.stringify\\(d.badge, null, 2\\)\\)\")"
+      "Bash(node -e \"const d=require\\('./src/data/tokens/source/components.json'\\); console.log\\(JSON.stringify\\(d.badge, null, 2\\)\\)\")",
+      "Bash(python3)",
+      "Bash(sed -n '/\"pagination\":/,/^  },$/p' \"/c/Users/ClémentMagne/Documents/awf-docs/src/data/tokens/source/components.json\")",
+      "Read(//tmp/**)",
+      "WebFetch(domain:newskit.co.uk)",
+      "Bash(grep -E '^\\\\s{4}\"|: \\\\{|\\\\$value')",
+      "WebFetch(domain:webcache.googleusercontent.com)",
+      "WebFetch(domain:web.archive.org)",
+      "WebSearch",
+      "WebFetch(domain:component.gallery)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(node --input-type=module)",
+      "Bash(Remove-Item -Recurse -Force \"C:\\\\Users\\\\ClémentMagne\\\\Documents\\\\awf-docs\\\\node_modules\\\\.vite\" -ErrorAction SilentlyContinue)",
+      "Bash(Write-Host \"Cache cleared\")",
+      "Bash(node -e ':*)",
+      "Bash(python3 -c ':*)",
+      "Bash(awk 'NR>=5100 && NR<=5200' \"/c/Users/ClémentMagne/Documents/awf-docs/src/data/tokens/source/components.json\")",
+      "Bash(grep -E '^\\\\s{0,8}\"[a-z]')",
+      "Bash(awk 'NR>=5050 && NR<=5110' \"/c/Users/ClémentMagne/Documents/awf-docs/src/data/tokens/source/components.json\")",
+      "Bash(grep -E '^\\\\s{0,4}\"[a-z]')",
+      "Bash(grep -n '^\\\\s\\\\{0,4\\\\}\"[a-z]' \"/c/Users/ClémentMagne/Documents/awf-docs/src/data/tokens/source/components.json\")"
     ]
   }
 }
