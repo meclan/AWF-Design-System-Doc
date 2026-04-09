@@ -103,12 +103,14 @@ function TokenTable({ tokens, prefix }) {
 
 // ─── Tag variant config ───────────────────────────────────────────────────────
 
-const TAG_VARIANTS = {
-  default:  { bg: '#def0f4', text: '#05606d', border: 'transparent',      closeColor: '#05606d', label: 'Default'  },
-  outlined: { bg: 'transparent', text: '#05606d', border: '#c4cdd5',      closeColor: '#637381', label: 'Outlined' },
-  neutral:  { bg: '#dfe3e8', text: '#454f5b', border: 'transparent',      closeColor: '#454f5b', label: 'Neutral'  },
-  'on-brand':{ bg: '#07a2b659', text: '#ffffff', border: 'transparent',   closeColor: '#ffffff', label: 'On Brand' },
-  disabled: { bg: '#f4f6f8', text: '#c4cdd5', border: 'transparent',      closeColor: '#c4cdd5', label: 'Disabled' },
+function getTagVariants(t) {
+  return {
+    default:    { bg: t['badge.tag.bg.default'],   text: t['badge.tag.text.default'],  border: 'transparent', closeColor: t['badge.tag.icon-close.default'],  label: 'Default'  },
+    outlined:   { bg: 'transparent',               text: t['badge.tag.text.outlined'], border: t['badge.tag.stroke.outlined'] || '#c4cdd5', closeColor: t['badge.tag.icon-close.outlined'] || '#637381', label: 'Outlined' },
+    neutral:    { bg: t['badge.tag.bg.neutral'],    text: t['badge.tag.text.neutral'],  border: 'transparent', closeColor: t['badge.tag.icon-close.neutral'] || '#454f5b', label: 'Neutral'  },
+    'on-brand': { bg: t['badge.tag.bg.on-brand'],   text: t['badge.tag.text.on-brand'], border: 'transparent', closeColor: t['badge.tag.icon-close.on-brand'] || '#ffffff', label: 'On Brand' },
+    disabled:   { bg: t['badge.tag.bg.disabled'],   text: t['badge.tag.text.disabled'], border: 'transparent', closeColor: t['badge.tag.icon-close.disabled'] || '#c4cdd5', label: 'Disabled' },
+  }
 }
 
 // Close icon SVG path (MUI CloseRounded)
@@ -124,8 +126,8 @@ function CloseIcon({ size = 12 }) {
 
 // ─── Tag component ────────────────────────────────────────────────────────────
 
-function Tag({ variant = 'default', label, onRemove, disabled = false }) {
-  const cfg = TAG_VARIANTS[disabled ? 'disabled' : variant] || TAG_VARIANTS.default
+function Tag({ variant = 'default', label, onRemove, disabled = false, variants = {} }) {
+  const cfg = variants[disabled ? 'disabled' : variant] || variants.default || {}
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
@@ -171,7 +173,7 @@ function Tag({ variant = 'default', label, onRemove, disabled = false }) {
 const INITIAL_TAGS = ['Design system', 'Components', 'Tokens', 'Accessibility', 'React']
 const SUGGESTIONS  = ['Figma', 'Typography', 'Motion', 'Dark mode', 'Theming', 'Grid', 'Spacing']
 
-function TagLive() {
+function TagLive({ variants = {} }) {
   const [variant,  setVariant]  = useState('default')
   const [tags,     setTags]     = useState(INITIAL_TAGS.slice(0, 3))
   const [input,    setInput]    = useState('')
@@ -196,7 +198,7 @@ function TagLive() {
       <div style={{ padding: '28px 24px', background: 'var(--bg-primary)', minHeight: 100 }}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12 }}>
           {tags.map(t => (
-            <Tag key={t} variant={variant} label={t} disabled={disabled} onRemove={() => removeTag(t)} />
+            <Tag key={t} variant={variant} label={t} disabled={disabled} onRemove={() => removeTag(t)} variants={variants} />
           ))}
           {!disabled && tags.length < 8 && (
             <input
@@ -230,7 +232,7 @@ function TagLive() {
         <div>
           <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-tertiary)', marginBottom: 6 }}>Variant</div>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-            {Object.keys(TAG_VARIANTS).map(v => (
+            {Object.keys(variants).map(v => (
               <button key={v} onClick={() => setVariant(v)} style={{
                 padding: '4px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
                 border: `1px solid ${variant === v ? 'var(--brand-600)' : 'var(--stroke-primary)'}`,
@@ -297,6 +299,8 @@ export default function TagPage() {
   const [activeSection, setActiveSection] = useState('overview')
 
   const t = getComponentTokens(activeTheme)
+  const tagVariants = getTagVariants(t)
+  const theme = VISIBLE_THEMES.find(th => th.id === activeTheme) || VISIBLE_THEMES[0]
 
   useEffect(() => {
     const main = document.querySelector('main')
@@ -352,7 +356,7 @@ export default function TagPage() {
         </div>
 
         {/* Live demo */}
-        <TagLive />
+        <TagLive variants={tagVariants} />
 
         <Divider />
 
@@ -397,7 +401,7 @@ export default function TagPage() {
         <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden', marginBottom: 24 }}>
           <div style={{ padding: '32px', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40 }}>
             <div style={{ position: 'relative' }}>
-              <Tag variant="default" label="Design system" onRemove={() => {}} />
+              <Tag variant="default" label="Design system" onRemove={() => {}} variants={tagVariants} />
               <div style={{ position: 'absolute', top: -20, left: 6, fontSize: 9, color: '#64748b', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>① Label</div>
               <div style={{ position: 'absolute', top: -20, right: -4, fontSize: 9, color: '#64748b', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>② Close</div>
             </div>
@@ -459,7 +463,7 @@ export default function TagPage() {
           ].map(row => (
             <div key={row.variant} style={{
               display: 'grid', gridTemplateColumns: '160px 1fr 1fr', gap: 16, alignItems: 'start',
-              padding: '16px 20px', background: row.variant === 'on-brand' ? '#07A2B6' : 'var(--bg-secondary)',
+              padding: '16px 20px', background: row.variant === 'on-brand' ? theme.color : 'var(--bg-secondary)',
               border: '1px solid var(--stroke-primary)', borderRadius: 8,
             }}>
               <div><Tag
@@ -467,6 +471,7 @@ export default function TagPage() {
                 disabled={row.variant === 'disabled'}
                 label={row.title}
                 onRemove={row.variant !== 'disabled' ? () => {} : undefined}
+                variants={tagVariants}
               /></div>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: row.variant === 'on-brand' ? '#fff' : 'var(--text-primary)', marginBottom: 4 }}>{row.title}</div>
@@ -491,7 +496,7 @@ export default function TagPage() {
             {
               label: 'Default',
               desc: 'Resting state. Label and close icon at full opacity.',
-              render: () => <Tag variant="default" label="Components" onRemove={() => {}} />,
+              render: () => <Tag variant="default" label="Components" onRemove={() => {}} variants={tagVariants} />,
             },
             {
               label: 'Hover (close)',
@@ -499,11 +504,11 @@ export default function TagPage() {
               render: () => (
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: 5,
-                  background: '#def0f4', color: '#05606d', borderRadius: 100,
+                  background: tagVariants.default?.bg, color: tagVariants.default?.text, borderRadius: 100,
                   padding: '3px 10px', fontSize: 13, fontWeight: 400,
                 }}>
                   Components
-                  <span style={{ display: 'flex', alignItems: 'center', color: '#05606d', opacity: 1 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', color: tagVariants.default?.text, opacity: 1 }}>
                     <CloseIcon size={12} />
                   </span>
                 </span>
@@ -512,7 +517,7 @@ export default function TagPage() {
             {
               label: 'Disabled',
               desc: 'Muted colors, no pointer events. Close icon is visible but non-interactive.',
-              render: () => <Tag variant="disabled" label="Components" disabled />,
+              render: () => <Tag variant="disabled" label="Components" disabled variants={tagVariants} />,
             },
           ].map(row => (
             <div key={row.label} style={{ border: '1px solid var(--stroke-primary)', borderRadius: 8, overflow: 'hidden' }}>
@@ -538,9 +543,9 @@ export default function TagPage() {
           <DoBox
             visual={
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                <Tag variant="default" label="React" onRemove={() => {}} />
-                <Tag variant="default" label="TypeScript" onRemove={() => {}} />
-                <Tag variant="default" label="Design system" onRemove={() => {}} />
+                <Tag variant="default" label="React" onRemove={() => {}} variants={tagVariants} />
+                <Tag variant="default" label="TypeScript" onRemove={() => {}} variants={tagVariants} />
+                <Tag variant="default" label="Design system" onRemove={() => {}} variants={tagVariants} />
               </div>
             }
           >
@@ -548,7 +553,7 @@ export default function TagPage() {
           </DoBox>
           <DontBox
             visual={
-              <Tag variant="default" label="Please tag this item with the correct category" onRemove={() => {}} />
+              <Tag variant="default" label="Please tag this item with the correct category" onRemove={() => {}} variants={tagVariants} />
             }
           >
             Do not put <strong>long sentences</strong> in a tag. The pill shape breaks visually and truncation is unexpected.
@@ -556,9 +561,9 @@ export default function TagPage() {
           <DoBox
             visual={
               <div style={{ display: 'flex', gap: 6 }}>
-                <Tag variant="default" label="Bug" onRemove={() => {}} />
-                <Tag variant="neutral" label="v2.1" onRemove={() => {}} />
-                <Tag variant="outlined" label="Archived" onRemove={() => {}} />
+                <Tag variant="default" label="Bug" onRemove={() => {}} variants={tagVariants} />
+                <Tag variant="neutral" label="v2.1" onRemove={() => {}} variants={tagVariants} />
+                <Tag variant="outlined" label="Archived" onRemove={() => {}} variants={tagVariants} />
               </div>
             }
           >
@@ -567,9 +572,9 @@ export default function TagPage() {
           <DontBox
             visual={
               <div style={{ display: 'flex', gap: 6 }}>
-                <Tag variant="default" label="Bug" onRemove={() => {}} />
-                <Tag variant="on-brand" label="v2.1" onRemove={() => {}} />
-                <Tag variant="on-brand" label="Archived" onRemove={() => {}} />
+                <Tag variant="default" label="Bug" onRemove={() => {}} variants={tagVariants} />
+                <Tag variant="on-brand" label="v2.1" onRemove={() => {}} variants={tagVariants} />
+                <Tag variant="on-brand" label="Archived" onRemove={() => {}} variants={tagVariants} />
               </div>
             }
           >
@@ -605,9 +610,9 @@ export default function TagPage() {
         <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
           <div style={{ padding: '12px 16px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--stroke-primary)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>Filters:</span>
-            <Tag variant="default" label="Status: Active" onRemove={() => {}} />
-            <Tag variant="default" label="Assignee: Me" onRemove={() => {}} />
-            <Tag variant="default" label="Priority: High" onRemove={() => {}} />
+            <Tag variant="default" label="Status: Active" onRemove={() => {}} variants={tagVariants} />
+            <Tag variant="default" label="Assignee: Me" onRemove={() => {}} variants={tagVariants} />
+            <Tag variant="default" label="Priority: High" onRemove={() => {}} variants={tagVariants} />
             <button style={{ fontSize: 12, color: '#0190f6', background: 'none', border: 'none', cursor: 'pointer', padding: '0 4px', fontFamily: 'inherit' }}>Clear all</button>
           </div>
           <div style={{ padding: '10px 16px', background: 'var(--bg-primary)' }}>
@@ -632,12 +637,12 @@ export default function TagPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 10, alignItems: 'start' }}>
             <span style={{ fontSize: 12, color: 'var(--text-tertiary)', paddingTop: 2 }}>Labels</span>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <Tag variant="default"  label="Bug" onRemove={() => {}} />
-              <Tag variant="neutral"  label="Frontend" onRemove={() => {}} />
-              <Tag variant="outlined" label="Good first issue" onRemove={() => {}} />
+              <Tag variant="default"  label="Bug" onRemove={() => {}} variants={tagVariants} />
+              <Tag variant="neutral"  label="Frontend" onRemove={() => {}} variants={tagVariants} />
+              <Tag variant="outlined" label="Good first issue" onRemove={() => {}} variants={tagVariants} />
             </div>
             <span style={{ fontSize: 12, color: 'var(--text-tertiary)', paddingTop: 2 }}>Milestone</span>
-            <Tag variant="neutral" label="v2.3 release" onRemove={() => {}} />
+            <Tag variant="neutral" label="v2.3 release" onRemove={() => {}} variants={tagVariants} />
           </div>
         </div>
 
@@ -674,7 +679,7 @@ export default function TagPage() {
         <SectionAnchor id="tokens" />
         <H2>Token reference</H2>
         <Lead>All Tag visual properties map to the <Code>badge.tag.*</Code> token set.</Lead>
-        <TokenTable tokens={TAG_TOKENS_STATIC} prefix="badge.tag" />
+        <TokenTable tokens={t} prefix="badge.tag" />
 
       </div>
 

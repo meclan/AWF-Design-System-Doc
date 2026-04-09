@@ -103,14 +103,16 @@ function TokenTable({ tokens, prefix }) {
 
 // ─── Counter badge config ─────────────────────────────────────────────────────
 
-const COLOR_CONFIG = {
-  dark:    { bg: '#141a21', text: '#ffffff', label: 'Dark'    },
-  neutral: { bg: '#c4cdd5', text: '#141a21', label: 'Neutral' },
-  light:   { bg: '#ffffff', text: '#141a21', label: 'Light', border: '#e0e5ea' },
-  brand:   { bg: '#07a2b6', text: '#ffffff', label: 'Brand'   },
-  success: { bg: '#02bf2b', text: '#ffffff', label: 'Success' },
-  warning: { bg: '#f6873f', text: '#ffffff', label: 'Warning' },
-  danger:  { bg: '#f6643f', text: '#ffffff', label: 'Danger'  },
+function getColorConfig(t) {
+  return {
+    dark:    { bg: t['badge.counter.bg.dark']    || '#141a21', text: t['badge.counter.text.inverse'] || '#ffffff', label: 'Dark'    },
+    neutral: { bg: t['badge.counter.bg.neutral'] || '#c4cdd5', text: t['badge.counter.text.inverse'] || '#141a21', label: 'Neutral' },
+    light:   { bg: t['badge.counter.bg.light']   || '#ffffff', text: t['badge.counter.text.inverse'] || '#141a21', label: 'Light', border: '#e0e5ea' },
+    brand:   { bg: t['badge.counter.bg.brand']   || '#07a2b6', text: t['badge.counter.text.default'] || '#ffffff', label: 'Brand'   },
+    success: { bg: t['badge.counter.bg.success'] || '#02bf2b', text: '#ffffff', label: 'Success' },
+    warning: { bg: t['badge.counter.bg.warning'] || '#f6873f', text: '#ffffff', label: 'Warning' },
+    danger:  { bg: t['badge.counter.bg.danger']  || '#f6643f', text: '#ffffff', label: 'Danger'  },
+  }
 }
 
 const SIZE_CONFIG = {
@@ -138,8 +140,8 @@ function MuiSvg({ path, size = 20, color = 'currentColor' }) {
 
 // ─── CounterBadge component ───────────────────────────────────────────────────
 
-function CounterBadge({ color = 'dark', size = 'md', count = 3, overflow = false }) {
-  const cfg = COLOR_CONFIG[color] || COLOR_CONFIG.dark
+function CounterBadge({ color = 'dark', size = 'md', count = 3, overflow = false, colorConfig = {} }) {
+  const cfg = colorConfig[color] || colorConfig.dark || {}
   const sz  = SIZE_CONFIG[size]  || SIZE_CONFIG.md
 
   const label = overflow ? '99+' : count > 99 ? '99+' : String(count)
@@ -168,7 +170,7 @@ function CounterBadge({ color = 'dark', size = 'md', count = 3, overflow = false
 
 // ─── IconWithBadge — shows overlay positioning ────────────────────────────────
 
-function IconWithBadge({ iconPath, badgeColor, badgeSize, count, label }) {
+function IconWithBadge({ iconPath, badgeColor, badgeSize, count, label, colorConfig }) {
   const sz = SIZE_CONFIG[badgeSize] || SIZE_CONFIG.md
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
@@ -177,7 +179,7 @@ function IconWithBadge({ iconPath, badgeColor, badgeSize, count, label }) {
           <MuiSvg path={iconPath} size={22} color="currentColor" />
         </div>
         <span style={{ position: 'absolute', top: -(sz.height / 2 - 4), right: -(sz.minWidth / 2 - 4) }}>
-          <CounterBadge color={badgeColor} size={badgeSize} count={count} />
+          <CounterBadge color={badgeColor} size={badgeSize} count={count} colorConfig={colorConfig} />
         </span>
       </div>
       <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{label}</span>
@@ -187,7 +189,7 @@ function IconWithBadge({ iconPath, badgeColor, badgeSize, count, label }) {
 
 // ─── Live preview ─────────────────────────────────────────────────────────────
 
-function CounterBadgeLive() {
+function CounterBadgeLive({ colorConfig = {} }) {
   const [color,    setColor]    = useState('dark')
   const [size,     setSize]     = useState('md')
   const [count,    setCount]    = useState(3)
@@ -198,7 +200,7 @@ function CounterBadgeLive() {
       <div style={{ padding: '32px 24px', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, minHeight: 100 }}>
         {/* Standalone */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-          <CounterBadge color={color} size={size} count={count} overflow={overflow} />
+          <CounterBadge color={color} size={size} count={count} overflow={overflow} colorConfig={colorConfig} />
           <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>standalone</span>
         </div>
         {/* On icon */}
@@ -208,7 +210,7 @@ function CounterBadgeLive() {
               <MuiSvg path={BELL_PATH} size={22} />
             </div>
             <span style={{ position: 'absolute', top: -6, right: -6 }}>
-              <CounterBadge color={color} size={size} count={count} overflow={overflow} />
+              <CounterBadge color={color} size={size} count={count} overflow={overflow} colorConfig={colorConfig} />
             </span>
           </div>
           <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>on icon</span>
@@ -219,7 +221,7 @@ function CounterBadgeLive() {
         <div>
           <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-tertiary)', marginBottom: 6 }}>Color</div>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-            {Object.keys(COLOR_CONFIG).map(c => (
+            {Object.keys(colorConfig).map(c => (
               <button key={c} onClick={() => setColor(c)} style={{
                 padding: '4px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
                 border: `1px solid ${color === c ? 'var(--brand-600)' : 'var(--stroke-primary)'}`,
@@ -315,6 +317,7 @@ export default function CounterBadgePage() {
   const [activeSection, setActiveSection] = useState('overview')
 
   const t = getComponentTokens(activeTheme)
+  const colorConfig = getColorConfig(t)
 
   useEffect(() => {
     const main = document.querySelector('main')
@@ -370,7 +373,7 @@ export default function CounterBadgePage() {
         </div>
 
         {/* Live demo */}
-        <CounterBadgeLive />
+        <CounterBadgeLive colorConfig={colorConfig} />
 
         <Divider />
 
@@ -421,7 +424,7 @@ export default function CounterBadgePage() {
                   <MuiSvg path={BELL_PATH} size={24} />
                 </div>
                 <span style={{ position: 'absolute', top: -8, right: -8 }}>
-                  <CounterBadge color="dark" size="md" count={4} />
+                  <CounterBadge color="dark" size="md" count={4} colorConfig={colorConfig} />
                 </span>
               </div>
               {/* Annotations */}
@@ -462,9 +465,9 @@ export default function CounterBadgePage() {
             { color: 'danger',  desc: 'Red. Signals urgency — unread critical alerts, overdue items.' },
           ].map(row => (
             <div key={row.color} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '12px 16px', background: row.color === 'light' ? '#e5e7eb' : 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 8 }}>
-              <CounterBadge color={row.color} size="md" count={3} />
+              <CounterBadge color={row.color} size="md" count={3} colorConfig={colorConfig} />
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>{COLOR_CONFIG[row.color].label}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>{colorConfig[row.color]?.label}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{row.desc}</div>
               </div>
             </div>
@@ -491,7 +494,7 @@ export default function CounterBadgePage() {
                   <MuiSvg path={BELL_PATH} size={row.iconSize} />
                 </div>
                 <span style={{ position: 'absolute', top: -6, right: -8 }}>
-                  <CounterBadge color="dark" size={row.size} count={5} />
+                  <CounterBadge color="dark" size={row.size} count={5} colorConfig={colorConfig} />
                 </span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55 }}>{row.desc}</div>
@@ -509,16 +512,16 @@ export default function CounterBadgePage() {
         <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 10, padding: '24px', display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 20 }}>
           {[1, 9, 12, 42, 99].map(n => (
             <div key={n} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-              <CounterBadge color="dark" size="md" count={n} />
+              <CounterBadge color="dark" size="md" count={n} colorConfig={colorConfig} />
               <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{n}</span>
             </div>
           ))}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <CounterBadge color="dark" size="md" count={100} />
+            <CounterBadge color="dark" size="md" count={100} colorConfig={colorConfig} />
             <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>100 → 99+</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <CounterBadge color="dark" size="md" count={999} />
+            <CounterBadge color="dark" size="md" count={999} colorConfig={colorConfig} />
             <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>999 → 99+</span>
           </div>
         </div>
@@ -533,10 +536,10 @@ export default function CounterBadgePage() {
         <Lead>Counter badges always sit at the top-right corner of their host element. Use CSS position: absolute on the badge inside a position: relative host.</Lead>
 
         <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 10, padding: '28px 24px', display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'center', marginBottom: 20 }}>
-          <IconWithBadge iconPath={BELL_PATH}  badgeColor="danger"  badgeSize="md" count={4}  label="Notifications" />
-          <IconWithBadge iconPath={MAIL_PATH}  badgeColor="brand"   badgeSize="md" count={12} label="Messages" />
-          <IconWithBadge iconPath={CART_PATH}  badgeColor="dark"    badgeSize="md" count={3}  label="Cart" />
-          <IconWithBadge iconPath={CHAT_PATH}  badgeColor="success" badgeSize="md" count={99} label="Chat" />
+          <IconWithBadge iconPath={BELL_PATH}  badgeColor="danger"  badgeSize="md" count={4}  label="Notifications" colorConfig={colorConfig} />
+          <IconWithBadge iconPath={MAIL_PATH}  badgeColor="brand"   badgeSize="md" count={12} label="Messages" colorConfig={colorConfig} />
+          <IconWithBadge iconPath={CART_PATH}  badgeColor="dark"    badgeSize="md" count={3}  label="Cart" colorConfig={colorConfig} />
+          <IconWithBadge iconPath={CHAT_PATH}  badgeColor="success" badgeSize="md" count={99} label="Chat" colorConfig={colorConfig} />
         </div>
 
         <H3>CSS recipe</H3>
@@ -568,14 +571,14 @@ export default function CounterBadgePage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
           <DoBox
             visual={
-              <IconWithBadge iconPath={BELL_PATH} badgeColor="danger" badgeSize="md" count={3} label="Alerts" />
+              <IconWithBadge iconPath={BELL_PATH} badgeColor="danger" badgeSize="md" count={3} label="Alerts" colorConfig={colorConfig} />
             }
           >
             Use <strong>danger</strong> color for counts representing errors or critical alerts. The red color signals urgency immediately.
           </DoBox>
           <DontBox
             visual={
-              <IconWithBadge iconPath={BELL_PATH} badgeColor="success" badgeSize="md" count={3} label="Alerts" />
+              <IconWithBadge iconPath={BELL_PATH} badgeColor="success" badgeSize="md" count={3} label="Alerts" colorConfig={colorConfig} />
             }
           >
             Do not use <strong>success</strong> color for alert counts. Green implies a positive state, which contradicts an unresolved alert.
@@ -583,8 +586,8 @@ export default function CounterBadgePage() {
           <DoBox
             visual={
               <div style={{ display: 'flex', gap: 24 }}>
-                <IconWithBadge iconPath={BELL_PATH} badgeColor="dark" badgeSize="sm" count={2} label="sm on small" />
-                <IconWithBadge iconPath={CART_PATH}  badgeColor="dark" badgeSize="md" count={2} label="md on medium" />
+                <IconWithBadge iconPath={BELL_PATH} badgeColor="dark" badgeSize="sm" count={2} label="sm on small" colorConfig={colorConfig} />
+                <IconWithBadge iconPath={CART_PATH}  badgeColor="dark" badgeSize="md" count={2} label="md on medium" colorConfig={colorConfig} />
               </div>
             }
           >
@@ -592,7 +595,7 @@ export default function CounterBadgePage() {
           </DoBox>
           <DontBox
             visual={
-              <IconWithBadge iconPath={BELL_PATH} badgeColor="dark" badgeSize="lg" count={2} label="lg on small" />
+              <IconWithBadge iconPath={BELL_PATH} badgeColor="dark" badgeSize="lg" count={2} label="lg on small" colorConfig={colorConfig} />
             }
           >
             Do not put a <strong>large badge on a small icon</strong>. The badge should complement the host, not overpower it.
@@ -635,7 +638,7 @@ export default function CounterBadgePage() {
                 <div key={i} style={{ position: 'relative', width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c4cdd5', cursor: 'pointer' }}>
                   <MuiSvg path={item.icon} size={20} />
                   <span style={{ position: 'absolute', top: -4, right: -4 }}>
-                    <CounterBadge color={item.color} size="sm" count={item.count} />
+                    <CounterBadge color={item.color} size="sm" count={item.count} colorConfig={colorConfig} />
                   </span>
                 </div>
               ))}
@@ -655,7 +658,7 @@ export default function CounterBadgePage() {
           <div style={{ padding: '14px 18px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--stroke-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>Notifications</span>
-              <CounterBadge color="danger" size="md" count={3} />
+              <CounterBadge color="danger" size="md" count={3} colorConfig={colorConfig} />
             </div>
             <span style={{ fontSize: 12, color: '#0190f6', cursor: 'pointer' }}>Mark all read</span>
           </div>
@@ -665,7 +668,7 @@ export default function CounterBadgePage() {
             { title: 'Backup completed',  time: '1 h ago',    color: 'success' },
           ].map((notif, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px', borderBottom: i < 2 ? '1px solid var(--stroke-primary)' : 'none', background: 'var(--bg-primary)' }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: COLOR_CONFIG[notif.color].bg, flexShrink: 0 }} />
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: colorConfig[notif.color]?.bg, flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{notif.title}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>{notif.time}</div>
@@ -706,7 +709,7 @@ export default function CounterBadgePage() {
         <SectionAnchor id="tokens" />
         <H2>Token reference</H2>
         <Lead>All counter badge visual properties map to the <Code>badge.number.*</Code> token set.</Lead>
-        <TokenTable tokens={COUNTER_TOKENS_STATIC} prefix="badge.number" />
+        <TokenTable tokens={t} prefix="badge.counter" />
 
       </div>
 

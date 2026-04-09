@@ -141,18 +141,22 @@ function getPages(current, total, siblings = 1, boundaries = 1, truncation = tru
 
 // ─── Pagination config ────────────────────────────────────────────────────────
 
-const VARIANT_CFG = {
-  default:    { bg: '#ecf6fa', text: '#637381', label: 'Default'  },
-  'in-table': { bg: '#c8e5eb', text: '#454f5b', label: 'In Table' },
-  ghost:      { bg: 'transparent', text: '#637381', label: 'Ghost' },
-  neutral:    { bg: '#f4f6f8', text: '#637381', label: 'Neutral'  },
+function getVariantCfg(t) {
+  return {
+    default:    { bg: t['pagination.container.bg']          || '#ecf6fa', text: '#637381', label: 'Default'  },
+    'in-table': { bg: t['pagination.container.bg-in-table'] || '#c8e5eb', text: '#454f5b', label: 'In Table' },
+    ghost:      { bg: 'transparent',                                       text: '#637381', label: 'Ghost'    },
+    neutral:    { bg: t['pagination.container.bg-neutral']  || '#f4f6f8', text: '#637381', label: 'Neutral'  },
+  }
 }
 
-const BTN = {
-  default:  { bg: '#ffffff', text: '#637381', border: '#c4cdd5' },
-  hover:    { bg: '#dfe3e8', text: '#454f5b', border: '#c4cdd5' },
-  active:   { bg: '#07a2b6', text: '#ffffff', border: 'transparent' },
-  disabled: { bg: '#f4f6f8', text: '#c4cdd5', border: 'transparent' },
+function getBtnCfg(t) {
+  return {
+    default:  { bg: '#ffffff', text: '#637381', border: '#c4cdd5' },
+    hover:    { bg: '#dfe3e8', text: '#454f5b', border: '#c4cdd5' },
+    active:   { bg: t['pagination.page.bg.active']      || '#07a2b6', text: t['pagination.page.content.active'] || '#ffffff', border: 'transparent' },
+    disabled: { bg: '#f4f6f8', text: '#c4cdd5', border: 'transparent' },
+  }
 }
 
 const BTN_SIZE = 36   // px — matches token pagination.page.default-size
@@ -160,10 +164,10 @@ const BTN_RADIUS = 10 // px — matches token pagination.page.radius
 
 // ─── PageButton ───────────────────────────────────────────────────────────────
 
-function PageButton({ children, isActive = false, isDisabled = false, onClick, title, minWidth }) {
+function PageButton({ children, isActive = false, isDisabled = false, onClick, title, minWidth, btnCfg = {} }) {
   const [hovered, setHovered] = useState(false)
   const state = isDisabled ? 'disabled' : isActive ? 'active' : hovered ? 'hover' : 'default'
-  const s = BTN[state]
+  const s = btnCfg[state] || {}
   return (
     <button
       onClick={isDisabled ? undefined : onClick}
@@ -227,8 +231,10 @@ function PaginationBar({
   pageSizeOptions = [5, 10, 25, 50],
   onPageSizeChange,
   variant = 'default',
+  variantCfg = {},
+  btnCfg = {},
 }) {
-  const vcfg = VARIANT_CFG[variant] || VARIANT_CFG.default
+  const vcfg = variantCfg[variant] || variantCfg.default || {}
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
   const pages = getPages(currentPage, totalPages, siblings, boundaries, truncation)
 
@@ -260,6 +266,7 @@ function PaginationBar({
             isDisabled={currentPage === 1}
             onClick={() => onPageChange?.(1)}
             title="First page"
+            btnCfg={btnCfg}
           >
             <MuiSvg d={ICON_PATHS.chevronDoubleLeft} size={14} />
           </PageButton>
@@ -269,6 +276,7 @@ function PaginationBar({
           isDisabled={currentPage === 1}
           onClick={() => onPageChange?.(currentPage - 1)}
           title="Previous page"
+          btnCfg={btnCfg}
         >
           <MuiSvg d={ICON_PATHS.chevronLeft} size={14} />
         </PageButton>
@@ -283,6 +291,7 @@ function PaginationBar({
               isActive={p === currentPage}
               onClick={() => onPageChange?.(p)}
               title={`Page ${p}`}
+              btnCfg={btnCfg}
             >
               {p}
             </PageButton>
@@ -294,6 +303,7 @@ function PaginationBar({
           isDisabled={currentPage === totalPages}
           onClick={() => onPageChange?.(currentPage + 1)}
           title="Next page"
+          btnCfg={btnCfg}
         >
           <MuiSvg d={ICON_PATHS.chevronRight} size={14} />
         </PageButton>
@@ -303,6 +313,7 @@ function PaginationBar({
             isDisabled={currentPage === totalPages}
             onClick={() => onPageChange?.(totalPages)}
             title="Last page"
+            btnCfg={btnCfg}
           >
             <MuiSvg d={ICON_PATHS.chevronDoubleRight} size={14} />
           </PageButton>
@@ -344,7 +355,9 @@ function PaginationBar({
 
 // ─── Live demo ────────────────────────────────────────────────────────────────
 
-function PaginationLive() {
+function PaginationLive({ t = {} }) {
+  const variantCfg = getVariantCfg(t)
+  const btnCfg = getBtnCfg(t)
   const [page,          setPage]          = useState(3)
   const [pageSize,      setPageSize]      = useState(10)
   const [variant,       setVariant]       = useState('default')
@@ -379,6 +392,8 @@ function PaginationLive() {
             showPageSizer={showSizer}
             showFirstLast={showFirstLast}
             variant={variant}
+            variantCfg={variantCfg}
+            btnCfg={btnCfg}
           />
         </div>
       </div>
@@ -389,7 +404,7 @@ function PaginationLive() {
         <div>
           <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-tertiary)', marginBottom: 6 }}>Variant</div>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-            {Object.entries(VARIANT_CFG).map(([v, cfg]) => (
+            {Object.entries(variantCfg).map(([v, cfg]) => (
               <button key={v} onClick={() => setVariant(v)} style={{
                 padding: '4px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
                 border: `1px solid ${variant === v ? 'var(--brand-600)' : 'var(--stroke-primary)'}`,
@@ -484,6 +499,10 @@ export default function PaginationPage() {
   const [activeTheme,   setActiveTheme]   = useState('dot')
   const [activeSection, setActiveSection] = useState('overview')
 
+  const t = getComponentTokens(activeTheme)
+  const variantCfg = getVariantCfg(t)
+  const btnCfg = getBtnCfg(t)
+
   useEffect(() => {
     const main = document.querySelector('main')
     if (!main) return
@@ -538,7 +557,7 @@ export default function PaginationPage() {
         </div>
 
         {/* Live demo */}
-        <PaginationLive />
+        <PaginationLive t={t} />
 
         <Divider />
 
@@ -595,6 +614,8 @@ export default function PaginationPage() {
                 showResultCount={true}
                 showPageSizer={true}
                 variant="default"
+                variantCfg={variantCfg}
+                btnCfg={btnCfg}
               />
               {/* Annotation labels */}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, paddingLeft: 4, paddingRight: 80 }}>
@@ -673,6 +694,8 @@ export default function PaginationPage() {
                 siblings={1}
                 boundaries={1}
                 variant={row.variant}
+                variantCfg={variantCfg}
+                btnCfg={btnCfg}
               />
             </div>
           ))}
@@ -705,14 +728,14 @@ export default function PaginationPage() {
               label: 'Active / Selected',
               desc: 'Brand teal background, white text, no border.',
               render: () => (
-                <button style={{ width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_RADIUS, border: '1px solid transparent', background: '#07a2b6', color: '#fff', fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'default' }}>5</button>
+                <button style={{ width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_RADIUS, border: '1px solid transparent', background: btnCfg.active?.bg || '#07a2b6', color: btnCfg.active?.text || '#fff', fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'default' }}>5</button>
               ),
             },
             {
               label: 'Focus',
               desc: 'Keyboard focus ring (2px offset) around the button. Tab order: first item → sequential → last item.',
               render: () => (
-                <button style={{ width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_RADIUS, border: '1px solid #c4cdd5', background: '#fff', color: '#637381', fontSize: 14, fontFamily: 'inherit', cursor: 'default', outline: '2px solid #07a2b6', outlineOffset: 2 }}>5</button>
+                <button style={{ width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_RADIUS, border: '1px solid #c4cdd5', background: '#fff', color: '#637381', fontSize: 14, fontFamily: 'inherit', cursor: 'default', outline: `2px solid ${btnCfg.active?.bg || '#07a2b6'}`, outlineOffset: 2 }}>5</button>
               ),
             },
             {
@@ -760,12 +783,12 @@ export default function PaginationPage() {
           ].map(row => (
             <div key={row.label} style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: 12, alignItems: 'center' }}>
               <span style={{ fontSize: 12, color: 'var(--text-tertiary)', textAlign: 'right' }}>{row.label}</span>
-              <PaginationBar totalItems={250} pageSize={10} currentPage={row.page} showResultCount={false} showPageSizer={false} truncation={true} siblings={1} boundaries={1} variant="default" />
+              <PaginationBar totalItems={250} pageSize={10} currentPage={row.page} showResultCount={false} showPageSizer={false} truncation={true} siblings={1} boundaries={1} variant="default" variantCfg={variantCfg} btnCfg={btnCfg} />
             </div>
           ))}
           <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: 12, alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'var(--text-tertiary)', textAlign: 'right' }}>Truncation off</span>
-            <PaginationBar totalItems={60} pageSize={10} currentPage={3} showResultCount={false} showPageSizer={false} truncation={false} siblings={1} boundaries={1} variant="default" />
+            <PaginationBar totalItems={60} pageSize={10} currentPage={3} showResultCount={false} showPageSizer={false} truncation={false} siblings={1} boundaries={1} variant="default" variantCfg={variantCfg} btnCfg={btnCfg} />
           </div>
         </div>
 
@@ -776,7 +799,7 @@ export default function PaginationPage() {
           {[1, 2, 3].map(s => (
             <div key={s} style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: 12, alignItems: 'center' }}>
               <span style={{ fontSize: 12, color: 'var(--text-tertiary)', textAlign: 'right' }}>siblings = {s}</span>
-              <PaginationBar totalItems={200} pageSize={10} currentPage={10} showResultCount={false} showPageSizer={false} truncation={true} siblings={s} boundaries={1} variant="default" />
+              <PaginationBar totalItems={200} pageSize={10} currentPage={10} showResultCount={false} showPageSizer={false} truncation={true} siblings={s} boundaries={1} variant="default" variantCfg={variantCfg} btnCfg={btnCfg} />
             </div>
           ))}
         </div>
@@ -785,14 +808,14 @@ export default function PaginationPage() {
         <H3>First &amp; Last buttons</H3>
         <P>Add double-chevron buttons to jump to the first or last page. Useful for very large datasets where getting back to page 1 would require many clicks.</P>
         <div style={{ marginBottom: 20 }}>
-          <PaginationBar totalItems={500} pageSize={10} currentPage={25} showResultCount={true} showPageSizer={false} showFirstLast={true} truncation={true} siblings={1} boundaries={1} variant="default" />
+          <PaginationBar totalItems={500} pageSize={10} currentPage={25} showResultCount={true} showPageSizer={false} showFirstLast={true} truncation={true} siblings={1} boundaries={1} variant="default" variantCfg={variantCfg} btnCfg={btnCfg} />
         </div>
 
         {/* Page size selector */}
         <H3>Page size selector</H3>
         <P>Lets users choose how many items appear per page. Standard options are 5, 10, 25, 50. Changing the page size always resets to page 1.</P>
         <div style={{ marginBottom: 20 }}>
-          <PaginationBar totalItems={247} pageSize={25} currentPage={2} showResultCount={true} showPageSizer={true} truncation={true} siblings={1} boundaries={1} variant="default" />
+          <PaginationBar totalItems={247} pageSize={25} currentPage={2} showResultCount={true} showPageSizer={true} truncation={true} siblings={1} boundaries={1} variant="default" variantCfg={variantCfg} btnCfg={btnCfg} />
         </div>
 
         <Divider />
@@ -806,7 +829,7 @@ export default function PaginationPage() {
           <DoBox
             visual={
               <div style={{ width: '100%' }}>
-                <PaginationBar totalItems={120} pageSize={10} currentPage={2} showResultCount={true} showPageSizer={false} truncation={true} siblings={1} boundaries={1} variant="default" />
+                <PaginationBar totalItems={120} pageSize={10} currentPage={2} showResultCount={true} showPageSizer={false} truncation={true} siblings={1} boundaries={1} variant="default" variantCfg={variantCfg} btnCfg={btnCfg} />
               </div>
             }
           >
@@ -815,7 +838,7 @@ export default function PaginationPage() {
           <DontBox
             visual={
               <div style={{ width: '100%' }}>
-                <PaginationBar totalItems={12} pageSize={10} currentPage={1} showResultCount={true} showPageSizer={false} truncation={false} siblings={1} boundaries={1} variant="default" />
+                <PaginationBar totalItems={12} pageSize={10} currentPage={1} showResultCount={true} showPageSizer={false} truncation={false} siblings={1} boundaries={1} variant="default" variantCfg={variantCfg} btnCfg={btnCfg} />
               </div>
             }
           >
@@ -824,7 +847,7 @@ export default function PaginationPage() {
           <DoBox
             visual={
               <div style={{ width: '100%' }}>
-                <PaginationBar totalItems={200} pageSize={10} currentPage={5} showResultCount={true} showPageSizer={true} truncation={true} siblings={1} boundaries={1} variant="default" />
+                <PaginationBar totalItems={200} pageSize={10} currentPage={5} showResultCount={true} showPageSizer={true} truncation={true} siblings={1} boundaries={1} variant="default" variantCfg={variantCfg} btnCfg={btnCfg} />
               </div>
             }
           >
@@ -880,7 +903,7 @@ export default function PaginationPage() {
             ))}
             <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--stroke-primary)', textAlign: 'center', fontSize: 12, color: 'var(--text-tertiary)' }}>… 7 more rows …</div>
             <div style={{ padding: '12px 16px' }}>
-              <PaginationBar totalItems={247} pageSize={10} currentPage={3} showResultCount={true} showPageSizer={true} truncation={true} siblings={1} boundaries={1} variant="default" />
+              <PaginationBar totalItems={247} pageSize={10} currentPage={3} showResultCount={true} showPageSizer={true} truncation={true} siblings={1} boundaries={1} variant="default" variantCfg={variantCfg} btnCfg={btnCfg} />
             </div>
           </div>
         </div>
@@ -890,7 +913,7 @@ export default function PaginationPage() {
         <P>When embedded in a table, use the <Code>in-table</Code> variant. The slightly more saturated container connects visually to the table header and signals that the pagination controls this specific table.</P>
         <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden' }}>
           {/* Table header */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', padding: '10px 16px', background: '#07a2b6', borderBottom: '1px solid rgba(0,0,0,.1)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', padding: '10px 16px', background: btnCfg.active?.bg || '#07a2b6', borderBottom: '1px solid rgba(0,0,0,.1)' }}>
             {['Name', 'Role', 'Department', 'Status'].map(h => (
               <span key={h} style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#ffffff' }}>{h}</span>
             ))}
@@ -910,7 +933,7 @@ export default function PaginationPage() {
             </div>
           ))}
           {/* Pagination footer */}
-          <PaginationBar totalItems={148} pageSize={10} currentPage={2} showResultCount={true} showPageSizer={true} truncation={true} siblings={1} boundaries={1} variant="in-table" />
+          <PaginationBar totalItems={148} pageSize={10} currentPage={2} showResultCount={true} showPageSizer={true} truncation={true} siblings={1} boundaries={1} variant="in-table" variantCfg={variantCfg} btnCfg={btnCfg} />
         </div>
 
         <Divider />
@@ -948,7 +971,7 @@ export default function PaginationPage() {
         <SectionAnchor id="tokens" />
         <H2>Token reference</H2>
         <Lead>All pagination visual properties map to the <Code>pagination.*</Code> token set.</Lead>
-        <TokenTable tokens={PAGINATION_TOKENS_STATIC} prefix="pagination" />
+        <TokenTable tokens={t} prefix="pagination" />
 
       </div>
 
