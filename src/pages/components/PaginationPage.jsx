@@ -829,7 +829,7 @@ export default function PaginationPage() {
             }
           >
             Always show the <strong>result count</strong> alongside pagination. "Showing 41–50 of 200 results" gives users the context to decide whether to page forward or refine their search.
-          </DontBox>
+          </DoBox>
           <DontBox>
             Don't rely on pagination <strong>alone</strong> to help users find an item. Always pair it with search, sort, or filter controls so users can narrow down results instead of browsing every page.
           </DontBox>
