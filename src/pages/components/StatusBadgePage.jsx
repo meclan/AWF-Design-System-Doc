@@ -156,7 +156,7 @@ function StatusBadgeLive() {
 
   return (
     <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 12, overflow: 'hidden', marginBottom: 24 }}>
-      <div style={{ padding: '32px 24px', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 100 }}>
+      <div style={{ padding: '32px 24px', background: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 100 }}>
         <StatusBadge type={type} size={size} showDot={showDot} />
       </div>
       <div style={{ padding: '16px 20px', background: 'var(--bg-primary)', borderTop: '1px solid var(--stroke-primary)', display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -382,8 +382,8 @@ export default function StatusBadgePage() {
             { type: 'danger',  label: 'Danger',  examples: ['Error', 'Rejected', 'Blocked', 'Critical'],   desc: 'An error or critical failure state. Requires immediate attention.' },
             { type: 'info',    label: 'Info',    examples: ['Draft', 'Scheduled', 'Inactive', 'Archived'], desc: 'Neutral informational state — no urgency implied.' },
           ].map(row => (
-            <div key={row.type} style={{ display: 'grid', gridTemplateColumns: '100px 1fr 1fr', gap: 16, alignItems: 'start', padding: '16px 20px', background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 8 }}>
-              <StatusBadge type={row.type} size="md" label={row.label} />
+            <div key={row.type} style={{ display: 'grid', gridTemplateColumns: '65px 1fr 1fr', gap: 16, alignItems: 'start', padding: '16px 20px', background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 8 }}>
+              <div><StatusBadge type={row.type} size="md" label={row.label} /></div>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>{row.label}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55 }}>{row.desc}</div>
@@ -419,9 +419,9 @@ export default function StatusBadgePage() {
             { size: 'md', label: 'Medium', desc: '12px · padding 3px 8px — default. Use in most contexts: tables, lists, detail panels.' },
             { size: 'sm', label: 'Small',  desc: '11px · padding 2px 6px — use when space is tight, e.g. a tag inside a compact chip group.' },
           ].map(row => (
-            <div key={row.size} style={{ display: 'grid', gridTemplateColumns: '100px 60px 1fr', gap: 16, alignItems: 'center', padding: '14px 20px', background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 8 }}>
+            <div key={row.size} style={{ display: 'grid', gridTemplateColumns: '100px 70px 1fr', gap: 16, alignItems: 'center', padding: '14px 20px', background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 8 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{row.label}</div>
-              <StatusBadge type="success" size={row.size} />
+              <div><StatusBadge type="success" size={row.size} /></div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55 }}>{row.desc}</div>
             </div>
           ))}
@@ -536,7 +536,7 @@ export default function StatusBadgePage() {
                 <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{row.id}</span>
                 <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{row.customer}</span>
                 <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono, monospace' }}>{row.amount}</span>
-                <StatusBadge type={row.type} size="sm" label={row.status} />
+                <div><StatusBadge type={row.type} size="sm" label={row.status} /></div>
               </div>
             ))}
           </div>

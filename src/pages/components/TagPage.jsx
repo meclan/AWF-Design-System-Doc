@@ -107,7 +107,7 @@ const TAG_VARIANTS = {
   default:  { bg: '#def0f4', text: '#05606d', border: 'transparent',      closeColor: '#05606d', label: 'Default'  },
   outlined: { bg: 'transparent', text: '#05606d', border: '#c4cdd5',      closeColor: '#637381', label: 'Outlined' },
   neutral:  { bg: '#dfe3e8', text: '#454f5b', border: 'transparent',      closeColor: '#454f5b', label: 'Neutral'  },
-  'on-brand':{ bg: '#0190f659', text: '#ffffff', border: 'transparent',   closeColor: '#ffffff', label: 'On Brand' },
+  'on-brand':{ bg: '#07a2b659', text: '#ffffff', border: 'transparent',   closeColor: '#ffffff', label: 'On Brand' },
   disabled: { bg: '#f4f6f8', text: '#c4cdd5', border: 'transparent',      closeColor: '#c4cdd5', label: 'Disabled' },
 }
 
@@ -192,7 +192,7 @@ function TagLive() {
 
   return (
     <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 12, overflow: 'hidden', marginBottom: 24 }}>
-      <div style={{ padding: '28px 24px', background: 'var(--bg-secondary)', minHeight: 100 }}>
+      <div style={{ padding: '28px 24px', background: 'var(--bg-primary)', minHeight: 100 }}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12 }}>
           {tags.map(t => (
             <Tag key={t} variant={variant} label={t} disabled={disabled} onRemove={() => removeTag(t)} />
@@ -269,7 +269,7 @@ const TAG_TOKENS_STATIC = {
   'badge.tag.bg.default':       '#def0f4',
   'badge.tag.bg.neutral':       '#dfe3e8',
   'badge.tag.bg.outlined':      'transparent',
-  'badge.tag.bg.on-brand':      '#0190f659',
+  'badge.tag.bg.on-brand':      '#07a2b659',
   'badge.tag.bg.disabled':      '#f4f6f8',
   'badge.tag.text.default':     '#05606d',
   'badge.tag.text.neutral':     '#454f5b',
@@ -458,15 +458,15 @@ export default function TagPage() {
           ].map(row => (
             <div key={row.variant} style={{
               display: 'grid', gridTemplateColumns: '160px 1fr 1fr', gap: 16, alignItems: 'start',
-              padding: '16px 20px', background: row.variant === 'on-brand' ? '#0190f6' : 'var(--bg-secondary)',
+              padding: '16px 20px', background: row.variant === 'on-brand' ? '#07A2B6' : 'var(--bg-secondary)',
               border: '1px solid var(--stroke-primary)', borderRadius: 8,
             }}>
-              <Tag
+              <div><Tag
                 variant={row.variant}
                 disabled={row.variant === 'disabled'}
                 label={row.title}
                 onRemove={row.variant !== 'disabled' ? () => {} : undefined}
-              />
+              /></div>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: row.variant === 'on-brand' ? '#fff' : 'var(--text-primary)', marginBottom: 4 }}>{row.title}</div>
                 <div style={{ fontSize: 12, color: row.variant === 'on-brand' ? 'rgba(255,255,255,.8)' : 'var(--text-secondary)', lineHeight: 1.55 }}>{row.desc}</div>
