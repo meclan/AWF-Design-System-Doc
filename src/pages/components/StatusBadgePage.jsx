@@ -133,6 +133,7 @@ function StatusBadge({ type = 'success', size = 'md', showDot = false, label }) 
       fontWeight: 400,
       lineHeight: 1,
       whiteSpace: 'nowrap',
+      width: 'fit-content',
     }}>
       {showDot && (
         <span style={{

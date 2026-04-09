@@ -140,6 +140,7 @@ function Tag({ variant = 'default', label, onRemove, disabled = false }) {
       whiteSpace: 'nowrap',
       cursor: disabled ? 'not-allowed' : 'default',
       opacity: disabled ? 0.9 : 1,
+      width: 'fit-content',
     }}>
       {label}
       {onRemove && !disabled && (
