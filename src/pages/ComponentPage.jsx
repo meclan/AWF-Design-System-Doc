@@ -14,6 +14,9 @@ import ComposerButtonPage from './components/ComposerButtonPage.jsx'
 import SplitButtonPage   from './components/SplitButtonPage.jsx'
 import BannerPage        from './components/BannerPage.jsx'
 import ToastPage         from './components/ToastPage.jsx'
+import StatusBadgePage   from './components/StatusBadgePage.jsx'
+import TagPage           from './components/TagPage.jsx'
+import CounterBadgePage  from './components/CounterBadgePage.jsx'
 
 const FULL_PAGES = {
   '/components/button':          ButtonPage,
@@ -25,6 +28,9 @@ const FULL_PAGES = {
   '/components/split-button':    SplitButtonPage,
   '/components/feedback/banner': BannerPage,
   '/components/feedback/toast':  ToastPage,
+  '/components/badge':           StatusBadgePage,
+  '/components/tag':             TagPage,
+  '/components/counter-badge':   CounterBadgePage,
 }
 
 export default function ComponentPage() {
