@@ -21,6 +21,7 @@ import PaginationPage    from './components/PaginationPage.jsx'
 import BreadcrumbsPage   from './components/BreadcrumbsPage.jsx'
 import TabsPage          from './components/TabsPage.jsx'
 import AccordionPage     from './components/AccordionPage.jsx'
+import StepperPage      from './components/StepperPage.jsx'
 
 const FULL_PAGES = {
   '/components/button':          ButtonPage,
@@ -39,6 +40,7 @@ const FULL_PAGES = {
   '/components/breadcrumbs':     BreadcrumbsPage,
   '/components/tabs':            TabsPage,
   '/components/accordion':       AccordionPage,
+  '/components/stepper':         StepperPage,
 }
 
 export default function ComponentPage() {
