@@ -105,7 +105,7 @@ function TokenTable({ tokens, prefix }) {
 
 function getColorConfig(t) {
   return {
-    dark:    { bg: t['badge.counter.bg.dark']    || '#141a21', text: t['badge.counter.text.inverse'] || '#ffffff', label: 'Dark'    },
+    dark:    { bg: t['badge.counter.bg.dark']    || '#141a21', text: t['badge.counter.text.default'] || '#ffffff', label: 'Dark'    },
     neutral: { bg: t['badge.counter.bg.neutral'] || '#c4cdd5', text: t['badge.counter.text.inverse'] || '#141a21', label: 'Neutral' },
     light:   { bg: t['badge.counter.bg.light']   || '#ffffff', text: t['badge.counter.text.inverse'] || '#141a21', label: 'Light', border: '#e0e5ea' },
     brand:   { bg: t['badge.counter.bg.brand']   || '#07a2b6', text: t['badge.counter.text.default'] || '#ffffff', label: 'Brand'   },
