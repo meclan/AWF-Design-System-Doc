@@ -19,6 +19,7 @@ import TagPage           from './components/TagPage.jsx'
 import CounterBadgePage  from './components/CounterBadgePage.jsx'
 import PaginationPage    from './components/PaginationPage.jsx'
 import BreadcrumbsPage   from './components/BreadcrumbsPage.jsx'
+import TabsPage          from './components/TabsPage.jsx'
 
 const FULL_PAGES = {
   '/components/button':          ButtonPage,
@@ -35,6 +36,7 @@ const FULL_PAGES = {
   '/components/counter-badge':   CounterBadgePage,
   '/components/pagination':      PaginationPage,
   '/components/breadcrumbs':     BreadcrumbsPage,
+  '/components/tabs':            TabsPage,
 }
 
 export default function ComponentPage() {
