@@ -53,19 +53,24 @@ function DontBox({ children, visual }) {
   )
 }
 
-// ─── Design tokens (static — no brand tokens for stepper in components.json) ─
+// ─── Token-driven color palette ───────────────────────────────────────────────
+// tabs.indicator   = color.stroke.brand.default  (brand mid, changes per theme)
+// tabs.text.active = color.text.brand.strongest  (brand dark, changes per theme)
 
-const C = {
-  active:          '#07a2b6',
-  activeText:      '#ffffff',
-  completedBadge:  '#008394',
-  completedLabel:  '#008394',
-  activeLabel:     '#141a21',
-  pendingLabel:    '#454f5b',
-  subtitle:        '#637381',
-  connector:       '#c4cdd5',
-  connectorDone:   '#07a2b6',
-  pendingBorder:   '#c4cdd5',
+function getStepColors(t) {
+  const brandMid  = t['tabs.indicator']    || '#07a2b6'
+  const brandDark = t['tabs.text.active']  || '#05606d'
+  return {
+    active:         brandMid,
+    completedBadge: brandDark,
+    completedLabel: brandDark,
+    connectorDone:  brandMid,
+    activeLabel:    '#141a21',
+    pendingLabel:   '#454f5b',
+    subtitle:       '#637381',
+    connector:      '#c4cdd5',
+    pendingBorder:  '#c4cdd5',
+  }
 }
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -85,11 +90,13 @@ function ChevronRight({ size = 14, color = '#919eab' }) {
   )
 }
 
-// ─── Stepper component ────────────────────────────────────────────────────────
-
+// ─── Stepper ──────────────────────────────────────────────────────────────────
 // variant: 'base' | 'numbered' | 'inline'
-function Stepper({ steps = [], currentStep = 0, variant = 'numbered' }) {
-  if (variant === 'inline') return <StepperInline steps={steps} currentStep={currentStep} />
+// onSelect(index) — called when a completed step is clicked (all variants)
+
+function Stepper({ steps = [], currentStep = 0, variant = 'numbered', t = {}, onSelect }) {
+  const C = getStepColors(t)
+  if (variant === 'inline') return <StepperInline steps={steps} currentStep={currentStep} C={C} onSelect={onSelect} />
 
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', width: '100%' }}>
@@ -97,91 +104,123 @@ function Stepper({ steps = [], currentStep = 0, variant = 'numbered' }) {
         const isCompleted = i < currentStep
         const isActive    = i === currentStep
         const isPending   = i > currentStep
+        const isClickable = isCompleted && !!onSelect
 
         return (
-          <React.Fragment key={i}>
-            {/* Step */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: 0 }}>
-              {/* Indicator row */}
-              <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: 10 }}>
-                {/* Left connector */}
-                <div style={{ flex: 1, height: 2, background: i === 0 ? 'transparent' : (isCompleted || isActive ? C.connectorDone : C.connector) }} />
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: 0 }}>
+            {/* Indicator row — fixed 24px height so labels never shift */}
+            <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: 10 }}>
+              {/* Left connector */}
+              <div style={{ flex: 1, height: 2, background: i === 0 ? 'transparent' : (isCompleted || isActive ? C.connectorDone : C.connector), transition: 'background .3s' }} />
 
-                {/* Badge */}
-                {variant === 'base' ? (
-                  <div style={{
-                    width: isActive ? 14 : (isCompleted ? 20 : 10),
-                    height: isActive ? 14 : (isCompleted ? 20 : 10),
+              {/* Badge — all variants use same 24px outer box to keep alignment */}
+              {variant === 'base' ? (
+                // Dots: fixed 24px wrapper, inner dot scales
+                <button
+                  onClick={isClickable ? () => onSelect(i) : undefined}
+                  aria-current={isActive ? 'step' : undefined}
+                  aria-label={`Step ${i + 1}: ${step.label}${isCompleted ? ' – completed' : isActive ? ' – current' : ' – upcoming'}`}
+                  style={{
+                    width: 24, height: 24, flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'none', border: 'none', padding: 0,
+                    cursor: isClickable ? 'pointer' : 'default',
+                  }}
+                >
+                  <span style={{
+                    width:  isCompleted ? 16 : (isActive ? 12 : 8),
+                    height: isCompleted ? 16 : (isActive ? 12 : 8),
                     borderRadius: '50%',
                     background: isCompleted ? C.completedBadge : (isActive ? C.active : 'transparent'),
-                    border: isCompleted ? 'none' : (isActive ? 'none' : `2px solid ${C.pendingBorder}`),
+                    border: isPending ? `2px solid ${C.pendingBorder}` : 'none',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0,
                     transition: 'all .2s',
+                    flexShrink: 0,
                   }}>
-                    {isCompleted && <CheckIcon size={12} color="#fff" />}
-                  </div>
-                ) : (
-                  <div style={{
-                    width: 24, height: 24, borderRadius: '50%',
+                    {isCompleted && <CheckIcon size={10} color="#fff" />}
+                  </span>
+                </button>
+              ) : (
+                // Numbered: 24px circle with number or check
+                <button
+                  onClick={isClickable ? () => onSelect(i) : undefined}
+                  aria-current={isActive ? 'step' : undefined}
+                  aria-label={`Step ${i + 1}: ${step.label}${isCompleted ? ' – completed' : isActive ? ' – current' : ' – upcoming'}`}
+                  style={{
+                    width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
                     background: isCompleted ? C.completedBadge : (isActive ? C.active : 'transparent'),
                     border: isPending ? `1.5px solid ${C.pendingBorder}` : 'none',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0,
-                    transition: 'all .2s',
-                  }}>
-                    {isCompleted
-                      ? <CheckIcon size={13} color="#fff" />
-                      : <span style={{ fontSize: 11, fontWeight: 400, color: isActive ? '#fff' : C.pendingLabel, lineHeight: 1 }}>{i + 1}</span>
-                    }
-                  </div>
-                )}
+                    cursor: isClickable ? 'pointer' : 'default',
+                    padding: 0, transition: 'all .2s',
+                  }}
+                >
+                  {isCompleted
+                    ? <CheckIcon size={13} color="#fff" />
+                    : <span style={{ fontSize: 11, fontWeight: 400, color: isActive ? '#fff' : C.pendingLabel, lineHeight: 1 }}>{i + 1}</span>
+                  }
+                </button>
+              )}
 
-                {/* Right connector */}
-                <div style={{ flex: 1, height: 2, background: i === steps.length - 1 ? 'transparent' : (isCompleted ? C.connectorDone : C.connector) }} />
-              </div>
-
-              {/* Label */}
-              <div style={{ textAlign: 'center', paddingInline: 4 }}>
-                <div style={{
-                  fontSize: 10, fontWeight: isActive ? 600 : 400, textTransform: 'uppercase', letterSpacing: '.06em',
-                  color: isCompleted ? C.completedLabel : (isActive ? C.activeLabel : C.pendingLabel),
-                  marginBottom: 2, lineHeight: 1.3,
-                }}>
-                  {step.label}
-                </div>
-                {step.subtitle && (
-                  <div style={{ fontSize: 9, color: C.subtitle, lineHeight: 1.4 }}>{step.subtitle}</div>
-                )}
-              </div>
+              {/* Right connector */}
+              <div style={{ flex: 1, height: 2, background: i === steps.length - 1 ? 'transparent' : (isCompleted ? C.connectorDone : C.connector), transition: 'background .3s' }} />
             </div>
-          </React.Fragment>
+
+            {/* Label */}
+            <div style={{ textAlign: 'center', paddingInline: 4 }}>
+              <div style={{
+                fontSize: 10, fontWeight: isActive ? 600 : 400, textTransform: 'uppercase', letterSpacing: '.06em',
+                color: isCompleted ? C.completedLabel : (isActive ? C.activeLabel : C.pendingLabel),
+                marginBottom: 2, lineHeight: 1.3, transition: 'color .2s',
+              }}>
+                {step.label}
+              </div>
+              {step.subtitle && (
+                <div style={{ fontSize: 9, color: C.subtitle, lineHeight: 1.4 }}>{step.subtitle}</div>
+              )}
+            </div>
+          </div>
         )
       })}
     </div>
   )
 }
 
-function StepperInline({ steps = [], currentStep = 0 }) {
+// ─── Inline variant ───────────────────────────────────────────────────────────
+// Completed AND active steps are clickable buttons that navigate back
+
+function StepperInline({ steps = [], currentStep = 0, C, onSelect }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
       {steps.map((step, i) => {
         const isCompleted = i < currentStep
         const isActive    = i === currentStep
+        const isClickable = isCompleted && !!onSelect
 
         return (
           <React.Fragment key={i}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <button
+              onClick={isClickable ? () => onSelect(i) : undefined}
+              aria-current={isActive ? 'step' : undefined}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                background: 'none', border: 'none', padding: 0,
+                cursor: isClickable ? 'pointer' : 'default',
+                textDecoration: isClickable ? 'underline' : 'none',
+                textDecorationColor: C.completedLabel,
+              }}
+            >
               <span style={{
                 fontSize: 11, fontWeight: isActive ? 600 : 400,
                 color: isCompleted ? C.completedLabel : (isActive ? C.activeLabel : C.pendingLabel),
+                transition: 'color .2s',
               }}>
                 {i + 1}. {step.label}
               </span>
               {step.subtitle && (
                 <span style={{ fontSize: 9, color: C.subtitle }}>{step.subtitle}</span>
               )}
-            </div>
+            </button>
             {i < steps.length - 1 && <ChevronRight size={12} color={C.subtitle} />}
           </React.Fragment>
         )
@@ -204,36 +243,41 @@ const DEMO_STEPS_4 = [
   { label: 'Review',     subtitle: 'Confirm & save' },
 ]
 
-function StepperLive() {
+function StepperLive({ t }) {
   const [variant,     setVariant]     = useState('numbered')
   const [stepCount,   setStepCount]   = useState(3)
   const [currentStep, setCurrentStep] = useState(0)
 
+  const C     = getStepColors(t)
   const steps = stepCount === 3 ? DEMO_STEPS_3 : DEMO_STEPS_4
   const safeStep = Math.min(currentStep, steps.length - 1)
 
   const btnBase = (active) => ({
-    padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: 'pointer', border: '1px solid',
-    borderColor: active ? C.active : 'var(--stroke-primary)',
-    background:  active ? C.active + '18' : 'var(--bg-primary)',
-    color:       active ? C.active : 'var(--text-secondary)',
+    padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: 'pointer',
+    border: `1px solid ${active ? C.active : 'var(--stroke-primary)'}`,
+    background: active ? C.active + '18' : 'var(--bg-primary)',
+    color:      active ? C.active : 'var(--text-secondary)',
   })
 
   return (
     <div style={{ background: 'var(--bg-secondary)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--stroke-primary)' }}>
       {/* Preview */}
       <div style={{ padding: '32px 28px 24px', background: 'var(--bg-primary)' }}>
-        <Stepper steps={steps} currentStep={safeStep} variant={variant} />
-        {/* Step nav inside preview */}
+        <Stepper
+          steps={steps}
+          currentStep={safeStep}
+          variant={variant}
+          t={t}
+          onSelect={setCurrentStep}
+        />
+        {/* Step nav */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
           <button
             onClick={() => setCurrentStep(s => Math.max(0, s - 1))}
             disabled={safeStep === 0}
-            style={{ padding: '6px 16px', borderRadius: 6, fontSize: 12, fontWeight: 500, border: `1px solid ${C.active}`, color: safeStep === 0 ? '#c4cdd5' : C.active, borderColor: safeStep === 0 ? '#c4cdd5' : C.active, background: 'transparent', cursor: safeStep === 0 ? 'default' : 'pointer' }}
+            style={{ padding: '6px 16px', borderRadius: 6, fontSize: 12, fontWeight: 500, border: `1px solid ${safeStep === 0 ? '#c4cdd5' : C.active}`, color: safeStep === 0 ? '#c4cdd5' : C.active, background: 'transparent', cursor: safeStep === 0 ? 'default' : 'pointer' }}
           >← Previous</button>
-          <span style={{ fontSize: 12, color: C.subtitle, alignSelf: 'center' }}>
-            Step {safeStep + 1} of {steps.length}
-          </span>
+          <span style={{ fontSize: 12, color: C.subtitle, alignSelf: 'center' }}>Step {safeStep + 1} of {steps.length}</span>
           <button
             onClick={() => setCurrentStep(s => Math.min(steps.length - 1, s + 1))}
             disabled={safeStep === steps.length - 1}
@@ -282,7 +326,9 @@ const TOC = [
 export default function StepperPage() {
   const [activeTheme,   setActiveTheme]   = useState('dot')
   const [activeSection, setActiveSection] = useState('overview')
+
   const t = getComponentTokens(activeTheme)
+  const C = getStepColors(t)
 
   useEffect(() => {
     const main = document.querySelector('main')
@@ -320,16 +366,16 @@ export default function StepperPage() {
           </div>
           <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: '0 0 16px' }}>Stepper</h1>
           <Lead>
-            A <strong>sequential progress indicator</strong> that guides users through a multi-step workflow. Each step is clearly marked as completed, active, or pending — giving users a sense of progress and allowing navigation between steps.
+            A <strong>sequential progress indicator</strong> that guides users through a multi-step workflow. Each step is clearly marked as completed, active, or pending — giving users a sense of progress and allowing navigation back to completed steps.
           </Lead>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', paddingTop: 4 }}>
             <span style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>Preview theme:</span>
             {VISIBLE_THEMES.map(th => (
               <button key={th.id} onClick={() => setActiveTheme(th.id)} style={{
-                padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 500, cursor: 'pointer', border: '2px solid',
-                borderColor: activeTheme === th.id ? th.color : 'var(--stroke-primary)',
-                background:  activeTheme === th.id ? th.color + '18' : 'transparent',
-                color:       activeTheme === th.id ? th.color : 'var(--text-secondary)',
+                padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 500, cursor: 'pointer',
+                border: `2px solid ${activeTheme === th.id ? th.color : 'var(--stroke-primary)'}`,
+                background: activeTheme === th.id ? th.color + '18' : 'transparent',
+                color:      activeTheme === th.id ? th.color : 'var(--text-secondary)',
               }}>{th.label}</button>
             ))}
           </div>
@@ -338,7 +384,7 @@ export default function StepperPage() {
         {/* ── OVERVIEW ────────────────────────────────────────────────────── */}
         <SectionAnchor id="overview" />
         <H2>Overview</H2>
-        <StepperLive />
+        <StepperLive t={t} />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginTop: 28 }}>
           <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '18px 20px' }}>
@@ -366,29 +412,22 @@ export default function StepperPage() {
         {/* ── ANATOMY ─────────────────────────────────────────────────────── */}
         <SectionAnchor id="anatomy" />
         <H2>Anatomy</H2>
-        <P>The stepper is composed of step nodes connected by lines. Each node has a visual indicator and an optional label with subtitle below.</P>
+        <P>The stepper is composed of step nodes connected by lines. Each node has a visual indicator (badge) and an optional label with subtitle.</P>
 
         <div style={{ background: 'var(--bg-secondary)', borderRadius: 12, padding: '36px 24px 40px' }}>
-          {/* Annotated stepper */}
           <div style={{ maxWidth: 480, margin: '0 auto' }}>
-            <Stepper
-              steps={[
-                { label: 'Account definition', subtitle: 'Auth & login' },
-                { label: 'Identification',     subtitle: 'Personal info' },
-                { label: 'Profile assignment', subtitle: 'Assign roles'  },
-              ]}
-              currentStep={1}
-              variant="numbered"
-            />
+            <Stepper steps={[
+              { label: 'Account definition', subtitle: 'Auth & login' },
+              { label: 'Identification',     subtitle: 'Personal info' },
+              { label: 'Profile assignment', subtitle: 'Assign roles'  },
+            ]} currentStep={1} variant="numbered" t={t} />
           </div>
-
-          {/* Legend */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginTop: 28 }}>
             {[
-              { n: 1, label: 'Step indicator',   desc: 'Circle badge: check (done), filled number (active), outlined (pending).' },
-              { n: 2, label: 'Connector line',   desc: 'Horizontal rule between steps. Brand colour when done, neutral when pending.' },
-              { n: 3, label: 'Step label',       desc: 'Uppercase text. Weight & colour reflect the step state.' },
-              { n: 4, label: 'Step subtitle',    desc: 'Optional helper text in tertiary colour, 9px.' },
+              { n: 1, label: 'Step indicator',  desc: 'Circle badge: check (done), filled number (active), outlined (pending).' },
+              { n: 2, label: 'Connector line',  desc: 'Horizontal rule. Brand colour when done, neutral when pending.' },
+              { n: 3, label: 'Step label',      desc: 'Uppercase, 10px. Weight and colour reflect step state.' },
+              { n: 4, label: 'Step subtitle',   desc: 'Optional 9px helper text in tertiary colour.' },
             ].map(({ n, label, desc }) => (
               <div key={n} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                 <span style={{ width: 18, height: 18, borderRadius: '50%', background: '#637381', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{n}</span>
@@ -406,14 +445,12 @@ export default function StepperPage() {
         {/* ── STATES ──────────────────────────────────────────────────────── */}
         <SectionAnchor id="states" />
         <H2>Step states</H2>
-        <P>Every step node exists in one of three states at any given time. All three are visible simultaneously in the strip.</P>
+        <P>Every step node exists in one of three states. All three are visible simultaneously in the strip.</P>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-
           {/* Pending */}
           <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--stroke-primary)' }}>
             <div style={{ padding: '28px 20px 20px', background: 'var(--bg-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-              {/* Indicator */}
               <div style={{ width: 28, height: 28, borderRadius: '50%', border: `1.5px solid ${C.pendingBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 12, color: C.pendingLabel }}>3</span>
               </div>
@@ -424,7 +461,7 @@ export default function StepperPage() {
             </div>
             <div style={{ padding: '10px 14px' }}>
               <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-tertiary)', marginBottom: 3 }}>Pending</div>
-              <div style={{ fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.55 }}>Not yet reached. Outlined circle, neutral text. Not clickable by default.</div>
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.55 }}>Not yet reached. Outlined circle, neutral text. Non-interactive.</div>
             </div>
           </div>
 
@@ -441,7 +478,7 @@ export default function StepperPage() {
             </div>
             <div style={{ padding: '10px 14px' }}>
               <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-tertiary)', marginBottom: 3 }}>Active</div>
-              <div style={{ fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.55 }}>Current step. Brand-filled circle, bold dark label. Only one active at a time.</div>
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.55 }}>Current step. Brand-filled badge, bold dark label. Only one active at a time.</div>
             </div>
           </div>
 
@@ -458,10 +495,9 @@ export default function StepperPage() {
             </div>
             <div style={{ padding: '10px 14px' }}>
               <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-tertiary)', marginBottom: 3 }}>Completed</div>
-              <div style={{ fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.55 }}>Step finished. Check icon, teal badge & label. Connector turns brand colour.</div>
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.55 }}>Done. Check icon, brand badge & label. Connector turns brand colour.</div>
             </div>
           </div>
-
         </div>
 
         <Divider />
@@ -471,21 +507,21 @@ export default function StepperPage() {
         <H2>Variants</H2>
 
         <H3>Numbered</H3>
-        <P>Default variant. Each step shows a numbered circle (24px). Best for processes where step numbers are meaningful and users may want to reference them ("go back to step 2").</P>
+        <P>Default variant. Each step shows a numbered 24px circle. Best when step numbers are meaningful and users may want to reference them. Clicking a completed step navigates back to it.</P>
         <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '28px 24px', border: '1px solid var(--stroke-primary)' }}>
-          <Stepper steps={demoSteps} currentStep={1} variant="numbered" />
+          <Stepper steps={demoSteps} currentStep={1} variant="numbered" t={t} />
         </div>
 
         <H3>Dots</H3>
-        <P>A minimal variant using small circular dots instead of numbered circles. Use when step count is self-evident and you want a lighter visual weight.</P>
+        <P>Minimal variant using small dots instead of numbered circles. All dots share the same 24px bounding box, so labels stay perfectly aligned regardless of state. Use when step count is self-evident.</P>
         <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '28px 24px', border: '1px solid var(--stroke-primary)' }}>
-          <Stepper steps={demoSteps} currentStep={1} variant="base" />
+          <Stepper steps={demoSteps} currentStep={1} variant="base" t={t} />
         </div>
 
         <H3>Inline</H3>
-        <P>A compact, text-only variant using numbered labels with chevron separators — similar to breadcrumbs. Use inside modals, sidebars, or anywhere vertical space is at a premium. Completed steps are highlighted in brand teal.</P>
+        <P>Compact text-only variant with numbered labels and chevron separators. Completed steps are underlined and <strong>clickable</strong> — clicking them navigates back. Use inside modals or wherever vertical space is limited.</P>
         <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '20px 24px', border: '1px solid var(--stroke-primary)' }}>
-          <Stepper steps={demoSteps} currentStep={1} variant="inline" />
+          <Stepper steps={demoSteps} currentStep={1} variant="inline" t={t} />
         </div>
 
         <Divider />
@@ -498,46 +534,38 @@ export default function StepperPage() {
           <DoBox
             visual={
               <div style={{ width: '100%', maxWidth: 380 }}>
-                <Stepper
-                  steps={[{ label: 'Account' }, { label: 'Identity' }, { label: 'Review' }]}
-                  currentStep={1}
-                  variant="numbered"
-                />
+                <Stepper steps={[{ label: 'Account' }, { label: 'Identity' }, { label: 'Review' }]} currentStep={1} variant="numbered" t={t} />
               </div>
             }
           >
-            Keep step labels short (1–2 words) and action-oriented. Users should understand the goal of each step at a glance.
+            Keep step labels short (1–2 words). Users should understand the goal of each step at a glance.
           </DoBox>
           <DontBox
             visual={
               <div style={{ width: '100%', maxWidth: 380 }}>
-                <Stepper
-                  steps={[{ label: 'Set up authentication credentials' }, { label: 'Enter all identification details' }, { label: 'Assign and configure profiles' }]}
-                  currentStep={1}
-                  variant="numbered"
-                />
+                <Stepper steps={[{ label: 'Set up authentication credentials' }, { label: 'Enter all identification details' }, { label: 'Assign and configure profiles' }]} currentStep={1} variant="numbered" t={t} />
               </div>
             }
           >
-            Don't use long, descriptive phrases as step labels. They overflow the indicator and are hard to scan.
+            Don't use long, sentence-style labels. They overflow the indicator and are hard to scan.
           </DontBox>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
           <DoBox>
-            Limit wizards to 3–5 steps. If a process needs more, group related steps into a single step with sub-tasks, or split the wizard into distinct flows.
+            Limit wizards to 3–5 steps. If a process needs more, group related actions into a single step with sub-tasks or split the wizard into distinct flows.
           </DoBox>
           <DontBox>
-            Don't use a stepper for non-linear tasks where the user can skip or reorder steps freely. Use a checklist or a different navigation pattern instead.
+            Don't use a stepper for non-linear tasks where steps can be skipped or reordered. Use a checklist or a different navigation pattern instead.
           </DontBox>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
           <DoBox>
-            Allow users to go back and edit a completed step. Clicking a completed badge should return to that step with data preserved.
+            Allow users to navigate back to completed steps by clicking their badge or label. Always preserve data entered in previous steps.
           </DoBox>
           <DontBox>
-            Don't lock all previous steps after completion unless the business logic genuinely prevents editing. Locking frustrates users who made a mistake.
+            Don't lock all previous steps after completion unless the business logic genuinely prevents editing. Locking frustrates users who made a mistake earlier.
           </DontBox>
         </div>
 
@@ -546,9 +574,9 @@ export default function StepperPage() {
         {/* ── USE CASE ────────────────────────────────────────────────────── */}
         <SectionAnchor id="usecase" />
         <H2>Use case</H2>
-        <P>A common pattern is a modal or card wizard for entity creation. The stepper lives in the header area of the card; the active step's form renders below; navigation buttons sit in the sticky footer.</P>
+        <P>A common pattern is a modal or card wizard for entity creation. The stepper sits in the card header; the active step's form renders below; navigation buttons sit in the sticky footer. Click Previous or the completed step badge to go back.</P>
 
-        <WizardMockup />
+        <WizardMockup t={t} />
 
         <Divider />
 
@@ -563,14 +591,14 @@ export default function StepperPage() {
             <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-tertiary)' }}>Behaviour</span>
           </div>
           {[
-            { key: 'role="list"',            val: 'Applied to the stepper container so screen readers enumerate step count.' },
-            { key: 'role="listitem"',         val: 'Applied to each step node.' },
-            { key: 'aria-current="step"',     val: 'Set on the active step\'s indicator button so assistive tech announces "current step".' },
-            { key: 'aria-label',              val: 'Each step button gets an aria-label like "Step 2 of 4: Identification – active".' },
-            { key: 'aria-disabled="true"',    val: 'Pending steps that are not navigable should have aria-disabled to block keyboard activation.' },
-            { key: 'Live region',             val: 'An aria-live="polite" region announces the current step name when the user advances.' },
-            { key: 'Tab key',                 val: 'Focus moves to the Previous and Next buttons in the footer — not through step badges unless they are interactive.' },
-            { key: 'Focus management',        val: 'When advancing a step, focus should move to the first focusable element in the new step\'s form content.' },
+            { key: 'role="list"',           val: 'Applied to the stepper container so screen readers enumerate step count.' },
+            { key: 'role="listitem"',        val: 'Applied to each step node.' },
+            { key: 'aria-current="step"',    val: 'Set on the active step\'s indicator so assistive tech announces "current step".' },
+            { key: 'aria-label',             val: 'Each step button gets an aria-label like "Step 2 of 4: Identification – active".' },
+            { key: 'aria-disabled="true"',   val: 'Pending steps that are not navigable should have aria-disabled to block keyboard activation.' },
+            { key: 'aria-live="polite"',     val: 'A live region announces the current step name when the user advances or goes back.' },
+            { key: 'Tab key',               val: 'Focus moves to the Previous and Next buttons in the footer — not through step badges unless they are interactive (completed steps).' },
+            { key: 'Focus management',       val: 'When advancing a step, focus should move to the first focusable element in the new step\'s form content.' },
           ].map(({ key, val }, i, arr) => (
             <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', padding: '9px 14px', borderBottom: i < arr.length - 1 ? '1px solid var(--stroke-primary)' : 'none', alignItems: 'start' }}>
               <code style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-secondary)' }}>{key}</code>
@@ -580,12 +608,12 @@ export default function StepperPage() {
         </div>
 
         <InfoBox type="info" style={{ marginTop: 20 }}>
-          Always ensure the form inside each step panel has a visible heading (<Code>h2</Code> or <Code>h3</Code>) that describes what the user is filling in. This gives screen-reader users context without relying solely on the step label.
+          Always ensure the form inside each step panel has a visible heading (<Code>h2</Code> or <Code>h3</Code>) describing what the user is filling in. This gives screen-reader users context without relying solely on the step label.
         </InfoBox>
 
       </div>
 
-      {/* ── TOC sidebar ───────────────────────────────────────────────────── */}
+      {/* ── TOC ───────────────────────────────────────────────────────────── */}
       <div style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '48px 24px 48px 0', alignSelf: 'flex-start' }}>
         <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--text-tertiary)', marginBottom: 12 }}>On this page</div>
         {TOC.map(item => (
@@ -610,8 +638,9 @@ export default function StepperPage() {
 
 // ─── Wizard mockup ────────────────────────────────────────────────────────────
 
-function WizardMockup() {
+function WizardMockup({ t }) {
   const [step, setStep] = useState(0)
+  const C = getStepColors(t)
 
   const steps = [
     { label: 'Account',  subtitle: 'Auth & login'   },
@@ -621,25 +650,22 @@ function WizardMockup() {
 
   const formContent = [
     [
-      { label: 'Authentication', type: 'select', placeholder: 'Select an authentication type…' },
-      { label: 'Login',          type: 'text',   placeholder: 'Enter a login…' },
-      { label: 'Password',       type: 'password', placeholder: 'Enter a password…' },
-      { label: 'Expiration date',type: 'text',   placeholder: 'Select expiration date…' },
+      { label: 'Authentication', placeholder: 'Select an authentication type…', type: 'select' },
+      { label: 'Login',          placeholder: 'Enter a login…' },
+      { label: 'Password',       placeholder: 'Enter a password…' },
+      { label: 'Expiration date',placeholder: 'Select expiration date…', type: 'select' },
     ],
     [
-      { label: 'Title',      type: 'select', placeholder: 'Select a title…' },
-      { label: 'First name', type: 'text',   placeholder: 'Enter first name…' },
-      { label: 'Last name',  type: 'text',   placeholder: 'Enter last name…' },
-      { label: 'Email',      type: 'text',   placeholder: 'Enter email…' },
+      { label: 'Title',      placeholder: 'Select a title…', type: 'select' },
+      { label: 'First name', placeholder: 'Enter first name…' },
+      { label: 'Last name',  placeholder: 'Enter last name…' },
+      { label: 'Email',      placeholder: 'Enter email…' },
     ],
     [
-      { label: 'Profile',      type: 'select', placeholder: 'Select a profile…' },
-      { label: 'Access level', type: 'select', placeholder: 'Select access level…' },
+      { label: 'Profile',      placeholder: 'Select a profile…', type: 'select' },
+      { label: 'Access level', placeholder: 'Select access level…', type: 'select' },
     ],
   ]
-
-  const isFirst = step === 0
-  const isLast  = step === steps.length - 1
 
   return (
     <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 6px 24px rgba(0,0,0,.1)', background: 'var(--bg-primary)', maxWidth: 520, border: '1px solid var(--stroke-primary)' }}>
@@ -653,16 +679,14 @@ function WizardMockup() {
 
       {/* Stepper strip */}
       <div style={{ padding: '20px 24px 8px' }}>
-        <Stepper steps={steps} currentStep={step} variant="numbered" />
+        <Stepper steps={steps} currentStep={step} variant="numbered" t={t} onSelect={setStep} />
       </div>
 
       {/* Form area */}
       <div style={{ padding: '16px 24px 20px' }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 14 }}>
-          {steps[step].label}
-        </div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 14 }}>{steps[step].label}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {formContent[step].map(({ label, type, placeholder }) => (
+          {formContent[step].map(({ label, placeholder, type }) => (
             <div key={label} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', alignItems: 'center', gap: 12 }}>
               <label style={{ fontSize: 12, color: '#637381' }}>{label}</label>
               <div style={{ background: '#ecf6fa', borderRadius: 5, padding: '6px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -675,18 +699,14 @@ function WizardMockup() {
       </div>
 
       {/* Footer */}
-      <div style={{ padding: '12px 24px', borderTop: '1px solid var(--stroke-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-primary)' }}>
-        <button style={{ padding: '7px 16px', borderRadius: 6, fontSize: 12, fontWeight: 500, border: `1px solid ${C.active}`, color: C.active, background: 'transparent', cursor: 'pointer' }}>
-          Cancel
-        </button>
+      <div style={{ padding: '12px 24px', borderTop: '1px solid var(--stroke-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button style={{ padding: '7px 16px', borderRadius: 6, fontSize: 12, fontWeight: 500, border: `1px solid ${C.active}`, color: C.active, background: 'transparent', cursor: 'pointer' }}>Cancel</button>
         <div style={{ display: 'flex', gap: 8 }}>
-          {!isFirst && (
-            <button onClick={() => setStep(s => s - 1)} style={{ padding: '7px 16px', borderRadius: 6, fontSize: 12, fontWeight: 500, border: 'none', background: '#ecf6fa', color: C.active, cursor: 'pointer' }}>
-              Previous
-            </button>
+          {step > 0 && (
+            <button onClick={() => setStep(s => s - 1)} style={{ padding: '7px 16px', borderRadius: 6, fontSize: 12, fontWeight: 500, border: 'none', background: '#ecf6fa', color: C.active, cursor: 'pointer' }}>Previous</button>
           )}
-          <button onClick={() => !isLast && setStep(s => s + 1)} style={{ padding: '7px 16px', borderRadius: 6, fontSize: 12, fontWeight: 500, border: 'none', background: isLast ? C.completedBadge : C.active, color: '#fff', cursor: 'pointer' }}>
-            {isLast ? 'Finish' : 'Next'}
+          <button onClick={() => step < steps.length - 1 && setStep(s => s + 1)} style={{ padding: '7px 16px', borderRadius: 6, fontSize: 12, fontWeight: 500, border: 'none', background: step === steps.length - 1 ? C.completedBadge : C.active, color: '#fff', cursor: step === steps.length - 1 ? 'default' : 'pointer' }}>
+            {step === steps.length - 1 ? 'Finish' : 'Next'}
           </button>
         </div>
       </div>
