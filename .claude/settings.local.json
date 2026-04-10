@@ -88,7 +88,14 @@
       "Bash(grep -E '^\\\\s{0,8}\"[a-z]')",
       "Bash(awk 'NR>=5050 && NR<=5110' \"/c/Users/ClémentMagne/Documents/awf-docs/src/data/tokens/source/components.json\")",
       "Bash(grep -E '^\\\\s{0,4}\"[a-z]')",
-      "Bash(grep -n '^\\\\s\\\\{0,4\\\\}\"[a-z]' \"/c/Users/ClémentMagne/Documents/awf-docs/src/data/tokens/source/components.json\")"
+      "Bash(grep -n '^\\\\s\\\\{0,4\\\\}\"[a-z]' \"/c/Users/ClémentMagne/Documents/awf-docs/src/data/tokens/source/components.json\")",
+      "WebFetch(domain:www.wix-pages.com)",
+      "WebFetch(domain:wix-style-react.now.sh)",
+      "WebFetch(domain:www.wix.com)",
+      "WebFetch(domain:wix-design-system.com)",
+      "WebFetch(domain:mykolass.wixsite.com)",
+      "Bash(curl -s -L --max-time 30 \"https://www.mongodb.design/component/stepper/design-docs\")",
+      "Bash(curl -s -L --max-time 30 \"https://www.wix-pages.com/wix-design-system-employees/?path=/story/components-navigation--stepper\")"
     ]
   }
 }

@@ -349,7 +349,10 @@ export default function AccordionPage() {
                 borderColor: activeTheme === th.id ? th.color : 'var(--stroke-primary)',
                 background:  activeTheme === th.id ? th.color + '18' : 'transparent',
                 color:       activeTheme === th.id ? th.color : 'var(--text-secondary)',
-              }}>{th.label}</button>
+              }}>
+                <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: th.color, marginRight: 5, verticalAlign: 'middle' }} />
+                {th.label}
+              </button>
             ))}
           </div>
         </div>

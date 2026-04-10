@@ -206,7 +206,7 @@ function StepperInline({ steps = [], currentStep = 0, C, onSelect }) {
                 display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
                 background: 'none', border: 'none', padding: 0,
                 cursor: isClickable ? 'pointer' : 'default',
-                textDecoration: isClickable ? 'underline' : 'none',
+                //textDecoration: isClickable ? 'underline' : 'none',
                 textDecorationColor: C.completedLabel,
               }}
             >
@@ -376,7 +376,10 @@ export default function StepperPage() {
                 border: `2px solid ${activeTheme === th.id ? th.color : 'var(--stroke-primary)'}`,
                 background: activeTheme === th.id ? th.color + '18' : 'transparent',
                 color:      activeTheme === th.id ? th.color : 'var(--text-secondary)',
-              }}>{th.label}</button>
+              }}>
+                <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: th.color, marginRight: 5, verticalAlign: 'middle' }} />
+                {th.label}
+              </button>
             ))}
           </div>
         </div>
