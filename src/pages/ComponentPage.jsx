@@ -22,6 +22,10 @@ import BreadcrumbsPage   from './components/BreadcrumbsPage.jsx'
 import TabsPage          from './components/TabsPage.jsx'
 import AccordionPage     from './components/AccordionPage.jsx'
 import StepperPage      from './components/StepperPage.jsx'
+import SectionNavPage   from './components/SectionNavPage.jsx'
+import ModalPage        from './components/ModalPage.jsx'
+import PopoverMenuPage  from './components/PopoverMenuPage.jsx'
+import SidePanelPage   from './components/SidePanelPage.jsx'
 
 const FULL_PAGES = {
   '/components/button':          ButtonPage,
@@ -41,6 +45,11 @@ const FULL_PAGES = {
   '/components/tabs':            TabsPage,
   '/components/accordion':       AccordionPage,
   '/components/stepper':         StepperPage,
+  '/components/section-nav':     SectionNavPage,
+  '/components/modal':           ModalPage,
+  '/components/popover':         PopoverMenuPage,
+  '/components/side-panel':      SidePanelPage,
+  '/components/drawer':          SidePanelPage,
 }
 
 export default function ComponentPage() {
