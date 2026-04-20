@@ -26,6 +26,21 @@ import SectionNavPage   from './components/SectionNavPage.jsx'
 import ModalPage        from './components/ModalPage.jsx'
 import PopoverMenuPage  from './components/PopoverMenuPage.jsx'
 import SidePanelPage   from './components/SidePanelPage.jsx'
+import NavbarPage      from './components/NavbarPage.jsx'
+import CardPage        from './components/CardPage.jsx'
+import PagePage        from './components/PagePage.jsx'
+import TooltipPage     from './components/TooltipPage.jsx'
+import DividerPage     from './components/DividerPage.jsx'
+import GridPage        from './components/GridPage.jsx'
+import GuideCuePage    from './components/GuideCuePage.jsx'
+import TextFieldPage   from './components/TextFieldPage.jsx'
+import TextAreaPage    from './components/TextAreaPage.jsx'
+import SelectPage      from './components/SelectPage.jsx'
+import SearchBarPage   from './components/SearchBarPage.jsx'
+import DatePickerPage  from './components/DatePickerPage.jsx'
+import SpinnerPage     from './components/SpinnerPage.jsx'
+import SkeletonPage    from './components/SkeletonPage.jsx'
+import TablePage       from './components/TablePage.jsx'
 
 const FULL_PAGES = {
   '/components/button':          ButtonPage,
@@ -49,7 +64,21 @@ const FULL_PAGES = {
   '/components/modal':           ModalPage,
   '/components/popover':         PopoverMenuPage,
   '/components/side-panel':      SidePanelPage,
-  '/components/drawer':          SidePanelPage,
+  '/components/navbar':          NavbarPage,
+  '/components/card':            CardPage,
+  '/components/page':            PagePage,
+  '/components/tooltip':         TooltipPage,
+  '/components/divider':         DividerPage,
+  '/components/grid':            GridPage,
+  '/components/guide-cue':       GuideCuePage,
+  '/components/input':           TextFieldPage,
+  '/components/textarea':        TextAreaPage,
+  '/components/select':          SelectPage,
+  '/components/searchbar':       SearchBarPage,
+  '/components/datepicker':      DatePickerPage,
+  '/components/feedback/spinner':  SpinnerPage,
+  '/components/feedback/skeleton': SkeletonPage,
+  '/components/table':             TablePage,
 }
 
 export default function ComponentPage() {

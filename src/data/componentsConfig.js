@@ -262,7 +262,7 @@ export const COMPONENTS_CONFIG = [
     desc: 'Full-overlay dialog interrupting the user flow for critical actions, confirmations, or complex inputs.',
   },
   {
-    name: 'Popover',
+    name: 'Popover Menu',
     category: 'Layout & Overlay',
     path: '/components/popover',
     tokenPrefix: 'popover',
@@ -302,20 +302,12 @@ export const COMPONENTS_CONFIG = [
     desc: 'Small, non-interactive overlay surfacing supplementary text on hover or focus of an element.',
   },
   {
-    name: 'Drawer',
+    name: 'Guide Cue',
     category: 'Layout & Overlay',
-    path: '/components/drawer',
-    tokenPrefix: 'sidepanel',
-    tokens: 8,
-    desc: 'Full-height slide-in panel for navigation menus, complex filters, or secondary content panels.',
-  },
-  {
-    name: 'Submenu',
-    category: 'Layout & Overlay',
-    path: '/components/submenu',
-    tokenPrefix: 'navbar',
+    path: '/components/guide-cue',
+    tokenPrefix: 'guidecue',
     tokens: 10,
-    desc: 'Nested dropdown menu extending from a parent menu item for hierarchical action sets.',
+    desc: 'Guide Cues are used to onboard new users or introduce new features to customers.',
   },
 ]
 

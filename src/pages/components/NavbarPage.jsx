@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
+import { THEMES, getComponentTokens, getSemanticTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
 
@@ -169,6 +169,92 @@ const BOTTOM_ITEMS = [
   { id: 'logout', icon: 'logout', label: 'Log out' },
 ]
 
+// ─── Small extracted components (avoid hooks-in-map) ─────────────────────────
+
+function SubNavItem({ child, activeId, onSelect, C, scale = 1 }) {
+  const [hov, setHov] = useState(false)
+  const isActive = child.id === activeId
+  return (
+    <button
+      onClick={() => onSelect(child.id)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: 'flex', alignItems: 'center',
+        padding: `${Math.round(4 * scale)}px ${Math.round(10 * scale)}px`,
+        borderRadius: 100, border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%',
+        background: isActive ? C.itemBgActive : hov ? C.itemBgHover : 'transparent',
+        transition: 'background .15s',
+      }}
+    >
+      <span style={{ fontSize: Math.round(13 * scale), fontFamily: 'Poppins, sans-serif', fontWeight: isActive ? 500 : 300, color: isActive ? C.subTextActive : C.subTextDefault, whiteSpace: 'nowrap' }}>
+        {child.label}
+      </span>
+    </button>
+  )
+}
+
+function BottomNavItem({ item, isExpanded, C, scale = 1 }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <button
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: Math.round(16 * scale),
+        justifyContent: isExpanded ? 'flex-start' : 'center',
+        padding: Math.round(8 * scale), borderRadius: 8, border: 'none', cursor: 'pointer',
+        background: hov ? C.itemBgHover : 'transparent',
+        width: '100%', transition: 'background .15s',
+      }}
+    >
+      <NavIcon name={item.icon} size={Math.round(16 * scale)} color={C.itemTextDefault} />
+      {isExpanded && <span style={{ fontSize: Math.round(13 * scale), fontFamily: 'Poppins, sans-serif', fontWeight: 400, color: C.itemTextDefault }}>{item.label}</span>}
+    </button>
+  )
+}
+
+function HeaderNavItem({ item, activeId, onSelect, C, scale = 1, showIcons = true }) {
+  const [hov, setHov] = useState(false)
+  const isActive = item.id === activeId
+  const fs = Math.round(13 * scale)
+  const pad = Math.round(9 * scale)
+  const iconSz = Math.round(16 * scale)
+  return (
+    <button
+      onClick={() => onSelect(item.id)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: Math.round(7 * scale),
+        padding: `${pad}px ${Math.round(12 * scale)}px`,
+        borderRadius: 8, border: 'none', cursor: 'pointer',
+        background: isActive ? C.itemBgActive : hov ? C.itemBgHover : 'transparent',
+        transition: 'background .15s',
+      }}
+    >
+      {showIcons && <NavIcon name={item.icon} size={iconSz} color={isActive ? C.itemIconActive : C.itemIconDefault} />}
+      <span style={{ fontSize: fs, fontFamily: 'Poppins, sans-serif', fontWeight: isActive ? 500 : 400, color: isActive ? C.itemTextActive : C.itemTextDefault, whiteSpace: 'nowrap' }}>
+        {item.label}
+      </span>
+    </button>
+  )
+}
+
+function HeaderActionBtn({ name, C, scale = 1 }) {
+  const [hov, setHov] = useState(false)
+  const iconSz = Math.round(16 * scale)
+  return (
+    <button
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ width: Math.round(32 * scale), height: Math.round(32 * scale), borderRadius: 8, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', background: hov ? C.itemBgHover : 'transparent', transition: 'background .15s' }}
+    >
+      <NavIcon name={name} size={iconSz} color={C.itemIconDefault} />
+    </button>
+  )
+}
+
 // ─── Sidebar component ────────────────────────────────────────────────────────
 
 function NavItem({ item, activeId, onSelect, collapsed, expanded, onToggle, C, scale = 1 }) {
@@ -221,29 +307,9 @@ function NavItem({ item, activeId, onSelect, collapsed, expanded, onToggle, C, s
       {/* Sub-items */}
       {!collapsed && hasChildren && isExpanded && (
         <div style={{ marginLeft: Math.round(18 * scale), paddingLeft: Math.round(14 * scale), borderLeft: `1px solid ${C.subDivider}`, display: 'flex', flexDirection: 'column', gap: 2, marginTop: 2, marginBottom: 2 }}>
-          {item.children.map(child => {
-            const childActive = child.id === activeId
-            const [ch, setCh] = useState(false)
-            return (
-              <button
-                key={child.id}
-                onClick={() => onSelect(child.id)}
-                onMouseEnter={() => setCh(true)}
-                onMouseLeave={() => setCh(false)}
-                style={{
-                  display: 'flex', alignItems: 'center',
-                  padding: `${Math.round(4 * scale)}px ${Math.round(10 * scale)}px`,
-                  borderRadius: 100, border: 'none', cursor: 'pointer', textAlign: 'left',
-                  background: childActive ? C.itemBgActive : ch ? C.itemBgHover : 'transparent',
-                  transition: 'background .15s',
-                }}
-              >
-                <span style={{ fontSize: Math.round(13 * scale), fontFamily: 'Poppins, sans-serif', fontWeight: childActive ? 500 : 300, color: childActive ? C.subTextActive : C.subTextDefault, whiteSpace: 'nowrap' }}>
-                  {child.label}
-                </span>
-              </button>
-            )
-          })}
+          {item.children.map(child => (
+            <SubNavItem key={child.id} child={child} activeId={activeId} onSelect={onSelect} C={C} scale={scale} />
+          ))}
         </div>
       )}
     </div>
@@ -251,21 +317,26 @@ function NavItem({ item, activeId, onSelect, collapsed, expanded, onToggle, C, s
 }
 
 function Sidebar({ C, collapsed, onToggle, activeId, onSelect, expanded, onExpand, scale = 1, height = '100%' }) {
-  const W = collapsed ? Math.round(58 * scale) : Math.round(220 * scale)
-  const px = Math.round(collapsed ? 0 : 16 * scale)
+  const [hoverOpen, setHoverOpen] = useState(false)
+  const isExpanded = !collapsed || hoverOpen
+  const W = isExpanded ? Math.round(220 * scale) : Math.round(58 * scale)
+  const px = isExpanded ? Math.round(16 * scale) : 0
   const py = Math.round(10 * scale)
 
   return (
-    <div style={{
-      width: W, minWidth: W, height,
-      background: C.bg,
-      display: 'flex', flexDirection: 'column',
-      transition: 'width .25s cubic-bezier(.4,0,.2,1)',
-      overflow: 'hidden', flexShrink: 0,
-      borderRight: C.isDark ? 'none' : `1px solid ${C.divider}`,
-    }}>
+    <div
+      onMouseEnter={() => { if (collapsed) setHoverOpen(true) }}
+      onMouseLeave={() => setHoverOpen(false)}
+      style={{
+        width: W, minWidth: W, height,
+        background: C.bg,
+        display: 'flex', flexDirection: 'column',
+        transition: 'width .25s cubic-bezier(.4,0,.2,1)',
+        overflow: 'hidden', flexShrink: 0,
+        borderRight: C.isDark ? 'none' : `1px solid ${C.divider}`,
+      }}>
       {/* Toggle */}
-      <div style={{ padding: py, display: 'flex', justifyContent: collapsed ? 'center' : 'flex-end', flexShrink: 0 }}>
+      <div style={{ padding: py, display: 'flex', justifyContent: isExpanded ? 'flex-end' : 'center', flexShrink: 0 }}>
         <button
           onClick={onToggle}
           style={{
@@ -283,7 +354,7 @@ function Sidebar({ C, collapsed, onToggle, activeId, onSelect, expanded, onExpan
         <div style={{ width: Math.round(32 * scale), height: Math.round(32 * scale), borderRadius: 6, background: C.brandMid || '#07a2b6', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span style={{ fontSize: Math.round(12 * scale), fontWeight: 700, color: '#fff' }}>A</span>
         </div>
-        {!collapsed && (
+        {isExpanded && (
           <div>
             <div style={{ fontSize: Math.round(14 * scale), fontFamily: 'Poppins, sans-serif', fontWeight: 500, color: C.headerTextBrand, lineHeight: 1.2 }}>Arcad</div>
             <div style={{ fontSize: Math.round(10 * scale), fontFamily: 'Poppins, sans-serif', color: C.headerTextSub, lineHeight: 1.2 }}>v4.2.1</div>
@@ -298,7 +369,7 @@ function Sidebar({ C, collapsed, onToggle, activeId, onSelect, expanded, onExpan
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: `${py}px ${Math.round(8 * scale)}px` }}>
         {NAV_ITEMS.map((item, i) => {
           if (item.type === 'section') {
-            if (collapsed) return null
+            if (!isExpanded) return null
             return (
               <div key={i} style={{ padding: `${Math.round(10 * scale)}px ${Math.round(8 * scale)}px ${Math.round(4 * scale)}px`, fontSize: Math.round(10 * scale), fontFamily: 'Poppins, sans-serif', fontWeight: 600, color: C.sectionLabel, letterSpacing: '.07em', textTransform: 'uppercase' }}>
                 {item.label}
@@ -311,7 +382,7 @@ function Sidebar({ C, collapsed, onToggle, activeId, onSelect, expanded, onExpan
               item={item}
               activeId={activeId}
               onSelect={onSelect}
-              collapsed={collapsed}
+              collapsed={!isExpanded}
               expanded={expanded}
               onToggle={onExpand}
               C={C}
@@ -325,29 +396,12 @@ function Sidebar({ C, collapsed, onToggle, activeId, onSelect, expanded, onExpan
       <div style={{ flexShrink: 0 }}>
         <div style={{ height: 1, background: C.divider }} />
         <div style={{ padding: `${py}px ${Math.round(8 * scale)}px`, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {BOTTOM_ITEMS.map(item => {
-            const [hov, setHov] = useState(false)
-            return (
-              <button
-                key={item.id}
-                onMouseEnter={() => setHov(true)}
-                onMouseLeave={() => setHov(false)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: Math.round(16 * scale),
-                  justifyContent: collapsed ? 'center' : 'flex-start',
-                  padding: Math.round(8 * scale), borderRadius: 8, border: 'none', cursor: 'pointer',
-                  background: hov ? C.itemBgHover : 'transparent',
-                  width: '100%', transition: 'background .15s',
-                }}
-              >
-                <NavIcon name={item.icon} size={Math.round(16 * scale)} color={C.itemTextDefault} />
-                {!collapsed && <span style={{ fontSize: Math.round(13 * scale), fontFamily: 'Poppins, sans-serif', fontWeight: 400, color: C.itemTextDefault }}>{item.label}</span>}
-              </button>
-            )
-          })}
+          {BOTTOM_ITEMS.map(item => (
+            <BottomNavItem key={item.id} item={item} isExpanded={isExpanded} C={C} scale={scale} />
+          ))}
         </div>
         {/* Footer */}
-        {!collapsed && (
+        {isExpanded && (
           <>
             <div style={{ height: 1, background: C.divider }} />
             <div style={{ padding: `${Math.round(10 * scale)}px ${Math.round(16 * scale)}px` }}>
@@ -395,47 +449,16 @@ function TopHeaderBar({ C, activeId, onSelect, height = 52, scale = 1, showIcons
 
       {/* Nav items */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1, justifyContent: 'center', overflow: 'hidden' }}>
-        {HEADER_ITEMS.map(item => {
-          const isActive = item.id === activeId
-          const [hov, setHov] = useState(false)
-          return (
-            <button
-              key={item.id}
-              onClick={() => onSelect(item.id)}
-              onMouseEnter={() => setHov(true)}
-              onMouseLeave={() => setHov(false)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: Math.round(7 * scale),
-                padding: `${pad}px ${Math.round(12 * scale)}px`,
-                borderRadius: 8, border: 'none', cursor: 'pointer',
-                background: isActive ? C.itemBgActive : hov ? C.itemBgHover : 'transparent',
-                transition: 'background .15s',
-              }}
-            >
-              {showIcons && <NavIcon name={item.icon} size={iconSz} color={isActive ? C.itemIconActive : C.itemIconDefault} />}
-              <span style={{ fontSize: fs, fontFamily: 'Poppins, sans-serif', fontWeight: isActive ? 500 : 400, color: isActive ? C.itemTextActive : C.itemTextDefault, whiteSpace: 'nowrap' }}>
-                {item.label}
-              </span>
-            </button>
-          )
-        })}
+        {HEADER_ITEMS.map(item => (
+          <HeaderNavItem key={item.id} item={item} activeId={activeId} onSelect={onSelect} C={C} scale={scale} showIcons={showIcons} />
+        ))}
       </div>
 
       {/* Right actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: Math.round(6 * scale), flexShrink: 0 }}>
-        {[{ name: 'search' }, { name: 'bell' }].map(btn => {
-          const [hov, setHov] = useState(false)
-          return (
-            <button
-              key={btn.name}
-              onMouseEnter={() => setHov(true)}
-              onMouseLeave={() => setHov(false)}
-              style={{ width: Math.round(32 * scale), height: Math.round(32 * scale), borderRadius: 8, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', background: hov ? C.itemBgHover : 'transparent', transition: 'background .15s' }}
-            >
-              <NavIcon name={btn.name} size={iconSz} color={C.itemIconDefault} />
-            </button>
-          )
-        })}
+        {['search', 'bell'].map(name => (
+          <HeaderActionBtn key={name} name={name} C={C} scale={scale} />
+        ))}
         {/* User avatar */}
         <div style={{ width: Math.round(30 * scale), height: Math.round(30 * scale), borderRadius: '50%', background: C.brandMid || '#07a2b6', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
           <span style={{ fontSize: Math.round(11 * scale), fontWeight: 600, color: '#fff' }}>JD</span>
@@ -456,7 +479,7 @@ const VARIANT_OPTIONS = [
   { id: 'dark-grey',   label: 'Dark — Grey 800',  group: 'dark' },
 ]
 
-function LiveDemo({ baseTokens }) {
+function LiveDemo({ baseTokens, darkPalettes }) {
   const [variantId, setVariantId] = useState('light-grey')
   const [collapsed, setCollapsed] = useState(false)
   const [activeId, setActiveId] = useState('dashboard')
@@ -468,11 +491,12 @@ function LiveDemo({ baseTokens }) {
     'light-white': baseTokens['navbar.bg.white']   || '#ffffff',
   }
 
-  const C = variantId.startsWith('dark')
-    ? { ...DARK_PALETTES[variantId], brandMid: baseTokens['tabs.indicator'] || '#07a2b6', brandDark: baseTokens['tabs.text.active'] || '#05606d' }
-    : getLightPalette(baseTokens, bgs[variantId])
+  const brandMid  = baseTokens['tabs.indicator']   || '#07a2b6'
+  const brandDark = baseTokens['tabs.text.active'] || '#05606d'
 
-  const brandMid = baseTokens['tabs.indicator'] || '#07a2b6'
+  const C = variantId.startsWith('dark')
+    ? (darkPalettes?.[variantId] || { ...DARK_PALETTES[variantId], brandMid, brandDark })
+    : getLightPalette(baseTokens, bgs[variantId])
 
   const btnBase = (active) => ({
     padding: '5px 11px', borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: 'pointer',
@@ -502,13 +526,17 @@ function LiveDemo({ baseTokens }) {
       </div>
 
       {/* App frame */}
-      <div style={{ height: 360, display: 'flex', border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden' }}>
+      <div style={{ height: 460, display: 'flex', border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden' }}>
         <Sidebar
           C={C}
           collapsed={collapsed}
           onToggle={() => setCollapsed(v => !v)}
           activeId={activeId}
-          onSelect={(id) => { setActiveId(id); setExpanded(null) }}
+          onSelect={(id) => {
+            setActiveId(id)
+            const parent = NAV_ITEMS.find(it => it.children?.some(c => c.id === id))
+            setExpanded(parent ? parent.id : null)
+          }}
           expanded={expanded}
           onExpand={toggleExpand}
           scale={0.88}
@@ -872,7 +900,11 @@ function UseCaseMockup({ C }) {
           collapsed={collapsed}
           onToggle={() => setCollapsed(v => !v)}
           activeId={activeId}
-          onSelect={(id) => { setActiveId(id); setExpanded(null) }}
+          onSelect={(id) => {
+            setActiveId(id)
+            const parent = NAV_ITEMS.find(it => it.children?.some(c => c.id === id))
+            setExpanded(parent ? parent.id : null)
+          }}
           expanded={expanded}
           onExpand={(id) => setExpanded(prev => prev === id ? null : id)}
           scale={0.78}
@@ -914,8 +946,11 @@ export default function NavbarPage() {
   const t = VISIBLE_THEMES.find(x => x.id === themeId) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(t.id)
 
+  const semantic  = getSemanticTokens(t.id)
   const brandMid  = tokens['tabs.indicator']   || '#07a2b6'
   const brandDark = tokens['tabs.text.active'] || '#05606d'
+  const brand800  = semantic['color.bg.brand.strong']    || '#05606d'
+  const brand900  = semantic['color.bg.brand.strongest'] || '#00424b'
 
   const lightBgs = {
     'light-grey':  tokens['navbar.bg.default'] || '#fbfcfd',
@@ -929,9 +964,11 @@ export default function NavbarPage() {
     'light-white': getLightPalette(tokens, lightBgs['light-white']),
   }
 
-  const enrichedDark = Object.fromEntries(
-    Object.entries(DARK_PALETTES).map(([k, v]) => [k, { ...v, brandMid, brandDark }])
-  )
+  const enrichedDark = {
+    'dark-brand': { ...DARK_PALETTES['dark-brand'], bg: brand800, brandMid, brandDark },
+    'dark-deep':  { ...DARK_PALETTES['dark-deep'],  bg: brand900, brandMid, brandDark },
+    'dark-grey':  { ...DARK_PALETTES['dark-grey'],  brandMid, brandDark },
+  }
 
   const C = LIGHT_PALETTES['light-grey']  // default for anatomy/use case
 
@@ -970,7 +1007,7 @@ export default function NavbarPage() {
       <H2>Overview</H2>
       <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 12, overflow: 'hidden', marginBottom: 32 }}>
         <div style={{ padding: '24px 28px', background: 'var(--bg-primary)' }}>
-          <LiveDemo baseTokens={tokens} />
+          <LiveDemo baseTokens={tokens} darkPalettes={enrichedDark} />
         </div>
       </div>
 

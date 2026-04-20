@@ -8018,7 +8018,7 @@
         "com.figma.hiddenFromPublishing": false
       },
       "$type": "number",
-      "$value": "{numbers.spacing.4xs}"
+      "$value": "{numbers.spacing.2xs}"
     },
     "padding-y": {
       "$extensions": {
