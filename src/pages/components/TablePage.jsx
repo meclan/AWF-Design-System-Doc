@@ -463,10 +463,10 @@ function BulkBar({ C, selectedCount, onClearSelection }) {
 
   return (
     <div style={{
+      marginBottom: 12,
       display: 'flex',
       alignItems: 'center',
-      borderRadius: 8,
-      marginBottom: 10,
+      borderRadius: 12,//'12px 12px 0 0',
       gap: C.bulkGap,
       background: C.bulkBg,
       paddingTop: C.bulkPy,
@@ -746,7 +746,7 @@ function TableRow({ C, row, cols, density, selected, hovered, selectionMode, onS
 
   return (
     <tr
-      style={{ background: bg, height: h, transition: 'background .12s', cursor: selectionMode === 'single' ? 'pointer' : 'default' }}
+      style={{ background: bg, height: h, transition: 'background .12s', cursor: selectionMode === 'single' ? 'pointer' : 'default'}}
       onMouseEnter={() => onHover(row.id)}
       onMouseLeave={() => onHover(null)}
       onClick={() => selectionMode === 'single' && onSelect(row.id)}
@@ -1085,14 +1085,14 @@ function LiveTable({ C, variant, density, onDensityChange = () => {}, selectionM
       />
       {/* 12px inset keeps table aligned with the search bar */}
       <div style={{ padding: 12 }}>
-        {/* Inner clip gives border-radius 12 to the header top corners + attached pagination */}
-        <div style={{ overflow: 'hidden', borderRadius: 12 }}>
-          {/* Bulk bar sits directly above the table header */}
-          <BulkBar
-            C={C}
-            selectedCount={selectedRows.size}
-            onClearSelection={() => setSelected(new Set())}
-          />
+        {/* Bulk bar: sibling of inner clip, gets rounded top corners on its own */}
+        <BulkBar
+          C={C}
+          selectedCount={selectedRows.size}
+          onClearSelection={() => setSelected(new Set())}
+        />
+        {/* Inner clip: always rounds all corners; BulkBar above it covers the top corners when visible */}
+        <div style={{ overflow: 'hidden', borderRadius: 12}}>
           <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Poppins, sans-serif' }}>
             <TableHead
