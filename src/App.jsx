@@ -15,6 +15,9 @@ import FoundationsMotion from './pages/FoundationsMotion.jsx'
 import IconsExplorer from './pages/IconsExplorer.jsx'
 import GuideTheming from './pages/GuideTheming.jsx'
 import GuideTokenUsage from './pages/GuideTokenUsage.jsx'
+import GuideGettingStarted from './pages/GuideGettingStarted.jsx'
+import AboutIntroduction from './pages/AboutIntroduction.jsx'
+import AboutChangelog from './pages/AboutChangelog.jsx'
 
 export default function App() {
   return (
@@ -31,12 +34,12 @@ export default function App() {
             <Route path="/" element={<Home />} />
 
             {/* About */}
-            <Route path="/about"           element={<Placeholder title="Introduction" />} />
-            <Route path="/about/changelog" element={<Placeholder title="Changelog" />} />
+            <Route path="/about"           element={<AboutIntroduction />} />
+            <Route path="/about/changelog" element={<AboutChangelog />} />
 
             {/* Guides */}
-            <Route path="/guides"                 element={<Placeholder title="Guides" />} />
-            <Route path="/guides/getting-started" element={<Placeholder title="Getting Started" />} />
+            <Route path="/guides"                 element={<GuideGettingStarted />} />
+            <Route path="/guides/getting-started" element={<GuideGettingStarted />} />
             <Route path="/guides/theming"         element={<GuideTheming />} />
             <Route path="/guides/tokens"          element={<GuideTokenUsage />} />
 

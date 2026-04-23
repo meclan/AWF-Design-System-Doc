@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 /**
  * Shared documentation primitives used by the Foundations pages
@@ -104,6 +104,36 @@ export function Divider() {
 }
 
 export function PageShell({ eyebrow = 'Foundations', title, lead, children, toc, relatedLinks = [] }) {
+  const [activeSection, setActiveSection] = useState(toc?.[0]?.id)
+
+  // Reset scroll to top when this page first mounts
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (main) main.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    else window.scrollTo(0, 0)
+  }, [])
+
+  // Scroll-spy: highlight the TOC entry for whichever section is in view
+  useEffect(() => {
+    if (!toc || toc.length === 0) return
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = toc.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [toc])
+
   return (
     <div style={{ display: 'flex', gap: 40, maxWidth: 1060, margin: '0 auto', padding: '48px 40px 80px' }}>
       <article style={{ flex: 1, minWidth: 0 }}>
@@ -119,14 +149,35 @@ export function PageShell({ eyebrow = 'Foundations', title, lead, children, toc,
 
       <aside style={{ width: 176, flexShrink: 0, alignSelf: 'flex-start', position: 'sticky', top: 20 }}>
         <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {toc.map(item => (
-            <a key={item.id} href={`#${item.id}`} style={{ fontSize: 12, color: 'var(--text-secondary)', textDecoration: 'none', padding: '4px 8px', borderRadius: 5, borderLeft: '2px solid transparent', transition: 'all 100ms' }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'var(--brand-600)'; e.currentTarget.style.borderLeftColor = 'var(--brand-600)' }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderLeftColor = 'transparent' }}>
-              {item.label}
-            </a>
-          ))}
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {toc.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
         </nav>
         {relatedLinks.length > 0 && (
           <div style={{ marginTop: 24, padding: '12px', background: 'var(--bg-secondary)', borderRadius: 8, border: '1px solid var(--stroke-primary)' }}>
