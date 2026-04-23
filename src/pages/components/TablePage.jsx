@@ -1452,7 +1452,8 @@ export default function TablePage() {
   const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const [activeSection, setActiveSection] = useState('demo')
   const t = VISIBLE_THEMES.find(x => x.id === activeTheme) || VISIBLE_THEMES[0]
-  const tokens = getComponentTokens(t.id)
+  const themeId = t.id
+  const tokens = getComponentTokens(themeId)
   const C = getColors(tokens)
 
   // Interactive demo controls
