@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import TopNav from './components/TopNav.jsx'
 import ContextSidebar from './components/ContextSidebar.jsx'
 import Placeholder from './pages/Placeholder.jsx'
@@ -18,6 +18,7 @@ import GuideTokenUsage from './pages/GuideTokenUsage.jsx'
 import GuideGettingStarted from './pages/GuideGettingStarted.jsx'
 import AboutIntroduction from './pages/AboutIntroduction.jsx'
 import AboutChangelog from './pages/AboutChangelog.jsx'
+import PatternsOverview from './pages/PatternsOverview.jsx'
 
 export default function App() {
   return (
@@ -37,14 +38,14 @@ export default function App() {
             <Route path="/about"           element={<AboutIntroduction />} />
             <Route path="/about/changelog" element={<AboutChangelog />} />
 
-            {/* Guides */}
-            <Route path="/guides"                 element={<GuideGettingStarted />} />
+            {/* Guides — root redirects so the sidebar highlights correctly */}
+            <Route path="/guides"                 element={<Navigate to="/guides/getting-started" replace />} />
             <Route path="/guides/getting-started" element={<GuideGettingStarted />} />
             <Route path="/guides/theming"         element={<GuideTheming />} />
             <Route path="/guides/tokens"          element={<GuideTokenUsage />} />
 
-            {/* Foundations */}
-            <Route path="/foundations"            element={<TokensArchitecture />} />
+            {/* Foundations — root redirects so the sidebar highlights correctly */}
+            <Route path="/foundations"            element={<Navigate to="/foundations/tokens" replace />} />
             <Route path="/foundations/tokens"     element={<TokensArchitecture />} />
             <Route path="/foundations/color"      element={<TokensColor />} />
             <Route path="/foundations/typography" element={<FoundationsTypography />} />
@@ -67,7 +68,7 @@ export default function App() {
             <Route path="/components/*" element={<ComponentPage />} />
 
             {/* Patterns */}
-            <Route path="/patterns" element={<Placeholder title="Patterns" />} />
+            <Route path="/patterns" element={<PatternsOverview />} />
           </Routes>
         </main>
       </div>
