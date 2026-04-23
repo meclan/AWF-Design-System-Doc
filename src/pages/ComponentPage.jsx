@@ -6,6 +6,7 @@ import Placeholder from './Placeholder.jsx'
 
 // Dedicated full-doc pages — add new entries here as components are documented
 import ButtonPage        from './components/ButtonPage.jsx'
+import IconButtonPage    from './components/IconButtonPage.jsx'
 import TogglePage        from './components/TogglePage.jsx'
 import CheckboxPage      from './components/CheckboxPage.jsx'
 import RadioPage         from './components/RadioPage.jsx'
@@ -44,6 +45,7 @@ import TablePage       from './components/TablePage.jsx'
 
 const FULL_PAGES = {
   '/components/button':          ButtonPage,
+  '/components/icon-button':     IconButtonPage,
   '/components/toggle':          TogglePage,
   '/components/checkbox':        CheckboxPage,
   '/components/radio':           RadioPage,

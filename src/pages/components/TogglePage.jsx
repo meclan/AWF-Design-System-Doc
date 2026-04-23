@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -375,7 +377,7 @@ const TOKEN_TABS = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function TogglePage() {
-  const [activeTheme,    setActiveTheme]    = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const [tokenTab,       setTokenTab]       = useState('button.toggle.ghost')
   const [activeSection,  setActiveSection]  = useState('overview')
 
@@ -1123,6 +1125,7 @@ export default function TogglePage() {
             )
           })}
         </nav>
+        <BrandThemeSwitcher />
       </aside>
 
     </div>

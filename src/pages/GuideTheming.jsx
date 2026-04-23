@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { THEMES, getSemanticTokens } from '../data/tokens/index.js'
+import { useBrandTheme } from '../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../components/BrandThemeSwitcher.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
 
@@ -128,7 +130,7 @@ const TOC = [
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function GuideTheming() {
-  const [activeTheme, setActiveTheme] = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const semanticTokens = getSemanticTokens(activeTheme)
   const brandSamples = ['color.bg.brand.default', 'color.bg.brand.strong', 'color.bg.brand.subtle', 'color.bg.brand.subtlest']
 
@@ -161,31 +163,15 @@ export default function GuideTheming() {
         <H2>The AWF theming model</H2>
         <Lead>
           AWF uses a <strong>three-layer token architecture</strong>. Only the middle layer — semantic tokens — changes between products.
-          The primitive and component layers are fully shared.
+          The primitive and component layers are fully shared across every theme.
         </Lead>
 
-        {/* Layer diagram */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2, marginBottom: 20 }}>
-          {[
-            { name: 'Primitives', color: '#64748b', desc: 'Raw values. Color palettes, spacing, type sizes. Never used directly in components.', status: 'Shared across all products' },
-            { name: 'Semantic', color: '#0077C8', desc: 'Purposeful aliases. "Brand background", "primary text". This layer changes per product.', status: 'One set per product theme' },
-            { name: 'Component', color: '#0099b8', desc: 'Precise assignments. Exact token for each component state. References semantic tokens only.', status: 'Shared across all products' },
-          ].map((layer, i) => (
-            <div key={layer.name} style={{ padding: '16px', background: 'var(--bg-primary)', border: '1px solid var(--stroke-primary)', borderRadius: i === 0 ? '8px 0 0 8px' : i === 2 ? '0 8px 8px 0' : 0, borderLeft: i > 0 ? 'none' : undefined }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: layer.color, marginBottom: 8 }} />
-              <div style={{ fontSize: 12, fontWeight: 700, color: layer.color, marginBottom: 6 }}>{layer.name}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: 10 }}>{layer.desc}</div>
-              <div style={{ fontSize: 10, color: 'var(--text-tertiary)', fontStyle: 'italic' }}>{layer.status}</div>
-            </div>
-          ))}
-        </div>
-
         <P>
-          When a user switches from the DOT Anonymizer product to CoChecker, only the semantic token set swaps — the entire component library renders correctly without any code changes. This is the core promise of the AWF theming model.
+          When a user switches from DOT Anonymizer to CoChecker, only the semantic token set swaps — the entire component library renders correctly without any code changes. This is the core promise of the AWF theming model.
         </P>
 
         <InfoBox type="info">
-          See <Link to="/foundations/tokens" style={{ color: 'var(--brand-600)', fontWeight: 500 }}>Token Architecture</Link> for a detailed breakdown of each layer, naming conventions, and the full resolution flow.
+          The full structural breakdown — layer diagram, token counts, naming convention, and resolution flow — lives in <Link to="/foundations/tokens" style={{ color: 'var(--brand-600)', fontWeight: 500 }}>Foundations → Token Architecture</Link>. This guide focuses on <em>how to apply</em> themes; the Foundations page is the structural reference.
         </InfoBox>
 
         <Divider />
@@ -310,55 +296,21 @@ button/filled/bg/default →  button.filled.bg.default`}
 
         {/* ── Section 4: Developers ────────────────────────────────────── */}
         <SectionAnchor id="developers" />
-        <H2>For developers</H2>
+        <H2>For developers — app-level wiring</H2>
         <Lead>
-          AWF ships a token resolver that produces a fully resolved flat map of component tokens for any given theme. You never work with raw JSON or hardcoded values.
+          This section covers the high-level shape of a themed AWF app. For the complete API surface
+          (function signatures, CSS variables, adding a theme, migration strategy), see
+          {' '}<Link to="/guides/tokens" style={{ color: 'var(--brand-600)', fontWeight: 500 }}>Token Usage</Link>.
         </Lead>
-
-        <H3>Resolving tokens at runtime</H3>
-        <CodeBlock lang="javascript">
-{`import { getComponentTokens } from 'data/tokens'
-
-// Resolve all component tokens for a given product theme.
-// Results are cached — safe to call in every component.
-const tokens = getComponentTokens('dot')
-
-// tokens is a flat object:
-// {
-//   'button.filled.bg.default': '#0077C8',
-//   'button.filled.bg.hover':   '#005a9e',
-//   'toast.stroke.success':     '#02bf2b',
-//   ...
-// }
-
-// Use in a component style:
-<button style={{ background: tokens['button.filled.bg.default'] }}>
-  Submit
-</button>`}
-        </CodeBlock>
-
-        <H3>Available theme IDs</H3>
-        <CodeBlock lang="javascript">
-{`// Valid theme IDs
-'dot'         // DOT Anonymizer
-'drops'       // Drops
-'discover'    // Discover
-'cochecker'   // CoChecker
-'mrconnector' // MR Connector
-'verifier'    // Verifier
-
-// Planned (not yet available)
-'dot-dark'
-'dot-accessible'`}
-        </CodeBlock>
 
         <H3>Providing a theme through context</H3>
         <P>
-          For applications that need to switch themes at runtime (e.g. based on user settings or the current product module), wrap your component tree in a theme context:
+          For applications that need to switch themes at runtime (e.g. based on user settings or the current product module), wrap your component tree in a theme context at the application root:
         </P>
         <CodeBlock lang="javascript">
 {`// ThemeContext.js
-const ThemeContext = React.createContext('dot')
+import { getComponentTokens } from 'data/tokens'
+const ThemeContext = React.createContext(null)
 
 export function ThemeProvider({ productId, children }) {
   const tokens = getComponentTokens(productId)
@@ -381,6 +333,10 @@ function PrimaryButton({ label }) {
   )
 }`}
         </CodeBlock>
+
+        <InfoBox type="info">
+          One theme context at the application root. Resolved tokens are cached per theme ID — no runtime overhead after the first render.
+        </InfoBox>
 
         <H3>Live token preview — switch theme</H3>
         <div style={{ border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
@@ -455,74 +411,60 @@ function MyButton({ theme }) {               // ← don't do this
 
         {/* ── Section 6: Rules ─────────────────────────────────────────── */}
         <SectionAnchor id="rules" />
-        <H2>Do's &amp; Don'ts</H2>
+        <H2>Design &amp; process Do's &amp; Don'ts</H2>
+        <Lead>
+          These are the high-level design and team-workflow rules. For the code-level rules
+          (API usage, token references in JSON), see{' '}
+          <Link to="/guides/tokens#rules" style={{ color: 'var(--brand-600)', fontWeight: 500 }}>Token Usage → Do / Don't rules</Link>.
+        </Lead>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
-          <DoBox>Reference component tokens for all visual properties — background, text, border, shadow.</DoBox>
-          <DontBox>Use primitive tokens (e.g. <Code>color.brand.DOT.600</Code>) directly in UI components. They are for semantic tokens only.</DontBox>
+          <DoBox>Design and test every new component against all 6 product themes before shipping. A layout that works in DOT blue can fail contrast in Discover yellow.</DoBox>
+          <DontBox>Assume DOT is the only theme, or hardcode product colours in CSS / inline styles / design files.</DontBox>
           <DoBox>Keep the theme ID at the application root and pass tokens down via context.</DoBox>
-          <DontBox>Hardcode product colours in CSS, inline styles, or Tailwind classes.</DontBox>
-          <DoBox>Test every new component against all 6 product themes before shipping.</DoBox>
-          <DontBox>Assume DOT is the only theme. Build to the token contract, not to specific hex values.</DontBox>
+          <DontBox>Let individual components or pages pick their own theme. One viewport = one active theme.</DontBox>
           <DoBox>Contribute new tokens to the source JSON and let the resolver handle all themes.</DoBox>
           <DontBox>Create one-off per-product CSS overrides. If a component looks wrong in a theme, fix the token, not the component.</DontBox>
-          <DoBox>Use the semantic token name to communicate design intent in PRs and code reviews.</DoBox>
-          <DontBox>Override component tokens at the component level with magic values. All exceptions require a token.</DontBox>
+          <DoBox>Use the semantic token name to communicate design intent in PRs and design reviews.</DoBox>
+          <DontBox>Override component tokens with magic hex values. All exceptions require a new token.</DontBox>
         </div>
 
         <Divider />
 
-        {/* ── Section 7: Common mistakes ───────────────────────────────── */}
+        {/* ── Section 7: Common design mistakes ────────────────────────── */}
         <SectionAnchor id="mistakes" />
-        <H2>Common mistakes</H2>
+        <H2>Common design &amp; process mistakes</H2>
+        <Lead>
+          Patterns we've seen break theming over time — all at the design/team-workflow level.
+          For code-level anti-patterns (hardcoded hex, wrong token layer, missed caching), see{' '}
+          <Link to="/guides/tokens#mistakes" style={{ color: 'var(--brand-600)', fontWeight: 500 }}>Token Usage → Common mistakes</Link>.
+        </Lead>
 
         {[
           {
-            title: '1. Hardcoding hex values',
-            bad:   `// Bad\nstyle={{ color: '#0077C8' }}`,
-            good:  `// Good\nstyle={{ color: tokens['button.filled.text.default'] }}`,
-            why: 'Hardcoded values break immediately when a different product theme is applied. The token ensures the correct colour for every theme.',
+            title: '1. Designing only in DOT and never testing other themes',
+            why: 'Discover uses a yellow brand (#F6AE40) and Drops uses purple. A design reviewed only in DOT\'s blue may fail WCAG contrast on other brand surfaces. Always verify in all 6 themes before shipping — at design-review time, not at QA time.',
           },
           {
-            title: '2. Using a primitive token directly in a component',
-            bad:   `// Bad\nconst brandBlue = primitives['color.brand.DOT.600']`,
-            good:  `// Good — use the semantic alias\nconst brandBg = semanticTokens['color.bg.brand.default']`,
-            why: 'Primitives have no semantic meaning. Using them bypasses the theming layer and creates implicit DOT-only dependencies.',
+            title: '2. Detaching values from Figma Variables',
+            why: 'Hardcoding a hex in Figma breaks theme switching for every screen it touches. Always select from Variables (the semantic layer), never paste a raw hex.',
           },
           {
-            title: '3. Calling getComponentTokens() per component without caching',
-            bad:   `// Bad — called on every render of every component\nfunction Button() {\n  const tokens = getComponentTokens('dot') // uncached call\n}`,
-            good:  `// Good — resolved once at the app root\nconst tokens = getComponentTokens(productId) // cached\n<ThemeContext.Provider value={tokens}>...</ThemeContext.Provider>`,
-            why: 'getComponentTokens() is cached by theme ID, but calling it inside a component re-invokes the lookup logic on every render.',
+            title: '3. Using primitive variables directly in designs',
+            why: 'Primitives like color/brand/DOT/600 have no semantic meaning — they exist only to feed semantic tokens. Picking them in Figma or code creates implicit DOT-only dependencies that are invisible until another theme is applied.',
           },
           {
-            title: '4. Designing only in DOT and never testing other themes',
-            bad:  '',
-            good: '',
-            why: 'Discover uses a yellow brand (#F6AE40). A design that works with DOT\'s blue may fail WCAG contrast requirements on yellow backgrounds. Always verify in all 6 themes before shipping.',
+            title: '4. Mixing theme contexts in a single viewport',
+            why: 'One product page has one active theme. Nesting theme providers (header in DOT, sidebar in CoChecker) looks interesting in mocks but creates visual inconsistency and extremely hard-to-debug layouts.',
           },
           {
-            title: '5. Mixing theme contexts in a single viewport',
-            bad:   `// Bad — two active theme contexts\n<ThemeProvider theme="dot">\n  <Header />\n  <ThemeProvider theme="cochecker"> {/* ← never do this */}\n    <Sidebar />\n  </ThemeProvider>\n</ThemeProvider>`,
-            good:  `// Good — single theme context per page\n<ThemeProvider theme={productId}>\n  <Header />\n  <Sidebar />\n</ThemeProvider>`,
-            why: 'A single product page has one active theme. Nesting theme providers creates visual inconsistency and makes debugging very difficult.',
+            title: '5. Introducing one-off per-product CSS overrides',
+            why: 'If a component looks wrong in a specific theme, the fix is always at the token level — either the component token (wrong semantic reference), the semantic token (wrong primitive), or a new primitive. Per-product CSS defeats the three-layer model entirely.',
           },
         ].map(item => (
-          <div key={item.title} style={{ marginBottom: 28 }}>
+          <div key={item.title} style={{ marginBottom: 24 }}>
             <H3>{item.title}</H3>
             <P>{item.why}</P>
-            {item.bad && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                <div>
-                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '.08em', color: '#dc2626', marginBottom: 4, textTransform: 'uppercase' }}>✕ Avoid</div>
-                  <CodeBlock>{item.bad}</CodeBlock>
-                </div>
-                <div>
-                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '.08em', color: '#16a34a', marginBottom: 4, textTransform: 'uppercase' }}>✓ Prefer</div>
-                  <CodeBlock>{item.good}</CodeBlock>
-                </div>
-              </div>
-            )}
           </div>
         ))}
 

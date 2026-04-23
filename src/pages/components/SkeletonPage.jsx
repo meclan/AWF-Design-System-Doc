@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -186,14 +188,44 @@ const TOKEN_ROWS = [
 
 const PATTERNS = ['Text', 'Card', 'Table / List', 'Profile', 'Form']
 
-export default function SkeletonPage() {
-  const [themeIdx,    setThemeIdx]   = useState(0)
-  const [demoPattern, setDemoPattern]= useState('Card')
-  const [animate,     setAnimate]    = useState(true)
+const TOC = [
+  ['demo',       'Interactive demo'],
+  ['anatomy',    'Anatomy'],
+  ['patterns',   'Patterns'],
+  ['animation',  'Animation'],
+  ['usage',      'Usage guidelines'],
+  ['comparison', 'Spinner vs Skeleton'],
+  ['a11y',       'Accessibility'],
+  ['tokens',     'Token reference'],
+]
 
-  const theme  = VISIBLE_THEMES[themeIdx]
-  const tokens = getComponentTokens(theme.id)
+export default function SkeletonPage() {
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [demoPattern, setDemoPattern] = useState('Card')
+  const [animate,     setAnimate]     = useState(true)
+  const [activeSection, setActiveSection] = useState('demo')
+
+  const tokens = getComponentTokens(activeTheme)
   const C      = getColors(tokens)
+
+  useEffect(() => {
+    const main = document.querySelector('main') || window
+    const onScroll = () => {
+      const ids = TOC.map(([id]) => id)
+      const scrollTop = main === window ? window.scrollY : main.scrollTop
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (!el) continue
+        const top = el.getBoundingClientRect().top + (main === window ? 0 : main.scrollTop) - 120
+        if (scrollTop >= top) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll)
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
 
   const pill   = { padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, fontFamily: 'Poppins, sans-serif', cursor: 'pointer', border: '1px solid var(--stroke-primary)' }
   const active = on => on ? { background: C.brand, color: '#fff', border: `1px solid ${C.brand}` } : { background: 'transparent', color: 'var(--text-secondary)' }
@@ -208,20 +240,15 @@ export default function SkeletonPage() {
   }
 
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: '40px 32px 80px' }}>
+    <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ flex: 1, maxWidth: 960, margin: '0 auto', padding: '40px 32px 80px' }}>
       <ShimmerStyle />
 
       {/* ── Header ── */}
       <div style={{ marginBottom: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: C.brand }}>Feedback & Status</span>
       </div>
-      <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', marginBottom: 8 }}>Skeleton</h1>
-
-      <div style={{ display: 'flex', gap: 6, marginBottom: 24, flexWrap: 'wrap' }}>
-        {VISIBLE_THEMES.map((t, i) => (
-          <button key={t.id} onClick={() => setThemeIdx(i)} style={{ ...pill, ...active(themeIdx === i) }}>{t.label}</button>
-        ))}
-      </div>
+      <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', marginBottom: 16 }}>Skeleton</h1>
 
       <Lead>
         Skeleton screens display low-fidelity placeholders that mirror the layout of incoming content. They reduce perceived wait time, prevent layout shift, and signal to users that something is loading — without the anxiety of a blank page or a blocking spinner.
@@ -521,6 +548,36 @@ export default function SkeletonPage() {
         </table>
       </div>
 
+      </div>
+
+      <aside style={{
+        width: 200,
+        flexShrink: 0,
+        position: 'sticky',
+        top: 40,
+        padding: '40px 16px',
+        maxHeight: 'calc(100vh - 40px)',
+        overflowY: 'auto',
+      }}>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 12 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 24 }}>
+          {TOC.map(([id, label]) => (
+            <a key={id} href={`#${id}`}
+               style={{
+                 fontSize: 13,
+                 color: activeSection === id ? C.brand : 'var(--text-secondary)',
+                 fontWeight: activeSection === id ? 600 : 400,
+                 textDecoration: 'none',
+                 padding: '4px 8px',
+                 borderLeft: activeSection === id ? `2px solid ${C.brand}` : '2px solid transparent',
+                 transition: 'color .15s ease',
+               }}>
+              {label}
+            </a>
+          ))}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
     </div>
   )
 }

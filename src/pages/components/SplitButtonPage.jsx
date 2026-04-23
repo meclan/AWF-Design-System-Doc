@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -311,7 +313,7 @@ const TOC = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function SplitButtonPage() {
-  const [activeTheme,   setActiveTheme]   = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const [activeSection, setActiveSection] = useState('overview')
   const [tokenTab,      setTokenTab]      = useState('button.outlined')
 
@@ -717,6 +719,7 @@ export default function SplitButtonPage() {
             {item.label}
           </a>
         ))}
+        <BrandThemeSwitcher />
       </div>
 
     </div>

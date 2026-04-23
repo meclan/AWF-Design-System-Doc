@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { THEMES, getComponentTokens, getSemanticTokens } from '../data/tokens/index.js'
+import { useBrandTheme } from '../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../components/BrandThemeSwitcher.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
 
@@ -130,7 +132,7 @@ function PhaseTag({ n, label }) {
 
 const TOC = [
   { id: 'anatomy',    label: 'Token anatomy' },
-  { id: 'layers',     label: '3-layer system' },
+  { id: 'layers',     label: 'JSON structure' },
   { id: 'resolution', label: 'Resolution flow' },
   { id: 'api',        label: 'JavaScript API' },
   { id: 'css',        label: 'CSS variables' },
@@ -143,7 +145,7 @@ const TOC = [
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function GuideTokenUsage() {
-  const [previewTheme, setPreviewTheme] = useState('dot')
+  const { brandTheme: previewTheme, setBrandTheme: setPreviewTheme } = useBrandTheme()
   const [resolvedKey, setResolvedKey] = useState(null)
 
   const compTokens = getComponentTokens(previewTheme)
@@ -243,35 +245,17 @@ export default function GuideTokenUsage() {
 
         <Divider />
 
-        {/* ── 2. 3-layer system ─────────────────────────────────── */}
+        {/* ── 2. JSON structure per layer ─────────────────────────────── */}
         <SectionAnchor id="layers" />
-        <H2>3-layer token system</H2>
+        <H2>JSON structure per layer</H2>
         <Lead>
-          AWF tokens are organized into three distinct layers. Each layer has a clear responsibility and a strict
-          ownership rule: lower layers must not reference higher ones.
+          AWF tokens are organized into three layers — <strong>primitives</strong>, <strong>semantic</strong>,
+          and <strong>component</strong>. This section shows the exact JSON shape for each. For the conceptual
+          breakdown (what each layer is for, token counts, the dependency rule), see{' '}
+          <Link to="/foundations/tokens" style={{ color: 'var(--brand-600)', fontWeight: 500 }}>Foundations → Token Architecture</Link>.
         </Lead>
 
-        {/* Layer diagram */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 28, maxWidth: 560 }}>
-          {[
-            { n: 1, label: 'Primitives', file: 'primitives.json', color: '#0369a1', bg: '#e0f2fe', desc: 'Raw values — all possible colors, spacing, radii. No semantics.' },
-            { n: 2, label: 'Semantic',   file: '{ProductId}-Light.json', color: '#7e22ce', bg: '#f3e8ff', desc: 'Named by intent. Varies per product theme. References primitives.' },
-            { n: 3, label: 'Component', file: 'components.json', color: '#166534', bg: '#dcfce7', desc: 'Tied to a specific component. References semantic tokens only.' },
-          ].map(layer => (
-            <div key={layer.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: '14px 18px', borderRadius: 8, background: layer.bg, border: `1px solid ${layer.color}22` }}>
-              <div style={{ width: 26, height: 26, borderRadius: '50%', background: layer.color, color: '#fff', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{layer.n}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 3 }}>
-                  <span style={{ fontWeight: 700, fontSize: 14, color: layer.color }}>{layer.label}</span>
-                  <code style={{ fontSize: 11, color: layer.color, opacity: .7 }}>{layer.file}</code>
-                </div>
-                <p style={{ margin: 0, fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{layer.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <H3>Layer 1 — Primitives</H3>
+        <H3>Layer 1 — Primitives (<Code>primitives.json</Code>)</H3>
         <P>Primitives define the raw palette. They are never used directly in UI — they exist only to be referenced by semantic tokens.</P>
         <CodeBlock lang="json">{`// primitives.json (excerpt)
 {
@@ -293,7 +277,7 @@ export default function GuideTokenUsage() {
   }
 }`}</CodeBlock>
 
-        <H3>Layer 2 — Semantic tokens</H3>
+        <H3>Layer 2 — Semantic (<Code>{`{ProductId}-Light.json`}</Code>)</H3>
         <P>
           Semantic tokens assign meaning to primitives. Each product has its own semantic file mapping the same token
           names to different brand colors. Neutral tokens point to the shared neutral palette and resolve identically
@@ -329,7 +313,7 @@ export default function GuideTokenUsage() {
   }
 }`}</CodeBlock>
 
-        <H3>Layer 3 — Component tokens</H3>
+        <H3>Layer 3 — Component (<Code>components.json</Code>)</H3>
         <P>Component tokens reference semantic tokens only — never primitives directly. They capture decisions specific to one component (e.g. which semantic color a button's background uses).</P>
         <CodeBlock lang="json">{`// components.json (excerpt — button component)
 {
@@ -950,6 +934,7 @@ const tokens = getComponentTokens(themeId)
             </a>
           ))}
         </nav>
+        <BrandThemeSwitcher />
       </aside>
 
     </div>

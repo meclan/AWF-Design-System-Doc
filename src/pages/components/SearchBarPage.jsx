@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -357,14 +359,28 @@ const TOKEN_ROWS = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+const TOC = [
+  { id: 'demo',        label: 'Interactive demo' },
+  { id: 'anatomy',     label: 'Anatomy' },
+  { id: 'states',      label: 'States' },
+  { id: 'sizes',       label: 'Sizes' },
+  { id: 'radius',      label: 'Shape / radius' },
+  { id: 'suggestions', label: 'Suggestions' },
+  { id: 'behaviour',   label: 'Behaviour' },
+  { id: 'usage',       label: 'Usage rules' },
+  { id: 'a11y',        label: 'Accessibility' },
+  { id: 'tokens',      label: 'Token reference' },
+]
+
 export default function SearchBarPage() {
-  const [themeIdx,   setThemeIdx]  = useState(0)
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [activeSection, setActiveSection] = useState('demo')
   const [demoSize,   setSize]      = useState('md')
   const [demoRadius, setRadius]    = useState('radius-12')
   const [demoDisabled, setDisabled]= useState(false)
   const [demoSuggest, setSuggest]  = useState(false)
 
-  const theme  = VISIBLE_THEMES[themeIdx]
+  const theme  = VISIBLE_THEMES.find(t => t.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(theme.id)
   const C      = getColors(tokens)
   const THEME_COLORS = VISIBLE_THEMES.map(t => getComponentTokens(t.id)['tabs.indicator'] || '#07a2b6')
@@ -372,23 +388,35 @@ export default function SearchBarPage() {
   const pill = { padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, fontFamily: 'Poppins, sans-serif', cursor: 'pointer', border: '1px solid var(--stroke-primary)' }
   const active = (on) => on ? { background: C.brand, color: '#fff', border: `1px solid ${C.brand}` } : { background: 'transparent', color: 'var(--text-secondary)' }
 
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = TOC.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 32px 80px' }}>
+    <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px' }}>
       {spinStyle}
 
       {/* ── Header ── */}
       <div style={{ marginBottom: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: C.brand }}>Forms</span>
       </div>
-      <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', marginBottom: 8 }}>Searchbar</h1>
-
-      <div style={{ display: 'flex', gap: 6, marginBottom: 24, flexWrap: 'wrap' }}>
-        {VISIBLE_THEMES.map((t, i) => (
-          <button key={t.id} onClick={() => setThemeIdx(i)} style={{
-            ...pill, ...active(themeIdx === i),
-          }}>{t.name}</button>
-        ))}
-      </div>
+      <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', marginBottom: 16 }}>Searchbar</h1>
 
       <Lead>
         The Searchbar lets users filter content or query data by typing a keyword. It combines a leading search icon, a text input, and a conditional clear button. Its brand-tinted hover state and shape variants make it adaptable across contexts — from compact toolbars to prominent hero search fields.
@@ -750,6 +778,42 @@ export default function SearchBarPage() {
         </table>
       </div>
 
+      </div>
+
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
     </div>
   )
 }

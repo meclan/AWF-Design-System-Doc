@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { layers, products, stats } from '../data/tokens.js'
 import { THEMES, getSemanticTokens } from '../data/tokens/index.js'
+import { useBrandTheme } from '../contexts/BrandThemeContext.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
 
@@ -56,7 +58,7 @@ const CODE_STEPS = [
 ]
 
 export default function TokensArchitecture() {
-  const [activeTheme, setActiveTheme] = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const semanticTokens = getSemanticTokens(activeTheme)
 
   return (
@@ -287,6 +289,23 @@ export default function TokensArchitecture() {
               <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{ex.breakdown}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Related guides */}
+      <section style={{ marginTop: 64, padding: '24px 28px', background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 12 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 12 }}>
+          Go deeper
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <Link to="/guides/theming" style={{ textDecoration: 'none', display: 'block', padding: '14px 16px', background: 'var(--bg-primary)', borderRadius: 10, border: '1px solid var(--stroke-primary)' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand-600)', marginBottom: 4 }}>Theming Guide →</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Apply themes in Figma and code, multi-product logic, design rules.</div>
+          </Link>
+          <Link to="/guides/tokens" style={{ textDecoration: 'none', display: 'block', padding: '14px 16px', background: 'var(--bg-primary)', borderRadius: 10, border: '1px solid var(--stroke-primary)' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand-600)', marginBottom: 4 }}>Token Usage →</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Full JS API, CSS variables, adding a theme, migration strategy.</div>
+          </Link>
         </div>
       </section>
     </div>

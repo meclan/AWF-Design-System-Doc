@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -258,17 +260,30 @@ const DEMO_STEPS = [
   { title: "You're all set!",  body: "You've completed the tour. Enjoy the new feature." },
 ]
 
+const TOC = [
+  { id: 'demo',          label: 'Interactive demo' },
+  { id: 'anatomy',       label: 'Anatomy' },
+  { id: 'variants',      label: 'Variants' },
+  { id: 'placement',     label: 'Arrow placement' },
+  { id: 'beacon',        label: 'Beacon' },
+  { id: 'behavior',      label: 'Button label behavior' },
+  { id: 'usage',         label: 'When to use' },
+  { id: 'guidance',      label: 'Guidance' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'tokens',        label: 'Token reference' },
+]
+
 export default function GuideCuePage() {
-  const [themeIdx,   setThemeIdx]   = useState(0)
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [activeSection, setActiveSection] = useState('demo')
   const [placement,  setPlacement]  = useState('bottom')
   const [variant,    setVariant]    = useState('multi')   // 'standalone' | 'multi'
   const [step,       setStep]       = useState(1)
   const [dismissed,  setDismissed]  = useState(false)
 
-  const theme  = VISIBLE_THEMES[themeIdx]
+  const theme  = VISIBLE_THEMES.find(t => t.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(theme.id)
   const C      = getGuideCueColors(tokens)
-  const THEME_COLORS = VISIBLE_THEMES.map(t => getComponentTokens(t.id)['tabs.indicator'] || '#07a2b6')
 
   const totalSteps = variant === 'standalone' ? 1 : 4
   const currentStep = DEMO_STEPS[Math.min(step - 1, DEMO_STEPS.length - 1)]
@@ -284,28 +299,37 @@ export default function GuideCuePage() {
     setDismissed(false)
   }
 
+  // Scroll spy
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = TOC.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 32px 80px' }}>
+    <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', maxWidth: 1200, margin: '0 auto' }}>
+
+      {/* ── Main content ──────────────────────────────────────────────────────── */}
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px', fontFamily: 'Inter, sans-serif' }}>
 
       {/* ── Header ── */}
       <SectionAnchor id="top" />
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 8 }}>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 8 }}>LAYOUT & OVERLAY</div>
-          <h1 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-.8px', color: 'var(--text-primary)', margin: 0 }}>Guide Cue</h1>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'Poppins, sans-serif' }}>Theme:</span>
-          {VISIBLE_THEMES.map((t, i) => (
-            <button key={t.id} onClick={() => setThemeIdx(i)} title={t.label} style={{
-              width: 22, height: 22, borderRadius: '50%', background: THEME_COLORS[i],
-              cursor: 'pointer', padding: 0, boxSizing: 'border-box',
-              border: i === themeIdx ? '2px solid var(--text-primary)' : '2px solid transparent',
-              outline: i === themeIdx ? '2px solid var(--bg-primary)' : 'none', outlineOffset: -4,
-              transition: 'border-color .15s',
-            }} />
-          ))}
-        </div>
+      <div style={{ marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 8 }}>LAYOUT & OVERLAY</div>
+        <h1 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-.8px', color: 'var(--text-primary)', margin: 0 }}>Guide Cue</h1>
       </div>
 
       <Lead>
@@ -785,6 +809,42 @@ export default function GuideCuePage() {
         </table>
       </div>
 
+      </div>
+
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
     </div>
   )
 }

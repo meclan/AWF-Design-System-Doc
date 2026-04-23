@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -496,7 +498,7 @@ const PAGINATION_TOKENS_STATIC = {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function PaginationPage() {
-  const [activeTheme,   setActiveTheme]   = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const [activeSection, setActiveSection] = useState('overview')
 
   const t = getComponentTokens(activeTheme)
@@ -999,6 +1001,7 @@ export default function PaginationPage() {
             {item.label}
           </a>
         ))}
+        <BrandThemeSwitcher />
       </div>
 
     </div>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -283,7 +285,7 @@ const DEMO_ITEMS = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CheckboxPage() {
-  const [activeTheme,   setActiveTheme]   = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const [activeSection, setActiveSection] = useState('overview')
 
   // Interactive demo state
@@ -844,6 +846,7 @@ export default function CheckboxPage() {
             )
           })}
         </nav>
+        <BrandThemeSwitcher />
       </aside>
 
     </div>

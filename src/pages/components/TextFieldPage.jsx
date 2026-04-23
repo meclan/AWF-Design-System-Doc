@@ -1,7 +1,23 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
+
+const TOC = [
+  { id: 'top',           label: 'Overview' },
+  { id: 'demo',          label: 'Live demo' },
+  { id: 'states',        label: 'States' },
+  { id: 'sizes',         label: 'Sizes' },
+  { id: 'label',         label: 'Label & placeholder' },
+  { id: 'variants',      label: 'Variants' },
+  { id: 'icons',         label: 'Icons' },
+  { id: 'helper',        label: 'Helper & validation' },
+  { id: 'guidance',      label: 'Usage guidance' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'tokens',        label: 'Tokens' },
+]
 
 // ─── Color blend helper ───────────────────────────────────────────────────────
 
@@ -518,7 +534,8 @@ function StateLabel({ children }) {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function TextFieldPage() {
-  const [themeIdx,  setThemeIdx]  = useState(0)
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [activeSection, setActiveSection] = useState('top')
   const [variant,   setVariant]   = useState('outlined')   // 'outlined' | 'neutral' | 'brand'
   const [demoSize,  setDemoSize]  = useState('lg')
   const [demoHelper,    setHelper]        = useState(false)
@@ -527,10 +544,31 @@ export default function TextFieldPage() {
   const [demoError,     setError]         = useState(false)
   const [demoFloating,  setDemoFloating]  = useState(false)   // filled label style
 
-  const theme  = VISIBLE_THEMES[themeIdx]
+  const theme  = VISIBLE_THEMES.find(t => t.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(theme.id)
   const C      = getInputColors(tokens)
   const THEME_COLORS = VISIBLE_THEMES.map(t => getComponentTokens(t.id)['tabs.indicator'] || '#07a2b6')
+
+  useEffect(() => {
+    const main = document.querySelector('main')
+    const scrollEl = main || window
+    const handler = () => {
+      const scrollTop = main ? main.scrollTop : window.scrollY
+      const threshold = scrollTop + 140
+      let current = TOC[0].id
+      for (const item of TOC) {
+        const el = document.getElementById(item.id)
+        if (el) {
+          const top = el.getBoundingClientRect().top + scrollTop - (main ? main.getBoundingClientRect().top : 0)
+          if (top <= threshold) current = item.id
+        }
+      }
+      setActiveSection(current)
+    }
+    scrollEl.addEventListener('scroll', handler, { passive: true })
+    handler()
+    return () => scrollEl.removeEventListener('scroll', handler)
+  }, [])
 
   const isOutlined = variant === 'outlined'
   const colorScheme = variant === 'brand' ? 'brand' : 'neutral'
@@ -547,27 +585,14 @@ export default function TextFieldPage() {
   ]
 
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 32px 80px' }}>
+    <div style={{ display: 'flex', maxWidth: 1200, margin: '0 auto', gap: 32, alignItems: 'flex-start' }}>
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px' }}>
 
       {/* ── Header ── */}
       <SectionAnchor id="top" />
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 8 }}>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 8 }}>FORMS</div>
-          <h1 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-.8px', color: 'var(--text-primary)', margin: 0 }}>Text Field</h1>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'Poppins, sans-serif' }}>Theme:</span>
-          {VISIBLE_THEMES.map((t, i) => (
-            <button key={t.id} onClick={() => setThemeIdx(i)} title={t.label} style={{
-              width: 22, height: 22, borderRadius: '50%', background: THEME_COLORS[i],
-              cursor: 'pointer', padding: 0, boxSizing: 'border-box',
-              border: i === themeIdx ? '2px solid var(--text-primary)' : '2px solid transparent',
-              outline: i === themeIdx ? '2px solid var(--bg-primary)' : 'none', outlineOffset: -4,
-              transition: 'border-color .15s',
-            }} />
-          ))}
-        </div>
+      <div style={{ marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 8 }}>FORMS</div>
+        <h1 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-.8px', color: 'var(--text-primary)', margin: 0 }}>Text Field</h1>
       </div>
 
       <Lead>
@@ -1081,6 +1106,44 @@ export default function TextFieldPage() {
         </table>
       </div>
 
+      </div>
+
+      <aside style={{ position: 'sticky', top: 80, width: 200, flexShrink: 0, padding: '40px 24px 96px 0', alignSelf: 'flex-start' }}>
+        <nav>
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 12 }}>On this page</div>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {TOC.map(item => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }}
+                  style={{
+                    display: 'block',
+                    fontSize: 13,
+                    fontFamily: 'Poppins, sans-serif',
+                    textDecoration: 'none',
+                    color: activeSection === item.id ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    fontWeight: activeSection === item.id ? 600 : 400,
+                    borderLeft: `2px solid ${activeSection === item.id ? 'var(--text-primary)' : 'transparent'}`,
+                    paddingLeft: 12,
+                    paddingTop: 4,
+                    paddingBottom: 4,
+                    transition: 'color .15s, border-color .15s',
+                  }}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--stroke-primary)' }}>
+          <BrandThemeSwitcher />
+        </div>
+      </aside>
     </div>
   )
 }

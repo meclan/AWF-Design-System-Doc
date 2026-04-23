@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -245,7 +247,7 @@ const DELIVERY_OPTIONS = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function RadioPage() {
-  const [activeTheme,   setActiveTheme]   = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const [activeSection, setActiveSection] = useState('overview')
 
   // Interactive demo
@@ -809,6 +811,7 @@ export default function RadioPage() {
             )
           })}
         </nav>
+        <BrandThemeSwitcher />
       </aside>
 
     </div>

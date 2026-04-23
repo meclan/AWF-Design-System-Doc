@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens, getSemanticTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -941,9 +943,23 @@ function TokenRow({ name, value, usage }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+const TOC = [
+  { id: 'overview',       label: 'Overview' },
+  { id: 'anatomy',        label: 'Anatomy' },
+  { id: 'variants-light', label: 'Light variants' },
+  { id: 'variants-dark',  label: 'Dark variants' },
+  { id: 'collapsed',      label: 'Collapsed state' },
+  { id: 'header-bar',     label: 'Top header bar' },
+  { id: 'usage',          label: 'Usage guidelines' },
+  { id: 'use-case',       label: 'Use cases' },
+  { id: 'accessibility',  label: 'Accessibility' },
+  { id: 'tokens',         label: 'Token reference' },
+]
+
 export default function NavbarPage() {
-  const [themeId, setThemeId] = useState(VISIBLE_THEMES[0].id)
-  const t = VISIBLE_THEMES.find(x => x.id === themeId) || VISIBLE_THEMES[0]
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [activeSection, setActiveSection] = useState('overview')
+  const t = VISIBLE_THEMES.find(x => x.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(t.id)
 
   const semantic  = getSemanticTokens(t.id)
@@ -972,32 +988,34 @@ export default function NavbarPage() {
 
   const C = LIGHT_PALETTES['light-grey']  // default for anatomy/use case
 
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = TOC.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '48px 32px 96px', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px', fontFamily: 'Inter, sans-serif' }}>
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div style={{ marginBottom: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.08em' }}>Navigation</span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 8 }}>
-        <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: 0 }}>Navbar</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Theme:</span>
-          {VISIBLE_THEMES.map(th => (
-            <button
-              key={th.id}
-              onClick={() => setThemeId(th.id)}
-              style={{
-                padding: '4px 12px', borderRadius: 6,
-                border: `1px solid ${th.id === themeId ? brandMid : 'var(--stroke-primary)'}`,
-                background: th.id === themeId ? brandMid : 'var(--bg-primary)',
-                color: th.id === themeId ? '#fff' : 'var(--text-secondary)',
-                fontSize: 12, fontWeight: 500, cursor: 'pointer',
-              }}
-            >{th.name}</button>
-          ))}
-        </div>
-      </div>
+      <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: 0, marginBottom: 8 }}>Navbar</h1>
       <Lead>
         The Navbar is the primary vertical sidebar navigation for AWF applications. It is collapsible, supports hierarchical sub-menus, and comes in <strong>3 light</strong> and <strong>3 dark</strong> variants. A companion <strong>Top Header Bar</strong> is also provided for layouts that need both a horizontal top bar and a sidebar.
       </Lead>
@@ -1283,6 +1301,42 @@ export default function NavbarPage() {
         </div>
       ))}
 
+      </div>
+
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
     </div>
   )
 }

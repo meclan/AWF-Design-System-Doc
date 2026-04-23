@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -175,14 +177,27 @@ const TOKEN_ROWS = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+const TOC = [
+  { id: 'demo',        label: 'Interactive demo' },
+  { id: 'anatomy',     label: 'Anatomy' },
+  { id: 'colors',      label: 'Color variants' },
+  { id: 'sizes',       label: 'Sizes' },
+  { id: 'determinate', label: 'Determinate' },
+  { id: 'behaviour',   label: 'Behaviour' },
+  { id: 'usage',       label: 'Usage rules' },
+  { id: 'a11y',        label: 'Accessibility' },
+  { id: 'tokens',      label: 'Token reference' },
+]
+
 export default function SpinnerPage() {
-  const [themeIdx,  setThemeIdx]  = useState(0)
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [activeSection, setActiveSection] = useState('demo')
   const [demoColor, setDemoColor] = useState('default')
   const [demoSize,  setDemoSize]  = useState('md')
   const [demoMode,  setDemoMode]  = useState('indeterminate')  // 'indeterminate' | 'determinate'
   const [demoPct,   setDemoPct]   = useState(65)
 
-  const theme  = VISIBLE_THEMES[themeIdx]
+  const theme  = VISIBLE_THEMES.find(t => t.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(theme.id)
   const C      = getColors(tokens)
 
@@ -193,8 +208,31 @@ export default function SpinnerPage() {
   const demoBg = demoColor === 'on-brand' ? C.brand : '#f8fafc'
   const demoBorder = demoColor === 'on-brand' ? 'none' : '1px solid var(--stroke-primary)'
 
+  // Scroll spy
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = TOC.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: '40px 32px 80px' }}>
+    <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', maxWidth: 1200, margin: '0 auto' }}>
+
+      {/* ── Main content ──────────────────────────────────────────────────────── */}
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px' }}>
       <SpinStyle />
 
       {/* ── Header ── */}
@@ -204,8 +242,8 @@ export default function SpinnerPage() {
       <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', marginBottom: 8 }}>Spinner</h1>
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 24, flexWrap: 'wrap' }}>
-        {VISIBLE_THEMES.map((t, i) => (
-          <button key={t.id} onClick={() => setThemeIdx(i)} style={{ ...pill, ...active(themeIdx === i) }}>{t.label}</button>
+        {VISIBLE_THEMES.map(t => (
+          <button key={t.id} onClick={() => setActiveTheme(t.id)} style={{ ...pill, ...active(activeTheme === t.id) }}>{t.label}</button>
         ))}
       </div>
 
@@ -510,6 +548,44 @@ export default function SpinnerPage() {
           </tbody>
         </table>
       </div>
+
+      </div>
+
+      {/* ── Right TOC aside ────────────────────────────────────────────────────── */}
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
 
     </div>
   )

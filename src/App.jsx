@@ -7,6 +7,11 @@ import Home from './pages/Home.jsx'
 import ComponentsOverview from './pages/ComponentsOverview.jsx'
 import ComponentPage from './pages/ComponentPage.jsx'
 import TokensArchitecture from './pages/TokensArchitecture.jsx'
+import TokensColor from './pages/TokensColor.jsx'
+import FoundationsTypography from './pages/FoundationsTypography.jsx'
+import FoundationsSpacing from './pages/FoundationsSpacing.jsx'
+import FoundationsElevation from './pages/FoundationsElevation.jsx'
+import FoundationsMotion from './pages/FoundationsMotion.jsx'
 import IconsExplorer from './pages/IconsExplorer.jsx'
 import GuideTheming from './pages/GuideTheming.jsx'
 import GuideTokenUsage from './pages/GuideTokenUsage.jsx'
@@ -38,21 +43,21 @@ export default function App() {
             {/* Foundations */}
             <Route path="/foundations"            element={<TokensArchitecture />} />
             <Route path="/foundations/tokens"     element={<TokensArchitecture />} />
-            <Route path="/foundations/color"      element={<Placeholder title="Color" />} />
-            <Route path="/foundations/typography" element={<Placeholder title="Typography" />} />
-            <Route path="/foundations/spacing"    element={<Placeholder title="Spacing" />} />
-            <Route path="/foundations/elevation"  element={<Placeholder title="Elevation" />} />
-            <Route path="/foundations/motion"     element={<Placeholder title="Motion" />} />
+            <Route path="/foundations/color"      element={<TokensColor />} />
+            <Route path="/foundations/typography" element={<FoundationsTypography />} />
+            <Route path="/foundations/spacing"    element={<FoundationsSpacing />} />
+            <Route path="/foundations/elevation"  element={<FoundationsElevation />} />
+            <Route path="/foundations/motion"     element={<FoundationsMotion />} />
             <Route path="/foundations/icons"      element={<IconsExplorer />} />
 
             {/* Themes redirect (keep old URLs working) */}
             <Route path="/themes"             element={<TokensArchitecture />} />
             <Route path="/themes/tokens"      element={<TokensArchitecture />} />
-            <Route path="/themes/color"       element={<Placeholder title="Color" />} />
-            <Route path="/themes/typography"  element={<Placeholder title="Typography" />} />
-            <Route path="/themes/spacing"     element={<Placeholder title="Spacing" />} />
-            <Route path="/themes/elevation"   element={<Placeholder title="Elevation" />} />
-            <Route path="/themes/motion"      element={<Placeholder title="Motion" />} />
+            <Route path="/themes/color"       element={<TokensColor />} />
+            <Route path="/themes/typography"  element={<FoundationsTypography />} />
+            <Route path="/themes/spacing"     element={<FoundationsSpacing />} />
+            <Route path="/themes/elevation"   element={<FoundationsElevation />} />
+            <Route path="/themes/motion"      element={<FoundationsMotion />} />
 
             {/* Components — overview + catch-all dynamic page */}
             <Route path="/components"   element={<ComponentsOverview />} />

@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -176,18 +178,57 @@ function TokenTable({ themeId, rows }) {
   )
 }
 
+// ─── Table of contents ────────────────────────────────────────────────────────
+
+const TOC = [
+  { id: 'overview',      label: 'Overview' },
+  { id: 'usage',         label: 'Usage' },
+  { id: 'orientation',   label: 'Orientation' },
+  { id: 'variants',      label: 'Variants' },
+  { id: 'labeled',       label: 'Labeled divider' },
+  { id: 'inset',         label: 'Inset divider' },
+  { id: 'spacing',       label: 'Spacing' },
+  { id: 'guidance',      label: "Do's & Don'ts" },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'tokens',        label: 'Token reference' },
+]
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function DividerPage() {
-  const [themeIdx, setThemeIdx] = useState(0)
-  const theme = VISIBLE_THEMES[themeIdx]
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [activeSection, setActiveSection] = useState('overview')
+  const theme = VISIBLE_THEMES.find(t => t.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(theme.id)
   const C = getDividerColors(tokens)
 
   const THEME_COLORS = VISIBLE_THEMES.map(t => getComponentTokens(t.id)['tabs.indicator'] || '#07a2b6')
 
+  // Scroll spy — listens on <main> (the actual scrolling container)
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = TOC.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 32px 80px' }}>
+    <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', maxWidth: 1200, margin: '0 auto' }}>
+
+      {/* ── Main content ──────────────────────────────────────────────────────── */}
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px' }}>
 
       {/* ── Header ── */}
       <SectionAnchor id="top" />
@@ -199,10 +240,10 @@ export default function DividerPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'Poppins, sans-serif' }}>Theme:</span>
           {VISIBLE_THEMES.map((t, i) => (
-            <button key={t.id} onClick={() => setThemeIdx(i)} title={t.label} style={{
+            <button key={t.id} onClick={() => setActiveTheme(t.id)} title={t.label} style={{
               width: 22, height: 22, borderRadius: '50%', background: THEME_COLORS[i], cursor: 'pointer', padding: 0, boxSizing: 'border-box',
-              border: i === themeIdx ? '2px solid var(--text-primary)' : '2px solid transparent',
-              outline: i === themeIdx ? '2px solid var(--bg-primary)' : 'none', outlineOffset: -4,
+              border: t.id === activeTheme ? '2px solid var(--text-primary)' : '2px solid transparent',
+              outline: t.id === activeTheme ? '2px solid var(--bg-primary)' : 'none', outlineOffset: -4,
               transition: 'border-color .15s',
             }} />
           ))}
@@ -526,6 +567,44 @@ export default function DividerPage() {
         ['sidepanel.divider',           'Divider inside Side Panel component'],
         ['popover.divider',             'Divider inside Popover component'],
       ]} />
+
+      </div>
+
+      {/* ── Right TOC aside ────────────────────────────────────────────────────── */}
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
 
     </div>
   )

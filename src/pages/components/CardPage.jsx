@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -531,36 +533,52 @@ function TokenTable({ rows }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+const TOC = [
+  { id: 'overview',      label: 'Overview' },
+  { id: 'anatomy',       label: 'Anatomy' },
+  { id: 'styles',        label: 'Styles' },
+  { id: 'structure',     label: 'Structure' },
+  { id: 'composition',   label: 'Composition' },
+  { id: 'guidance',      label: 'Guidance' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'tokens',        label: 'Token reference' },
+]
+
 export default function CardPage() {
-  const [themeId, setThemeId] = useState(VISIBLE_THEMES[0].id)
-  const t   = VISIBLE_THEMES.find(x => x.id === themeId) || VISIBLE_THEMES[0]
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const t   = VISIBLE_THEMES.find(x => x.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(t.id)
   const C  = getCardColors(tokens)
+  const [activeSection, setActiveSection] = useState('overview')
+
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = TOC.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '48px 32px 96px', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px', fontFamily: 'Inter, sans-serif' }}>
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div style={{ marginBottom: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.08em' }}>Layout & Overlay</span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 8 }}>
-        <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: 0 }}>Card</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Theme:</span>
-          {VISIBLE_THEMES.map(th => (
-            <button
-              key={th.id}
-              onClick={() => setThemeId(th.id)}
-              style={{
-                width: 20, height: 20, borderRadius: '50%', border: `2px solid ${th.id === themeId ? th.color : 'transparent'}`,
-                background: th.color, cursor: 'pointer', padding: 0, outline: 'none',
-                boxShadow: th.id === themeId ? `0 0 0 2px white, 0 0 0 4px ${th.color}` : 'none',
-              }}
-            />
-          ))}
-        </div>
-      </div>
+      <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: 0, marginBottom: 8 }}>Card</h1>
       <Lead>
         Card is a surface container that groups related content and actions. It provides visual structure through background, border, or elevation — without prescribing what goes inside. Cards support 4 styles and a composable structure: header, divider, content, and footer.
       </Lead>
@@ -768,6 +786,42 @@ export default function CardPage() {
         ['card.divider',                        '{color.stroke.primary}',            'Divider line color'],
       ]} />
 
+      </div>
+
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
     </div>
   )
 }

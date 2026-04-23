@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
@@ -123,27 +125,6 @@ function IconBtn({ bg, color, stroke, strokeW = 1.5, size = 36, r = 8 }) {
   )
 }
 
-// ─── Icon button primitives (shared by IconButtonSection) ────────────────────
-function IcoSvg({ size = 18, sw = 1.5 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ display: 'block' }}>
-      <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function IBtn({ bg, color, stroke, strokeW = 1.5, size = 40, r = 6, iconSize = 18, iSw = 1.5 }) {
-  return (
-    <div style={{
-      width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-      borderRadius: r, background: bg || 'transparent', color,
-      border: stroke ? `${strokeW}px solid ${stroke}` : 'none',
-    }}>
-      <IcoSvg size={iconSize} sw={iSw} />
-    </div>
-  )
-}
-
 // ─── Appearance section ───────────────────────────────────────────────────────
 
 function AppearanceSection({ title, description, intents, stateRows, iconRows, note }) {
@@ -240,292 +221,6 @@ function TokenTable({ tokens, prefix }) {
   )
 }
 
-// ─── Icon button section (named component so it can use useState) ─────────────
-function IconButtonSection({ t }) {
-  const [iconRounded, setIconRounded] = useState(false)
-
-  const ig = {
-    ghost: {
-      brand:   { bg: 'transparent', bgHover: t['button.icon.ghost.bg.hover'],        color: t['button.icon.ghost.color.brand'],   colorDisabled: t['button.icon.ghost.color.disabled'] },
-      neutral: { bg: 'transparent', bgHover: t['button.icon.ghost.bg.hover'],        color: t['button.icon.ghost.color.neutral'], colorDisabled: t['button.icon.ghost.color.disabled'] },
-      danger:  { bg: 'transparent', bgHover: t['button.icon.ghost.bg.hover-danger'], color: t['button.icon.ghost.color.danger'],  colorDisabled: t['button.icon.ghost.color.disabled'] },
-    },
-    outlined: {
-      neutral: { bg: t['button.icon.outlined.bg.default'], bgHover: t['button.icon.outlined.bg.hover'],        color: t['button.icon.outlined.color.neutral'], stroke: t['button.icon.outlined.stroke.neutral'], strokeDisabled: t['button.icon.outlined.stroke.disabled'], colorDisabled: t['button.icon.outlined.color.disabled'] },
-      danger:  { bg: t['button.icon.outlined.bg.default'], bgHover: t['button.icon.outlined.bg.hover-danger'], color: t['button.icon.outlined.color.danger'],  stroke: t['button.icon.outlined.stroke.danger'],  strokeDisabled: t['button.icon.outlined.stroke.disabled'], colorDisabled: t['button.icon.outlined.color.disabled'] },
-    },
-    soft: {
-      brand:  { bg: t['button.icon.soft.bg.default'], bgHover: t['button.icon.soft.bg.hover'],        color: t['button.icon.soft.color.brand'],  colorDisabled: t['button.icon.soft.color.disabled'], bgDisabled: t['button.icon.soft.bg.disabled'] },
-      danger: { bg: t['button.icon.soft.bg.danger'],  bgHover: t['button.icon.soft.bg.hover-danger'], color: t['button.icon.soft.color.danger'], colorDisabled: t['button.icon.soft.color.disabled'], bgDisabled: t['button.icon.soft.bg.disabled'] },
-    },
-    full: {
-      brand:  { bg: t['button.icon.full.bg.default'], bgHover: t['button.icon.full.bg.hover'],        color: t['button.icon.full.color.default'], colorDisabled: t['button.icon.full.color.disabled'], bgDisabled: t['button.icon.full.bg.disabled'] },
-      danger: { bg: t['button.icon.full.bg.danger'],  bgHover: t['button.icon.full.bg.hover-danger'], color: t['button.icon.full.color.danger'],  colorDisabled: t['button.icon.full.color.disabled'], bgDisabled: t['button.icon.full.bg.disabled'] },
-    },
-  }
-
-  const iSizes = [
-    { key: 'lg', label: 'LG', box: t['button.icon.size.lg.box-width'] || 48, r: t['button.icon.size.lg.radius'] || 8, sw: t['button.icon.size.lg.icon-weight'] || 1.5, iconSize: 20 },
-    { key: 'md', label: 'MD', box: t['button.icon.size.md.box-width'] || 40, r: t['button.icon.size.md.radius'] || 6, sw: t['button.icon.size.md.icon-weight'] || 1.5, iconSize: 18 },
-    { key: 'sm', label: 'SM', box: t['button.icon.size.sm.box-width'] || 32, r: t['button.icon.size.sm.radius'] || 4, sw: t['button.icon.size.sm.icon-weight'] || 1,   iconSize: 16 },
-    { key: 'xs', label: 'XS', box: t['button.icon.size.xs.box-width'] || 24, r: t['button.icon.size.xs.radius'] || 4, sw: t['button.icon.size.xs.icon-weight'] || 1,   iconSize: 14 },
-  ]
-
-  const baseR = t['button.icon.radius'] || 8
-  const fullR  = t['button.icon.rounded-radius'] || 100
-  const curR   = iconRounded ? fullR : baseR
-
-  const MD  = { size: 40, iconSize: 18, iSw: 1.5 }
-  const MDR = { ...MD, r: curR }
-
-  const ICON_APPEARANCES = [
-    {
-      key: 'ghost', label: 'Ghost',
-      desc: 'No background, lowest weight. Default for toolbar actions where the icon is self-explanatory.',
-      intents: [
-        { label: 'Brand',   v: ig.ghost.brand },
-        { label: 'Neutral', v: ig.ghost.neutral },
-        { label: 'Danger',  v: ig.ghost.danger },
-      ],
-      stateRows: [
-        { label: 'Brand',  intent: ig.ghost.brand },
-        { label: 'Danger', intent: ig.ghost.danger },
-      ],
-    },
-    {
-      key: 'outlined', label: 'Outlined',
-      desc: 'Border and transparent background. Matches the visual weight of the outlined label button.',
-      intents: [
-        { label: 'Neutral', v: ig.outlined.neutral },
-        { label: 'Danger',  v: ig.outlined.danger },
-      ],
-      stateRows: [
-        { label: 'Neutral', intent: ig.outlined.neutral },
-        { label: 'Danger',  intent: ig.outlined.danger },
-      ],
-    },
-    {
-      key: 'soft', label: 'Soft',
-      desc: 'Subtle tinted background. Use to indicate a selected or "on" state within a toolbar.',
-      intents: [
-        { label: 'Brand',  v: ig.soft.brand },
-        { label: 'Danger', v: ig.soft.danger },
-      ],
-      stateRows: [
-        { label: 'Brand',  intent: ig.soft.brand },
-        { label: 'Danger', intent: ig.soft.danger },
-      ],
-    },
-    {
-      key: 'full', label: 'Filled',
-      desc: 'Solid background, highest emphasis. Use for the single most prominent action in a compact context.',
-      intents: [
-        { label: 'Brand',  v: ig.full.brand },
-        { label: 'Danger', v: ig.full.danger },
-      ],
-      stateRows: [
-        { label: 'Brand',  intent: ig.full.brand },
-        { label: 'Danger', intent: ig.full.danger },
-      ],
-    },
-  ]
-
-  return (
-    <div>
-      {/* Appearance grid */}
-      <H3>Appearance</H3>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 32 }}>
-        {ICON_APPEARANCES.map(ap => (
-          <div key={ap.key} style={{ border: '1px solid var(--stroke-primary)', borderRadius: 10, overflow: 'hidden' }}>
-            <div style={{ padding: '14px 18px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--stroke-primary)' }}>
-              <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', marginBottom: 2 }}>{ap.label}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{ap.desc}</div>
-            </div>
-            <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 18, background: 'var(--bg-primary)' }}>
-              {/* Color (intent) row */}
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 8 }}>Color (intent)</div>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  {ap.intents.map(intent => (
-                    <div key={intent.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-                      <IBtn bg={intent.v.bg} color={intent.v.color} stroke={intent.v.stroke} strokeW={1.5} {...MDR} />
-                      <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>{intent.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {/* States rows — one per intent group */}
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 8 }}>States</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {ap.stateRows.map(row => (
-                    <div key={row.label} style={{ display: 'flex', alignItems: 'center' }}>
-                      <div style={{ width: 72, fontSize: 11, color: 'var(--text-tertiary)', fontStyle: 'italic', flexShrink: 0 }}>{row.label}</div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-                          <IBtn bg={row.intent.bg} color={row.intent.color} stroke={row.intent.stroke} strokeW={1.5} {...MDR} />
-                          <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>Default</span>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-                          <IBtn bg={row.intent.bgHover} color={row.intent.color} stroke={row.intent.stroke} strokeW={1.5} {...MDR} />
-                          <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>Hover</span>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-                          <IBtn bg={row.intent.bgDisabled || 'transparent'} color={row.intent.colorDisabled} stroke={row.intent.strokeDisabled} strokeW={1.5} {...MDR} />
-                          <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>Disabled</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Border radius */}
-      <H3>Border radius</H3>
-      <P>
-        Icon buttons expose two radius tokens: <Code>button.icon.radius</Code> (square, default) and{' '}
-        <Code>button.icon.rounded-radius</Code> (full, 100 px). Use the toggle to compare all appearances side by side.
-      </P>
-      <div style={{ display: 'flex', marginBottom: 14 }}>
-        {[{ label: 'Square', val: false }, { label: 'Full', val: true }].map((opt, i) => (
-          <button
-            key={String(opt.val)}
-            onClick={() => setIconRounded(opt.val)}
-            style={{
-              padding: '7px 20px', fontSize: 13, fontWeight: 500, cursor: 'pointer',
-              border: '1px solid var(--stroke-primary)',
-              background: iconRounded === opt.val ? 'var(--brand-600)' : 'var(--bg-secondary)',
-              color: iconRounded === opt.val ? '#fff' : 'var(--text-secondary)',
-              borderRadius: i === 0 ? '6px 0 0 6px' : '0 6px 6px 0',
-              transition: 'background .15s, color .15s',
-            }}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-      <div style={{ background: 'var(--bg-primary)', border: '1px solid var(--stroke-primary)', borderRadius: 10, padding: '20px 24px', marginBottom: 32 }}>
-        <div style={{ display: 'flex', gap: 20, alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: 14 }}>
-          {ICON_APPEARANCES.map(ap => (
-            <div key={ap.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-              <IBtn
-                bg={ap.intents[0].v.bg}
-                color={ap.intents[0].v.color}
-                stroke={ap.intents[0].v.stroke}
-                strokeW={1.5}
-                {...MD}
-                r={curR}
-              />
-              <span style={{ fontSize: 10, color: 'var(--text-tertiary)', fontWeight: 500 }}>{ap.label}</span>
-            </div>
-          ))}
-        </div>
-        <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--text-tertiary)' }}>
-          border-radius: {curR}px — {iconRounded ? 'button.icon.rounded-radius' : 'button.icon.radius'}
-        </code>
-      </div>
-
-      {/* Sizes */}
-      <H3>Sizes</H3>
-      <P>Icon buttons come in four sizes. The <strong>MD</strong> size is the default for most contexts.</P>
-      <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 10, padding: '20px 24px', marginBottom: 24 }}>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end', marginBottom: 20 }}>
-          {iSizes.map(s => (
-            <div key={s.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-              <IBtn bg={t['button.icon.full.bg.default']} color={t['button.icon.full.color.default']} size={s.box} r={s.r} iconSize={s.iconSize} iSw={s.sw} />
-              <span style={{ fontSize: 10, color: 'var(--text-tertiary)', fontWeight: 600 }}>{s.label}</span>
-            </div>
-          ))}
-        </div>
-        <div style={{ borderTop: '1px solid var(--stroke-primary)', paddingTop: 14, overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr>
-                {['Property', 'LG', 'MD ★', 'SM', 'XS'].map(h => (
-                  <th key={h} style={{ textAlign: h === 'Property' ? 'left' : 'center', padding: '6px 12px', color: 'var(--text-tertiary)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '.05em', borderBottom: '1px solid var(--stroke-primary)' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { prop: 'Box size',      values: iSizes.map(s => `${s.box}px`) },
-                { prop: 'Border radius', values: iSizes.map(s => `${s.r}px`) },
-                { prop: 'Icon weight',   values: iSizes.map(s => `${s.sw}px`) },
-                { prop: 'Padding',       keys: ['lg','md','sm','xs'], tokenSuffix: 'padding' },
-              ].map(row => (
-                <tr key={row.prop}>
-                  <td style={{ padding: '7px 12px', color: 'var(--text-secondary)', borderBottom: '1px solid var(--stroke-primary)', fontWeight: 500 }}>{row.prop}</td>
-                  {(row.values || row.keys.map(k => `${t['button.icon.size.'+k+'.'+row.tokenSuffix] || '–'}px`)).map((v, i) => (
-                    <td key={i} style={{ padding: '7px 12px', textAlign: 'center', borderBottom: '1px solid var(--stroke-primary)', color: 'var(--text-primary)', background: i === 1 ? 'var(--brand-50)' : 'transparent' }}>
-                      <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11 }}>{v}</code>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 8 }}>★ Default size</div>
-        </div>
-      </div>
-
-      {/* Usage rules */}
-      <H3>Usage rules</H3>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-        <DoBox visual={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <IBtn bg={ig.ghost.brand.bgHover} color={ig.ghost.brand.color} {...MD} r={baseR} />
-            <div style={{ fontSize: 11, color: '#166534', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4, padding: '3px 8px' }}>aria-label="Edit record"</div>
-          </div>
-        }>
-          Always provide an <Code>aria-label</Code> describing the action. The icon alone is not sufficient for screen readers.
-        </DoBox>
-        <DontBox visual={
-          <IBtn bg={ig.ghost.brand.bgHover} color={ig.ghost.brand.color} {...MD} r={baseR} />
-        }>
-          Don't use an icon button for complex or destructive primary actions that require a visible label to avoid mistakes.
-        </DontBox>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-        <DoBox visual={
-          <div style={{ display: 'flex', gap: 6 }}>
-            <IBtn bg={ig.ghost.neutral.bg} color={ig.ghost.neutral.color} {...MD} r={baseR} />
-            <IBtn bg={ig.ghost.neutral.bg} color={ig.ghost.neutral.color} {...MD} r={baseR} />
-            <IBtn bg={ig.ghost.neutral.bg} color={ig.ghost.neutral.color} {...MD} r={baseR} />
-          </div>
-        }>
-          Use <strong>Ghost</strong> for toolbars and action bars — it provides the lowest visual noise when multiple icon buttons are grouped.
-        </DoBox>
-        <DontBox visual={
-          <div style={{ display: 'flex', gap: 6 }}>
-            <IBtn bg={ig.full.brand.bg} color={ig.full.brand.color} {...MD} r={baseR} />
-            <IBtn bg={ig.full.brand.bg} color={ig.full.brand.color} {...MD} r={baseR} />
-            <IBtn bg={ig.full.brand.bg} color={ig.full.brand.color} {...MD} r={baseR} />
-          </div>
-        }>
-          Don't use <strong>Filled</strong> for every icon in a toolbar — it creates too much visual noise. Reserve it for the single most prominent action.
-        </DontBox>
-      </div>
-
-      {/* Icons page link */}
-      <div style={{ padding: '16px 20px', background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>Icon library</div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Browse all 71 available icons across 4 categories (Actions, Navigation, Status, Objects). Prefer Lucide Icons — MUI is limited to 6 approved exceptions.</div>
-        </div>
-        <a href="/foundations/icons" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <div style={{ padding: '8px 16px', background: 'var(--brand-600)', color: '#fff', borderRadius: 6, fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap' }}>
-            Browse icons →
-          </div>
-        </a>
-      </div>
-    </div>
-  )
-}
-
 // ─── TOC ─────────────────────────────────────────────────────────────────────
 
 const TOC = [
@@ -535,7 +230,6 @@ const TOC = [
   { id: 'appearance',  label: 'Appearance' },
   { id: 'sizes',       label: 'Sizes' },
   { id: 'icon-sides',  label: 'Icon sides' },
-  { id: 'icon-button', label: 'Icon button' },
   { id: 'custom',      label: 'Customization' },
   { id: 'usage',       label: 'Usage rules' },
   { id: 'a11y',        label: 'Accessibility' },
@@ -545,7 +239,7 @@ const TOC = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ButtonPage() {
-  const [activeTheme,   setActiveTheme]   = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const [tokenTab,      setTokenTab]      = useState('button.filled')
   const [activeSection, setActiveSection] = useState('overview')
 
@@ -1028,23 +722,9 @@ export default function ButtonPage() {
         </div>
 
         <InfoBox type="info">
-          Icon buttons are covered in detail in the <strong>Icon button</strong> section below.
+          A button with only an icon and no label is a distinct component. See the{' '}
+          <a href="/components/icon-button" style={{ color: 'var(--brand-600)', textDecoration: 'none', fontWeight: 500 }}>Icon Button page →</a> for its full spec, tokens, and accessibility rules.
         </InfoBox>
-
-        <Divider />
-
-        {/* ── Icon button ───────────────────────────────────────────────────── */}
-        <SectionAnchor id="icon-button" />
-        <H2>Icon button</H2>
-        <Lead>
-          Icon buttons carry a single icon with no visible label. They are used in toolbars, action bars, and compact UI surfaces where space is at a premium and the icon's meaning is universally understood.
-        </Lead>
-        <P>
-          Icon buttons share the button token system and come in four appearances: <strong>Ghost</strong>, <strong>Outlined</strong>, <strong>Soft</strong>, and <strong>Filled</strong>. Each supports brand, neutral, and danger intents. For the list of available icons, see the{' '}
-          <a href="/foundations/icons" style={{ color: 'var(--brand-600)', textDecoration: 'none', fontWeight: 500 }}>Icons page →</a>
-        </P>
-
-        <IconButtonSection t={t} />
 
         <Divider />
 
@@ -1260,6 +940,7 @@ export default function ButtonPage() {
             )
           })}
         </nav>
+        <BrandThemeSwitcher />
       </aside>
 
     </div>
