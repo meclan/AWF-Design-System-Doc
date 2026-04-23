@@ -59,7 +59,7 @@ function getColors(t) {
     filledPlaceholder:  '#c4cdd5',
     brandBg:            blendWithWhite(brand, 0.10),
     brandBgHover:       blendWithWhite(brand, 0.16),
-    brandStroke:        t['inputfield.filled-brand.stroke.focused']    || '#9fefff',
+    brandStroke:        t['inputfield.filled-brand.container.stroke.focused']    || '#9fefff',
   }
 }
 

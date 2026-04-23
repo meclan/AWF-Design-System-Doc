@@ -550,31 +550,37 @@ export default function SkeletonPage() {
 
       </div>
 
-      <aside style={{
-        width: 200,
-        flexShrink: 0,
-        position: 'sticky',
-        top: 40,
-        padding: '40px 16px',
-        maxHeight: 'calc(100vh - 40px)',
-        overflowY: 'auto',
-      }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 12 }}>On this page</div>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 24 }}>
-          {TOC.map(([id, label]) => (
-            <a key={id} href={`#${id}`}
-               style={{
-                 fontSize: 13,
-                 color: activeSection === id ? C.brand : 'var(--text-secondary)',
-                 fontWeight: activeSection === id ? 600 : 400,
-                 textDecoration: 'none',
-                 padding: '4px 8px',
-                 borderLeft: activeSection === id ? `2px solid ${C.brand}` : '2px solid transparent',
-                 transition: 'color .15s ease',
-               }}>
-              {label}
-            </a>
-          ))}
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(([id, label]) => {
+            const isActive = activeSection === id
+            return (
+              <a
+                key={id}
+                href={`#${id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {label}
+              </a>
+            )
+          })}
         </nav>
         <BrandThemeSwitcher />
       </aside>

@@ -81,7 +81,7 @@ function getInputColors(t) {
     // Brand filled – derived from brand color
     brandBg:          blendWithWhite(brand, 0.10),
     brandBgHover:     blendWithWhite(brand, 0.16),
-    brandStroke:      t['inputfield.filled-brand.stroke.focused']               || '#9FEFFF',//blendWithWhite(brand, 0.50),
+    brandStroke:      t['inputfield.filled-brand.container.stroke.focused']     || '#9FEFFF',//blendWithWhite(brand, 0.50),
   }
 }
 
@@ -1108,41 +1108,39 @@ export default function TextFieldPage() {
 
       </div>
 
-      <aside style={{ position: 'sticky', top: 80, width: 200, flexShrink: 0, padding: '40px 24px 96px 0', alignSelf: 'flex-start' }}>
-        <nav>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 12 }}>On this page</div>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {TOC.map(item => (
-              <li key={item.id}>
-                <a
-                  href={`#${item.id}`}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  }}
-                  style={{
-                    display: 'block',
-                    fontSize: 13,
-                    fontFamily: 'Poppins, sans-serif',
-                    textDecoration: 'none',
-                    color: activeSection === item.id ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    fontWeight: activeSection === item.id ? 600 : 400,
-                    borderLeft: `2px solid ${activeSection === item.id ? 'var(--text-primary)' : 'transparent'}`,
-                    paddingLeft: 12,
-                    paddingTop: 4,
-                    paddingBottom: 4,
-                    transition: 'color .15s, border-color .15s',
-                  }}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
         </nav>
-        <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--stroke-primary)' }}>
-          <BrandThemeSwitcher />
-        </div>
+        <BrandThemeSwitcher />
       </aside>
     </div>
   )

@@ -53,9 +53,9 @@ function getColors(t) {
     filledLabelIncorrect:t['inputfield.filled.label.incorrect']         || '#f6643f',
     filledValue:     '#454f5b',
     filledPlaceholder:'#919eab',
-    brandBg:         blendWithWhite(brand, 0.10),
-    brandBgHover:    blendWithWhite(brand, 0.16),
-    brandStroke:     t['inputfield.filled-brand.stroke.focused']        || '#9fefff',
+    brandBg:         t['inputfield.filled-brand.container.bg.default'],//blendWithWhite(brand, 0.10), 
+    brandBgHover:    t['inputfield.filled-brand.container.bg.hover'],//blendWithWhite(brand, 0.16),
+    brandStroke:     t['inputfield.filled-brand.container.stroke.focused'],      //|| '#9fefff',//inputfield.filled-brand.container.stroke.focused
     // Dropdown
     menuHoverBg:     '#f4f6f8',
     menuSelectedBg:  '#dfe3e8',
