@@ -928,8 +928,8 @@ export default function DatePickerPage() {
       <div style={{ background: 'var(--bg-secondary)', borderRadius: 12, padding: '32px 24px', marginBottom: 4 }}>
         <div style={{ maxWidth: 380, margin: '0 auto' }}>
           {demoMode === 'single'
-            ? <LiveSinglePicker key={`sp-${themeIdx}`} C={C} label="Date filter" />
-            : <LiveRangePicker  key={`rp-${themeIdx}`} C={C} />
+            ? <LiveSinglePicker key={`sp-${theme.id}`} C={C} label="Date filter" />
+            : <LiveRangePicker  key={`rp-${theme.id}`} C={C} />
           }
         </div>
       </div>
