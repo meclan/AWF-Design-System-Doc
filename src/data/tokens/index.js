@@ -17,11 +17,11 @@ import cocheckerLight   from './source/semantic/CoChecker-Light.json'
 import dropsLight       from './source/semantic/Drops-Light.json'
 import discoverLight    from './source/semantic/Discover-Light.json'
 import mrconnectorLight from './source/semantic/MRconnector-Light.json'
+import verifierLight    from './source/semantic/Verifier-Light.json'
 import variant1         from './source/semantic/Variant1.json'
 import variant4         from './source/semantic/Variant4.json'
 import variant5         from './source/semantic/Variant5.json'
 import variant6         from './source/semantic/Variant6.json'
-import variant7         from './source/semantic/Variant7.json'
 
 // ─── Primitives (computed first — used to derive theme colors) ───────────────
 
@@ -63,7 +63,7 @@ export const THEMES = [
   { id: 'discover',    label: 'Discover',        color: brandStep(brandPalettes.discover,    '500'), semanticJson: discoverLight    },
   { id: 'cochecker',   label: 'CoChecker',       color: brandStep(brandPalettes.cochecker,   '500'), semanticJson: cocheckerLight   },
   { id: 'mrconnector', label: 'MR Connector',    color: brandStep(brandPalettes.mrconnector, '600'), semanticJson: mrconnectorLight },
-  { id: 'verifier',    label: 'Verifier',        color: brandStep(brandPalettes.verifier,    '500'), semanticJson: variant7         },
+  { id: 'verifier',    label: 'Verifier',        color: brandStep(brandPalettes.verifier,    '500'), semanticJson: verifierLight    },
   { id: 'variant1',    label: 'Variant 1',       color: brandStep(getPalette(resolvedPrimitives, 'color.brand.Variant#1'), '500'), semanticJson: variant1 },
   { id: 'variant4',    label: 'Variant 4',       color: brandStep(getPalette(resolvedPrimitives, 'color.brand.Variant#4'), '500'), semanticJson: variant4 },
   { id: 'variant5',    label: 'Variant 5',       color: brandStep(getPalette(resolvedPrimitives, 'color.brand.Variant#5'), '500'), semanticJson: variant5 },

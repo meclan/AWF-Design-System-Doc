@@ -1,11 +1,12 @@
-import React, { lazy, Suspense } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { lazy, Suspense, useEffect } from 'react'
+import { useParams, useLocation } from 'react-router-dom'
 import { COMPONENTS_CONFIG } from '../data/componentsConfig.js'
 import StubPage from '../components/StubPage.jsx'
 import Placeholder from './Placeholder.jsx'
 
 // Dedicated full-doc pages — add new entries here as components are documented
 import ButtonPage        from './components/ButtonPage.jsx'
+import IconButtonPage    from './components/IconButtonPage.jsx'
 import TogglePage        from './components/TogglePage.jsx'
 import CheckboxPage      from './components/CheckboxPage.jsx'
 import RadioPage         from './components/RadioPage.jsx'
@@ -44,6 +45,7 @@ import TablePage       from './components/TablePage.jsx'
 
 const FULL_PAGES = {
   '/components/button':          ButtonPage,
+  '/components/icon-button':     IconButtonPage,
   '/components/toggle':          TogglePage,
   '/components/checkbox':        CheckboxPage,
   '/components/radio':           RadioPage,
@@ -83,8 +85,16 @@ const FULL_PAGES = {
 
 export default function ComponentPage() {
   const { '*': slug } = useParams()
+  const location = useLocation()
   const path = `/components/${slug}`
   const comp = COMPONENTS_CONFIG.find(c => c.path === path)
+
+  // Reset scroll to top whenever the component route changes
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (main) main.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    else window.scrollTo(0, 0)
+  }, [location.pathname])
 
   if (!comp) return <Placeholder title="Component not found" />
 

@@ -1,71 +1,52 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
+import { SectionAnchor, H2, H3, Lead, P, Code, Divider, DoBox, DontBox } from '../../components/ComponentPagePrims.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
 
+const TOC = [
+  { id: 'top',           label: 'Overview' },
+  { id: 'overview',      label: 'Live demo' },
+  { id: 'usage',         label: 'When to use' },
+  { id: 'anatomy',       label: 'Anatomy' },
+  { id: 'placements',    label: 'Placements' },
+  { id: 'content',       label: 'Content' },
+  { id: 'behavior',      label: 'Behavior' },
+  { id: 'guidance',      label: 'Guidance' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'tokens',        label: 'Tokens' },
+]
+
 const SHADOW_Z1 = '0px 2px 8px rgba(0,0,0,0.28)'
 
-// ─── Shared primitives ────────────────────────────────────────────────────────
 
-function SectionAnchor({ id }) {
-  return <span id={id} style={{ display: 'block', marginTop: -80, paddingTop: 80 }} />
-}
-function H2({ children }) {
-  return <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-.4px', color: 'var(--text-primary)', marginBottom: 12, marginTop: 56 }}>{children}</h2>
-}
-function H3({ children }) {
-  return <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8, marginTop: 24 }}>{children}</h3>
-}
-function Lead({ children }) {
-  return <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 20 }}>{children}</p>
-}
-function P({ children }) {
-  return <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>
-}
-function Code({ children }) {
-  return <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--brand-600)', padding: '1px 6px', borderRadius: 4 }}>{children}</code>
-}
-function Divider() {
-  return <hr style={{ border: 'none', borderTop: '1px solid var(--stroke-primary)', margin: '48px 0' }} />
-}
-function InfoBox({ children }) {
-  return <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: '#1e40af', lineHeight: 1.65 }}><strong>Note:</strong> {children}</div>
-}
-function DoBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '28px 18px', background: '#f8fafc', borderBottom: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 90 }}>{visual}</div>}
-      <div style={{ padding: '12px 18px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#16a34a', marginBottom: 5 }}>✓ Do</div>
-        <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
-function DontBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #fecaca', background: '#fef2f2', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '28px 18px', background: '#f8fafc', borderBottom: '1px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 90 }}>{visual}</div>}
-      <div style={{ padding: '12px 18px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#dc2626', marginBottom: 5 }}>✗ Don't</div>
-        <div style={{ fontSize: 13, color: '#7f1d1d', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
+
+
+
+
+
+
+
+
+
+
 
 // ─── Token extractor ──────────────────────────────────────────────────────────
 
-function getTooltipColors(t) {
+function getTooltipColors(t, size = 'md') {
+  // Prefer the per-size tokens introduced in V0.5; fall back to the base tooltip.* values.
+  const num = (k, fb) => (typeof t[k] === 'number' ? t[k] : fb)
   return {
     bg:         t['tooltip.bg']          || '#1c252e',
     text:       t['tooltip.text']        || '#ffffff',
-    radius:     (typeof t['tooltip.radius'] === 'number' ? t['tooltip.radius'] : null) ?? 6,
-    paddingX:   t['tooltip.padding-x']   || 8,
-    paddingY:   t['tooltip.padding-y']   || 6,
-    fontSize:   t['tooltip.font-size']   || 11,
-    fontWeight: t['tooltip.font-weight'] || 400,
-    maxWidth:   t['tooltip.max-width']   || 240,
+    radius:     num(`tooltip.size.${size}.radius`,    num('tooltip.radius',    6)),
+    paddingX:   num(`tooltip.size.${size}.padding-x`, num('tooltip.padding-x', 8)),
+    paddingY:   num(`tooltip.size.${size}.padding-y`, num('tooltip.padding-y', 6)),
+    fontSize:   num(`tooltip.size.${size}.font-size`, num('tooltip.font-size', 12)),
+    fontWeight: num('tooltip.font-weight', 400),
+    maxWidth:   num('tooltip.max-width',   240),
     // Page chrome
     brand:      t['tabs.indicator']                || '#07a2b6',
     surface:    t['card.style.outlined.bg']        || '#ffffff',
@@ -416,8 +397,9 @@ function TokenTable({ themeId, rows }) {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function TooltipPage() {
-  const [themeIdx, setThemeIdx] = useState(0)
-  const theme = VISIBLE_THEMES[themeIdx]
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [activeSection, setActiveSection] = useState('top')
+  const theme = VISIBLE_THEMES.find(t => t.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(theme.id)
   const C = getTooltipColors(tokens)
 
@@ -426,41 +408,60 @@ export default function TooltipPage() {
     return tk['tabs.indicator'] || '#07a2b6'
   })
 
-  return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 32px 80px' }}>
+  useEffect(() => {
+    const main = document.querySelector('main')
+    const scrollEl = main || window
+    const handler = () => {
+      const scrollTop = main ? main.scrollTop : window.scrollY
+      const threshold = scrollTop + 140
+      let current = TOC[0].id
+      for (const item of TOC) {
+        const el = document.getElementById(item.id)
+        if (el) {
+          const top = el.getBoundingClientRect().top + scrollTop - (main ? main.getBoundingClientRect().top : 0)
+          if (top <= threshold) current = item.id
+        }
+      }
+      setActiveSection(current)
+    }
+    scrollEl.addEventListener('scroll', handler, { passive: true })
+    handler()
+    return () => scrollEl.removeEventListener('scroll', handler)
+  }, [])
 
-      {/* ── Header ── */}
+  return (
+    <div style={{ display: 'flex', maxWidth: 1200, margin: '0 auto', gap: 32, alignItems: 'flex-start' }}>
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px' }}>
+
+      {/* Header */}
       <SectionAnchor id="top" />
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 8 }}>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 8 }}>LAYOUT & OVERLAY</div>
-          <h1 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-.8px', color: 'var(--text-primary)', margin: 0 }}>Tooltip</h1>
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>Components · Layout & Overlay</span>
+          <span style={{ fontSize: 11, color: 'var(--stroke-primary)' }}>·</span>
+          <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, background: '#dcfce7', color: '#166534' }}>Stable</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'Poppins, sans-serif' }}>Theme:</span>
-          {VISIBLE_THEMES.map((t, i) => (
-            <button
-              key={t.id}
-              onClick={() => setThemeIdx(i)}
-              title={t.label}
-              style={{
-                width: 22, height: 22, borderRadius: '50%',
-                background: THEME_COLORS[i],
-                border: i === themeIdx ? '2px solid var(--text-primary)' : '2px solid transparent',
-                outline: i === themeIdx ? '2px solid var(--bg-primary)' : 'none',
-                outlineOffset: -4,
-                cursor: 'pointer', padding: 0,
-                boxSizing: 'border-box',
-                transition: 'border-color .15s',
-              }}
-            />
+        <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: '0 0 16px' }}>Tooltip</h1>
+        <Lead>
+          Tooltip is a transient, non-interactive overlay that reveals supplementary information when the user hovers over — or focuses — a trigger element. It disappears when the pointer leaves or focus moves away. Tooltips are display-only: they never contain links, buttons, or form controls.
+        </Lead>
+        {/* Theme switcher */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', paddingTop: 4 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>Preview theme:</span>
+          {VISIBLE_THEMES.map(th => (
+            <button key={th.id} onClick={() => setActiveTheme(th.id)} style={{
+              padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 500, cursor: 'pointer', border: '2px solid',
+              borderColor: activeTheme === th.id ? th.color : 'var(--stroke-primary)',
+              background:  activeTheme === th.id ? th.color + '18' : 'transparent',
+              color:       activeTheme === th.id ? th.color : 'var(--text-secondary)',
+              transition: 'all 120ms',
+            }}>
+              <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: th.color, marginRight: 5, verticalAlign: 'middle' }} />
+              {th.label}
+            </button>
           ))}
         </div>
       </div>
-
-      <Lead>
-        Tooltip is a transient, non-interactive overlay that reveals supplementary information when the user hovers over — or focuses — a trigger element. It disappears when the pointer leaves or focus moves away. Tooltips are display-only: they never contain links, buttons, or form controls.
-      </Lead>
 
       <Divider />
 
@@ -613,7 +614,7 @@ export default function TooltipPage() {
       <SectionAnchor id="guidance" />
       <H2>Guidance</H2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <DoBox
+        <DoBox visualMinHeight={90} visualBg={'#f8fafc'} visualPadding={'28px 18px'}
           visual={
             <HoverTooltip C={C} label="Delete item" placement="top">
               <IconBtn icon="trash" C={C} />
@@ -622,7 +623,7 @@ export default function TooltipPage() {
         >
           Use tooltips to label unlabelled icon buttons. A tooltip is the minimum requirement for an icon-only action.
         </DoBox>
-        <DontBox
+        <DontBox visualMinHeight={90} visualBg={'#f8fafc'} visualPadding={'28px 18px'}
           visual={
             <HoverTooltip C={C} label="Click here to delete this item from your workspace. This action cannot be undone. Please make sure you want to proceed before clicking." placement="top">
               <IconBtn icon="trash" C={C} />
@@ -631,7 +632,7 @@ export default function TooltipPage() {
         >
           Don't write instructions or warnings in tooltips. Essential information must be always visible — not hidden behind hover.
         </DontBox>
-        <DoBox
+        <DoBox visualMinHeight={90} visualBg={'#f8fafc'} visualPadding={'28px 18px'}
           visual={
             <HoverTooltip C={C} label="Upgrade to Pro to access this feature" placement="bottom">
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, background: 'var(--bg-secondary)', border: `1px solid ${C.stroke}`, fontSize: 12, fontFamily: 'Poppins, sans-serif', color: C.textSecondary, opacity: 0.6, cursor: 'not-allowed' }}>
@@ -643,7 +644,7 @@ export default function TooltipPage() {
         >
           Explain why a control is disabled via tooltip. This reduces frustration and guides users toward the right action.
         </DoBox>
-        <DontBox
+        <DontBox visualMinHeight={90} visualBg={'#f8fafc'} visualPadding={'28px 18px'}
           visual={
             <HoverTooltip C={C} label="Learn more →" placement="bottom">
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontFamily: 'Poppins, sans-serif', color: C.brand, cursor: 'pointer' }}>
@@ -695,6 +696,42 @@ export default function TooltipPage() {
         ['tooltip.shadow',      'Shadow level reference (Z1)'],
       ]} />
 
+      </div>
+
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
     </div>
   )
 }

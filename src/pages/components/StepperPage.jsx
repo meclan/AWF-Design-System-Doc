@@ -1,57 +1,22 @@
 import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
+import { SectionAnchor, H2, H3, Lead, P, Code, Divider, InfoBox, DoBox, DontBox } from '../../components/ComponentPagePrims.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
 
-// ─── Shared primitives ────────────────────────────────────────────────────────
 
-function SectionAnchor({ id }) {
-  return <span id={id} style={{ display: 'block', marginTop: -80, paddingTop: 80 }} />
-}
-function H2({ children }) {
-  return <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-.4px', color: 'var(--text-primary)', marginBottom: 12, marginTop: 56 }}>{children}</h2>
-}
-function H3({ children }) {
-  return <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8, marginTop: 24 }}>{children}</h3>
-}
-function Lead({ children }) {
-  return <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 20 }}>{children}</p>
-}
-function P({ children }) {
-  return <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>
-}
-function Code({ children }) {
-  return <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--brand-600)', padding: '1px 6px', borderRadius: 4 }}>{children}</code>
-}
-function Divider() {
-  return <hr style={{ border: 'none', borderTop: '1px solid var(--stroke-primary)', margin: '48px 0' }} />
-}
-function InfoBox({ type = 'info', children }) {
-  const s = { info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', label: 'Note' }, warning: { bg: '#fffbeb', border: '#fde68a', text: '#92400e', label: 'Warning' } }[type]
-  return <div style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: s.text, lineHeight: 1.65 }}><strong>{s.label}:</strong> {children}</div>
-}
-function DoBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '20px 18px', background: 'var(--bg-primary)', borderBottom: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 80 }}>{visual}</div>}
-      <div style={{ padding: '12px 18px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#16a34a', marginBottom: 5 }}>✓ Do</div>
-        <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
-function DontBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #fecaca', background: '#fef2f2', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '20px 18px', background: 'var(--bg-primary)', borderBottom: '1px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 80 }}>{visual}</div>}
-      <div style={{ padding: '12px 18px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#dc2626', marginBottom: 5 }}>✗ Don't</div>
-        <div style={{ fontSize: 13, color: '#7f1d1d', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
+
+
+
+
+
+
+
+
+
+
 
 // ─── Token-driven color palette ───────────────────────────────────────────────
 // tabs.indicator   = color.stroke.brand.default  (brand mid, changes per theme)
@@ -319,12 +284,52 @@ const TOC = [
   { id: 'usage',     label: 'Usage rules'   },
   { id: 'usecase',   label: 'Use case'      },
   { id: 'a11y',      label: 'Accessibility' },
+  { id: 'tokens',    label: 'Token reference' },
 ]
+
+// ─── Token table ──────────────────────────────────────────────────────────────
+
+function StepperTokenTable({ tokens }) {
+  const [filter, setFilter] = useState('')
+  const rows = Object.entries(tokens).filter(([k]) => k.startsWith('stepper.')).sort(([a], [b]) => a.localeCompare(b))
+  const filtered = filter ? rows.filter(([k]) => k.includes(filter)) : rows
+  return (
+    <div>
+      <input
+        value={filter}
+        onChange={e => setFilter(e.target.value)}
+        placeholder="Filter stepper.* tokens…"
+        style={{ width: '100%', padding: '8px 12px', fontSize: 13, borderRadius: 6, border: '1px solid var(--stroke-primary)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', marginBottom: 12, boxSizing: 'border-box', outline: 'none' }}
+      />
+      <div style={{ borderRadius: 8, border: '1px solid var(--stroke-primary)', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 40px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--stroke-primary)', padding: '8px 14px' }}>
+          <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-tertiary)' }}>Token</span>
+          <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-tertiary)' }}>Resolved value</span>
+          <span />
+        </div>
+        <div style={{ maxHeight: 340, overflowY: 'auto' }}>
+          {filtered.length === 0 && <div style={{ padding: '16px 14px', fontSize: 13, color: 'var(--text-tertiary)' }}>No match for "{filter}"</div>}
+          {filtered.map(([key, value]) => {
+            const isHex = typeof value === 'string' && /^#[0-9a-fA-F]/.test(value)
+            return (
+              <div key={key} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 40px', padding: '8px 14px', borderBottom: '1px solid var(--stroke-primary)', alignItems: 'center' }}>
+                <code style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-secondary)' }}>{key}</code>
+                <code style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-tertiary)' }}>{String(value)}</code>
+                {isHex ? <span style={{ width: 18, height: 18, borderRadius: 4, background: value, border: '1px solid rgba(0,0,0,.12)', display: 'inline-block' }} /> : <span />}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 6 }}>{filtered.length} tokens</div>
+    </div>
+  )
+}
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function StepperPage() {
-  const [activeTheme,   setActiveTheme]   = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const [activeSection, setActiveSection] = useState('overview')
 
   const t = getComponentTokens(activeTheme)
@@ -614,6 +619,14 @@ export default function StepperPage() {
           Always ensure the form inside each step panel has a visible heading (<Code>h2</Code> or <Code>h3</Code>) describing what the user is filling in. This gives screen-reader users context without relying solely on the step label.
         </InfoBox>
 
+        <Divider />
+
+        {/* ── TOKEN REFERENCE ─────────────────────────────────────────────── */}
+        <SectionAnchor id="tokens" />
+        <H2>Token reference</H2>
+        <P>All stepper tokens live under the <Code>stepper.*</Code> namespace and resolve via <Code>getComponentTokens(themeId)</Code>.</P>
+        <StepperTokenTable tokens={t} />
+
       </div>
 
       {/* ── TOC ───────────────────────────────────────────────────────────── */}
@@ -633,6 +646,7 @@ export default function StepperPage() {
             borderLeft: activeSection === item.id ? '2px solid var(--brand-600)' : '2px solid transparent',
           }}>{item.label}</a>
         ))}
+        <BrandThemeSwitcher />
       </div>
 
     </div>

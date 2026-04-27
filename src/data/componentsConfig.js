@@ -14,6 +14,14 @@ export const COMPONENTS_CONFIG = [
     desc: 'Trigger actions and page navigation. Supports four variants (filled, soft, outlined, text) and four intents (brand, danger, neutral, strong).',
   },
   {
+    name: 'Icon Button',
+    category: 'Actions',
+    path: '/components/icon-button',
+    tokenPrefix: 'button.icon',
+    tokens: 42,
+    desc: 'Compact icon-only button for toolbars, row actions, and dense surfaces. Four appearances (ghost, outlined, soft, filled) and four sizes (LG/MD/SM/XS).',
+  },
+  {
     name: 'Toggle',
     category: 'Actions',
     path: '/components/toggle',

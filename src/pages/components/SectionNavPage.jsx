@@ -1,57 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
+import { SectionAnchor, H2, H3, Lead, P, Code, Divider, InfoBox, DoBox, DontBox } from '../../components/ComponentPagePrims.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
 
-// ─── Shared primitives ────────────────────────────────────────────────────────
 
-function SectionAnchor({ id }) {
-  return <span id={id} style={{ display: 'block', marginTop: -80, paddingTop: 80 }} />
-}
-function H2({ children }) {
-  return <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-.4px', color: 'var(--text-primary)', marginBottom: 12, marginTop: 56 }}>{children}</h2>
-}
-function H3({ children }) {
-  return <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8, marginTop: 24 }}>{children}</h3>
-}
-function Lead({ children }) {
-  return <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 20 }}>{children}</p>
-}
-function P({ children }) {
-  return <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>
-}
-function Code({ children }) {
-  return <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--brand-600)', padding: '1px 6px', borderRadius: 4 }}>{children}</code>
-}
-function Divider() {
-  return <hr style={{ border: 'none', borderTop: '1px solid var(--stroke-primary)', margin: '48px 0' }} />
-}
-function InfoBox({ type = 'info', children }) {
-  const s = { info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', label: 'Note' }, warning: { bg: '#fffbeb', border: '#fde68a', text: '#92400e', label: 'Warning' } }[type]
-  return <div style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: s.text, lineHeight: 1.65 }}><strong>{s.label}:</strong> {children}</div>
-}
-function DoBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '20px 18px', background: 'var(--bg-primary)', borderBottom: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 80 }}>{visual}</div>}
-      <div style={{ padding: '12px 18px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#16a34a', marginBottom: 5 }}>✓ Do</div>
-        <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
-function DontBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #fecaca', background: '#fef2f2', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '20px 18px', background: 'var(--bg-primary)', borderBottom: '1px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 80 }}>{visual}</div>}
-      <div style={{ padding: '12px 18px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#dc2626', marginBottom: 5 }}>✗ Don't</div>
-        <div style={{ fontSize: 13, color: '#7f1d1d', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
+
+
+
+
+
+
+
+
+
+
 
 // ─── Token-driven colors ──────────────────────────────────────────────────────
 // tabs.indicator   = color.stroke.brand.default  (brand mid, changes per theme)
@@ -63,16 +28,23 @@ function getSectionNavColors(t) {
   return {
     brandMid,
     brandDark,
-    titleColor:       '#141a21',
-    textDefault:      '#454f5b',
-    textActive:       brandMid,
-    bgActive:         t['sectionnav.bg-active'] || '#ecf6fa',
-    numberBgDefault:  '#f4f6f8',
-    numberBgActive:   brandMid,
-    numberColorDefault: '#637381',
-    numberColorActive:  '#ffffff',
-    verticalLine:     '#c4cdd5',
-    hoverBg:          '#f4f6f8',
+    titleColor:         t['sectionnav.title']              || '#141a21',
+    textDefault:        t['sectionnav.text.default']       || '#454f5b',
+    textActive:         t['sectionnav.text.active']        || brandMid,
+    textHover:          t['sectionnav.text.hover']         || '#008394',
+    textDisabled:       t['sectionnav.text.disabled']      || '#c4cdd5',
+    chevron:            t['sectionnav.chevron']            || '#454f5b',
+    bgActive:           t['sectionnav.bg-active']          || '#ecf6fa',
+    numberBgDefault:    t['sectionnav.number.bg.default']  || '#f4f6f8',
+    numberBgActive:     t['sectionnav.number.bg.active']   || brandMid,
+    numberColorDefault: t['sectionnav.number.color.default'] || '#637381',
+    numberColorActive:  t['sectionnav.number.color.active']  || '#ffffff',
+    verticalLine:       t['sectionnav.line']               || '#c4cdd5',
+    fontSize:           (typeof t['sectionnav.font-size.default'] === 'number' ? t['sectionnav.font-size.default'] : null) ?? 18,
+    subFontSize:        (typeof t['sectionnav.font-size.sub-menu'] === 'number' ? t['sectionnav.font-size.sub-menu'] : null) ?? 16,
+    weightDefault:      (typeof t['sectionnav.font-weight.default'] === 'number' ? t['sectionnav.font-weight.default'] : null) ?? 300,
+    weightActive:       (typeof t['sectionnav.font-weight.active'] === 'number' ? t['sectionnav.font-weight.active'] : null) ?? 500,
+    hoverBg:            '#f4f6f8',
   }
 }
 
@@ -301,7 +273,7 @@ function SectionNavLive({ t }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap', minHeight: 260 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap'}}>
         {['submenu', 'numbered'].map(v => (
           <button key={v} onClick={() => { setVariant(v); setActiveId(v === 'submenu' ? 'account' : 'usage') }} style={btnBase(variant === v)}>
             {v === 'submenu' ? 'Submenu' : 'Numbered'}
@@ -542,47 +514,75 @@ function TokenRow({ name, value, resolved }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+const TOC = [
+  { id: 'overview',      label: 'Overview' },
+  { id: 'anatomy',       label: 'Anatomy' },
+  { id: 'states',        label: 'States' },
+  { id: 'variants',      label: 'Variants' },
+  { id: 'usage',         label: 'Usage guidelines' },
+  { id: 'use-case',      label: 'Use cases' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'tokens',        label: 'Token reference' },
+]
+
 export default function SectionNavPage() {
-  const [themeId, setThemeId] = useState(VISIBLE_THEMES[0].id)
-  const t = VISIBLE_THEMES.find(t => t.id === themeId) || VISIBLE_THEMES[0]
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [activeSection, setActiveSection] = useState('overview')
+  const t = VISIBLE_THEMES.find(t => t.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(t.id)
   const C = getSectionNavColors(tokens)
 
-  return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '48px 32px 96px', fontFamily: 'Inter, sans-serif' }}>
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = TOC.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
 
-      {/* ── Page header ─────────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.08em' }}>Navigation</span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 8 }}>
-        <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: 0 }}>Section Nav</h1>
-        {/* Theme selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Theme:</span>
+  return (
+    <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px', fontFamily: 'Inter, sans-serif' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>Components · Navigation</span>
+          <span style={{ fontSize: 11, color: 'var(--stroke-primary)' }}>·</span>
+          <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, background: '#dcfce7', color: '#166534' }}>Stable</span>
+        </div>
+        <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: '0 0 16px' }}>Section Nav</h1>
+        <Lead>
+          Section Nav provides in-page or section-level navigation. It comes in two variants: a <strong>submenu</strong> for hierarchical settings-style navigation and a <strong>numbered</strong> list for anchored in-page navigation ("On this page").
+        </Lead>
+        {/* Theme switcher */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', paddingTop: 4 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>Preview theme:</span>
           {VISIBLE_THEMES.map(th => (
-            <button
-              key={th.id}
-              onClick={() => setThemeId(th.id)}
-              style={{
-                padding: '4px 12px',
-                borderRadius: 6,
-                border: `1px solid ${th.id === themeId ? C.brandMid : 'var(--stroke-primary)'}`,
-                background: th.id === themeId ? C.brandMid : 'var(--bg-primary)',
-                color: th.id === themeId ? '#fff' : 'var(--text-secondary)',
-                fontSize: 12,
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
-            >
-              {th.name}
+            <button key={th.id} onClick={() => setActiveTheme(th.id)} style={{
+              padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 500, cursor: 'pointer', border: '2px solid',
+              borderColor: activeTheme === th.id ? th.color : 'var(--stroke-primary)',
+              background:  activeTheme === th.id ? th.color + '18' : 'transparent',
+              color:       activeTheme === th.id ? th.color : 'var(--text-secondary)',
+              transition: 'all 120ms',
+            }}>
+              <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: th.color, marginRight: 5, verticalAlign: 'middle' }} />
+              {th.label}
             </button>
           ))}
         </div>
       </div>
-      <Lead>
-        Section Nav provides in-page or section-level navigation. It comes in two variants: a <strong>submenu</strong> for hierarchical settings-style navigation and a <strong>numbered</strong> list for anchored in-page navigation ("On this page").
-      </Lead>
 
       {/* ── Overview ────────────────────────────────────────────────────── */}
       <SectionAnchor id="overview" />
@@ -796,6 +796,42 @@ export default function SectionNavPage() {
         </table>
       </div>
 
+      </div>
+
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
     </div>
   )
 }

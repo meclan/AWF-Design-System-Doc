@@ -1,8 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { layers, products, stats } from '../data/tokens.js'
 import { THEMES, getSemanticTokens } from '../data/tokens/index.js'
+import { useBrandTheme } from '../contexts/BrandThemeContext.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
+
+const TOC = [
+  { id: 'overview',  label: 'Overview' },
+  { id: 'layers',    label: 'The three layers' },
+  { id: 'themes',    label: 'Product themes' },
+  { id: 'usage',     label: 'Using tokens in code' },
+  { id: 'naming',    label: 'Naming convention' },
+  { id: 'deeper',    label: 'Go deeper' },
+]
+
+function SectionAnchor({ id }) {
+  return <span id={id} style={{ display: 'block', marginTop: -80, paddingTop: 80 }} />
+}
 
 // Two groups show the key insight: brand tokens shift per theme, neutral tokens stay constant
 const TOKEN_GROUPS = [
@@ -56,13 +71,36 @@ const CODE_STEPS = [
 ]
 
 export default function TokensArchitecture() {
-  const [activeTheme, setActiveTheme] = useState('dot')
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
   const semanticTokens = getSemanticTokens(activeTheme)
+  const [activeSection, setActiveSection] = useState('overview')
+
+  // Scroll-spy on main element
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = TOC.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 40px 80px' }}>
+    <div style={{ display: 'flex', gap: 40, maxWidth: 1140, margin: '0 auto', padding: '48px 40px 80px', alignItems: 'flex-start' }}>
+      <article style={{ flex: 1, minWidth: 0 }}>
 
       {/* Header */}
+      <SectionAnchor id="overview" />
       <div style={{ marginBottom: 48 }}>
         <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--brand-600)', marginBottom: 12 }}>
           Foundations
@@ -79,6 +117,7 @@ export default function TokensArchitecture() {
       </div>
 
       {/* Three layers */}
+      <SectionAnchor id="layers" />
       <section style={{ marginBottom: 56 }}>
         <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-.3px', color: 'var(--text-primary)', marginBottom: 24 }}>
           The three layers
@@ -151,6 +190,7 @@ export default function TokensArchitecture() {
       </section>
 
       {/* Product themes */}
+      <SectionAnchor id="themes" />
       <section style={{ marginBottom: 56 }}>
         <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-.3px', color: 'var(--text-primary)', marginBottom: 10 }}>
           Product themes
@@ -228,6 +268,7 @@ export default function TokensArchitecture() {
       </section>
 
       {/* Usage in code */}
+      <SectionAnchor id="usage" />
       <section style={{ marginBottom: 56 }}>
         <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-.3px', color: 'var(--text-primary)', marginBottom: 24 }}>
           Using tokens in code
@@ -257,6 +298,7 @@ export default function TokensArchitecture() {
       </section>
 
       {/* Naming convention */}
+      <SectionAnchor id="naming" />
       <section>
         <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-.3px', color: 'var(--text-primary)', marginBottom: 16 }}>
           Naming convention
@@ -289,6 +331,62 @@ export default function TokensArchitecture() {
           ))}
         </div>
       </section>
+
+      {/* Related guides */}
+      <SectionAnchor id="deeper" />
+      <section style={{ marginTop: 64, padding: '24px 28px', background: 'var(--bg-secondary)', border: '1px solid var(--stroke-primary)', borderRadius: 12 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 12 }}>
+          Go deeper
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <Link to="/guides/theming" style={{ textDecoration: 'none', display: 'block', padding: '14px 16px', background: 'var(--bg-primary)', borderRadius: 10, border: '1px solid var(--stroke-primary)' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand-600)', marginBottom: 4 }}>Theming Guide →</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Apply themes in Figma and code, multi-product logic, design rules.</div>
+          </Link>
+          <Link to="/guides/tokens" style={{ textDecoration: 'none', display: 'block', padding: '14px 16px', background: 'var(--bg-primary)', borderRadius: 10, border: '1px solid var(--stroke-primary)' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand-600)', marginBottom: 4 }}>Token Usage →</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Full JS API, CSS variables, adding a theme, migration strategy.</div>
+          </Link>
+        </div>
+      </section>
+      </article>
+
+      {/* ── Right TOC aside ─────────────────────────────────────────── */}
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 20, alignSelf: 'flex-start', paddingTop: 48 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>
+          On this page
+        </div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+      </aside>
     </div>
   )
 }

@@ -1,7 +1,24 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
+import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
+import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
+import { SectionAnchor, H2, H3, Lead, P, Code, DoBox, DontBox } from '../../components/ComponentPagePrims.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
+
+const TOC = [
+  { id: 'top',           label: 'Overview' },
+  { id: 'demo',          label: 'Live demo' },
+  { id: 'states',        label: 'States' },
+  { id: 'sizes',         label: 'Sizes' },
+  { id: 'label',         label: 'Label & placeholder' },
+  { id: 'variants',      label: 'Variants' },
+  { id: 'icons',         label: 'Icons' },
+  { id: 'helper',        label: 'Helper & validation' },
+  { id: 'guidance',      label: 'Usage guidance' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'tokens',        label: 'Tokens' },
+]
 
 // ─── Color blend helper ───────────────────────────────────────────────────────
 
@@ -65,7 +82,7 @@ function getInputColors(t) {
     // Brand filled – derived from brand color
     brandBg:          blendWithWhite(brand, 0.10),
     brandBgHover:     blendWithWhite(brand, 0.16),
-    brandStroke:      t['inputfield.filled-brand.stroke.focused']               || '#9FEFFF',//blendWithWhite(brand, 0.50),
+    brandStroke:      t['inputfield.filled-brand.container.stroke.focused']     || '#9FEFFF',//blendWithWhite(brand, 0.50),
   }
 }
 
@@ -89,49 +106,17 @@ const InfoIcon = ({ color = '#637381', size = 14 }) => (
 
 // ─── Shared page primitives ───────────────────────────────────────────────────
 
-function SectionAnchor({ id }) {
-  return <span id={id} style={{ display: 'block', marginTop: -80, paddingTop: 80 }} />
-}
-function H2({ children }) {
-  return <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-.4px', color: 'var(--text-primary)', marginBottom: 12, marginTop: 56 }}>{children}</h2>
-}
-function H3({ children }) {
-  return <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8, marginTop: 28 }}>{children}</h3>
-}
-function Lead({ children }) {
-  return <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 20 }}>{children}</p>
-}
-function P({ children }) {
-  return <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>
-}
-function Code({ children }) {
-  return <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--brand-600)', padding: '1px 6px', borderRadius: 4 }}>{children}</code>
-}
+
+
+
+
+
+
 function Rule() {
   return <hr style={{ border: 'none', borderTop: '1px solid var(--stroke-primary)', margin: '48px 0' }} />
 }
-function DoBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '24px 20px', background: '#f8fafc', borderBottom: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 90 }}>{visual}</div>}
-      <div style={{ padding: '12px 16px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#16a34a', marginBottom: 5 }}>✓ Do</div>
-        <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
-function DontBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #fecaca', background: '#fef2f2', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '24px 20px', background: '#f8fafc', borderBottom: '1px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 90 }}>{visual}</div>}
-      <div style={{ padding: '12px 16px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#dc2626', marginBottom: 5 }}>✗ Don't</div>
-        <div style={{ fontSize: 13, color: '#7f1d1d', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
+
+
 
 // ─── Outlined field: static display ──────────────────────────────────────────
 // state: 'default' | 'hover' | 'focused' | 'disabled' | 'error'
@@ -310,6 +295,7 @@ function LiveOutlined({ C, size = 'lg', label = 'Label', showHelper = false, sho
   const [val, setVal]       = useState('')
   const [focused, setFocus] = useState(false)
   const [hovered, setHover] = useState(false)
+  const inputRef            = useRef(null)
 
   const isErr    = error
   const labelUp  = focused || !!val
@@ -333,13 +319,22 @@ function LiveOutlined({ C, size = 'lg', label = 'Label', showHelper = false, sho
             border: `${bWidth}px solid ${bColor}`,
             borderRadius: C.radius,
             boxShadow: shadow,
-            transition: 'all .15s',
+            transition: 'all .15s', cursor: 'text',
           }}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
+          onMouseDown={e => {
+            // Clicking anywhere in the container focuses the input — except the input itself
+            // (which handles its own focus natively) and trailing interactive icons.
+            if (e.target !== inputRef.current) {
+              e.preventDefault()
+              inputRef.current?.focus()
+            }
+          }}
         >
           {showLead && <WarningIcon color={isErr ? C.strokeIncorrect : C.iconDefault} size={20} />}
           <input
+            ref={inputRef}
             style={{
               flex: 1, border: 'none', outline: 'none',
               background: 'transparent',
@@ -476,11 +471,18 @@ function LiveFilled({ C, size = 'lg', label = 'Label', colorScheme = 'neutral', 
         }}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        onMouseDown={e => {
+          if (e.target !== inputRef.current) {
+            e.preventDefault()
+            inputRef.current?.focus()
+          }
+        }}
       >
         {showLead && <WarningIcon color={error ? C.strokeIncorrect : C.iconDefault} size={20} />}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 12, fontWeight: 500, fontFamily: 'Poppins, sans-serif', color: labelColor, lineHeight: '16px', marginBottom: 2, transition: 'color .15s', pointerEvents: 'none' }}>{label}</div>
           <input
+            ref={inputRef}
             style={{
               width: '100%', border: 'none', outline: 'none', background: 'transparent',
               fontSize: 16, fontFamily: 'Poppins, sans-serif',
@@ -518,7 +520,8 @@ function StateLabel({ children }) {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function TextFieldPage() {
-  const [themeIdx,  setThemeIdx]  = useState(0)
+  const { brandTheme: activeTheme, setBrandTheme: setActiveTheme } = useBrandTheme()
+  const [activeSection, setActiveSection] = useState('top')
   const [variant,   setVariant]   = useState('outlined')   // 'outlined' | 'neutral' | 'brand'
   const [demoSize,  setDemoSize]  = useState('lg')
   const [demoHelper,    setHelper]        = useState(false)
@@ -527,10 +530,31 @@ export default function TextFieldPage() {
   const [demoError,     setError]         = useState(false)
   const [demoFloating,  setDemoFloating]  = useState(false)   // filled label style
 
-  const theme  = VISIBLE_THEMES[themeIdx]
+  const theme  = VISIBLE_THEMES.find(t => t.id === activeTheme) || VISIBLE_THEMES[0]
   const tokens = getComponentTokens(theme.id)
   const C      = getInputColors(tokens)
   const THEME_COLORS = VISIBLE_THEMES.map(t => getComponentTokens(t.id)['tabs.indicator'] || '#07a2b6')
+
+  useEffect(() => {
+    const main = document.querySelector('main')
+    const scrollEl = main || window
+    const handler = () => {
+      const scrollTop = main ? main.scrollTop : window.scrollY
+      const threshold = scrollTop + 140
+      let current = TOC[0].id
+      for (const item of TOC) {
+        const el = document.getElementById(item.id)
+        if (el) {
+          const top = el.getBoundingClientRect().top + scrollTop - (main ? main.getBoundingClientRect().top : 0)
+          if (top <= threshold) current = item.id
+        }
+      }
+      setActiveSection(current)
+    }
+    scrollEl.addEventListener('scroll', handler, { passive: true })
+    handler()
+    return () => scrollEl.removeEventListener('scroll', handler)
+  }, [])
 
   const isOutlined = variant === 'outlined'
   const colorScheme = variant === 'brand' ? 'brand' : 'neutral'
@@ -547,32 +571,38 @@ export default function TextFieldPage() {
   ]
 
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 32px 80px' }}>
+    <div style={{ display: 'flex', maxWidth: 1200, margin: '0 auto', gap: 32, alignItems: 'flex-start' }}>
+      <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px' }}>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <SectionAnchor id="top" />
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 8 }}>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 8 }}>FORMS</div>
-          <h1 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-.8px', color: 'var(--text-primary)', margin: 0 }}>Text Field</h1>
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>Components · Forms</span>
+          <span style={{ fontSize: 11, color: 'var(--stroke-primary)' }}>·</span>
+          <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, background: '#dcfce7', color: '#166534' }}>Stable</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'Poppins, sans-serif' }}>Theme:</span>
-          {VISIBLE_THEMES.map((t, i) => (
-            <button key={t.id} onClick={() => setThemeIdx(i)} title={t.label} style={{
-              width: 22, height: 22, borderRadius: '50%', background: THEME_COLORS[i],
-              cursor: 'pointer', padding: 0, boxSizing: 'border-box',
-              border: i === themeIdx ? '2px solid var(--text-primary)' : '2px solid transparent',
-              outline: i === themeIdx ? '2px solid var(--bg-primary)' : 'none', outlineOffset: -4,
-              transition: 'border-color .15s',
-            }} />
+        <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: '0 0 16px' }}>Text Field</h1>
+        <Lead>
+          The Text Field is a single-line input for free-form text entry. It exists in three visual variants — <strong>Outlined</strong>, <strong>Filled Neutral</strong>, and <strong>Filled Brand</strong>. Each supports a floating label (outlined) or fixed label (filled), helper text, validation states, and optional leading/trailing icons.
+        </Lead>
+        {/* Theme switcher */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', paddingTop: 4 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>Preview theme:</span>
+          {VISIBLE_THEMES.map(th => (
+            <button key={th.id} onClick={() => setActiveTheme(th.id)} style={{
+              padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 500, cursor: 'pointer', border: '2px solid',
+              borderColor: activeTheme === th.id ? th.color : 'var(--stroke-primary)',
+              background:  activeTheme === th.id ? th.color + '18' : 'transparent',
+              color:       activeTheme === th.id ? th.color : 'var(--text-secondary)',
+              transition: 'all 120ms',
+            }}>
+              <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: th.color, marginRight: 5, verticalAlign: 'middle' }} />
+              {th.label}
+            </button>
           ))}
         </div>
       </div>
-
-      <Lead>
-        The Text Field is a single-line input for free-form text entry. It exists in three visual variants — <strong>Outlined</strong>, <strong>Filled Neutral</strong>, and <strong>Filled Brand</strong>. Each supports a floating label (outlined) or fixed label (filled), helper text, validation states, and optional leading/trailing icons.
-      </Lead>
 
       {/* ── Variant selector ── */}
       <div style={{
@@ -1081,6 +1111,42 @@ export default function TextFieldPage() {
         </table>
       </div>
 
+      </div>
+
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 80, padding: '52px 24px 48px 0', alignSelf: 'flex-start' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>On this page</div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+        <BrandThemeSwitcher />
+      </aside>
     </div>
   )
 }

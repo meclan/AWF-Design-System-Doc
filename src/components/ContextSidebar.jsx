@@ -42,8 +42,8 @@ export default function ContextSidebar() {
       flexShrink: 0,
       background: 'var(--bg-primary)',
       borderRight: '1px solid var(--stroke-primary)',
-      overflowY: 'auto',
       height: '100%',
+      overflowY: 'auto',
       padding: '20px 0',
     }}>
       {/* A-Z toggle — only shown in components section */}

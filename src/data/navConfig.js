@@ -10,7 +10,7 @@ export const TOP_NAV = [
 
 export const SIDEBAR_NAV = {
   '/about': [
-    { label: 'Introduction', path: '/about' },
+    { label: 'Introduction', path: '/about', end: true },
     { label: 'Changelog',    path: '/about/changelog' },
   ],
   '/guides': [

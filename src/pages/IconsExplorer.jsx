@@ -1,8 +1,25 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import * as LucideIcons from 'lucide-react'
 import registry from '../data/icon-registry.json'
 
 const CATEGORIES = ['all', 'Actions & verbs', 'Navigation & disclosure', 'Status & feedback', 'Objects & concepts']
+
+const TOC = [
+  { id: 'registry',       label: 'Icon registry' },
+  { id: 'governance',     label: 'Governance model' },
+  { id: 'core',           label: 'Core principles' },
+  { id: 'category-vocab', label: 'Category vocabulary' },
+  { id: 'mui',            label: 'MUI exceptions' },
+  { id: 'selection',      label: 'Selection rules' },
+  { id: 'contribution',   label: 'Contribution workflow' },
+  { id: 'qa',             label: 'QA checklist' },
+]
+
+const GOVERNANCE_IDS = ['core', 'category-vocab', 'mui', 'selection', 'contribution', 'qa']
+
+function SectionAnchor({ id }) {
+  return <span id={id} style={{ display: 'block', marginTop: -80, paddingTop: 80 }} />
+}
 
 const CATEGORY_STYLE = {
   'Actions & verbs':        { color: '#0369a1', bg: '#e0f2fe' },
@@ -216,6 +233,27 @@ export default function IconsExplorer() {
   const [query, setQuery]           = useState('')
   const [activeCategory, setCategory] = useState('all')
   const [openSection, setOpenSection] = useState(null)
+  const [activeSection, setActiveSection] = useState('registry')
+
+  // Scroll-spy
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const ids = TOC.map(item => item.id)
+    function onScroll() {
+      const mainTop = main.getBoundingClientRect().top
+      const threshold = 140
+      let current = ids[0]
+      for (const id of ids) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top - mainTop <= threshold) current = id
+      }
+      setActiveSection(current)
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [])
 
   const filtered = registry.filter(entry => {
     const matchesCat = activeCategory === 'all' || entry.category === activeCategory
@@ -234,8 +272,10 @@ export default function IconsExplorer() {
   const countFor = cat => cat === 'all' ? registry.length : registry.filter(e => e.category === cat).length
 
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', padding: '48px 40px 80px' }}>
+    <div style={{ display: 'flex', gap: 40, maxWidth: 1240, margin: '0 auto', padding: '48px 40px 80px', alignItems: 'flex-start' }}>
+      <article style={{ flex: 1, minWidth: 0 }}>
 
+      <SectionAnchor id="registry" />
       {/* Header */}
       <div style={{ marginBottom: 36 }}>
         <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--brand-600)', marginBottom: 12 }}>
@@ -351,61 +391,89 @@ export default function IconsExplorer() {
       )}
 
       {/* Governance model */}
-      <div>
+      <SectionAnchor id="governance" />
+      <div style={{ marginTop: 16 }}>
         <h2 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-.3px', color: 'var(--text-primary)', marginBottom: 8 }}>
           Icon governance model
         </h2>
         <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 20 }}>
           This registry is the single source of truth for cross-product icons. All teams must follow these rules.
+          Use the right-hand navigation to jump to any section.
         </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {GOVERNANCE_SECTIONS.map((section, i) => {
-            const isOpen = openSection === i
-            const isFirst = i === 0
-            const isLast = i === GOVERNANCE_SECTIONS.length - 1
-            return (
-              <div key={section.title} style={{
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {GOVERNANCE_SECTIONS.map((section, i) => (
+            <div key={section.title}>
+              <SectionAnchor id={GOVERNANCE_IDS[i]} />
+              <div style={{
                 border: '1px solid var(--stroke-primary)',
-                borderRadius: isFirst ? '10px 10px 3px 3px' : isLast ? '3px 3px 10px 10px' : '3px',
+                borderRadius: 10,
                 overflow: 'hidden',
+                background: 'var(--bg-primary)',
               }}>
-                <button
-                  onClick={() => setOpenSection(isOpen ? null : i)}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '13px 18px',
-                    background: isOpen ? 'var(--brand-50)' : 'var(--bg-secondary)',
-                    border: 'none', cursor: 'pointer', textAlign: 'left',
-                    transition: 'background 120ms',
-                  }}
-                >
-                  <span style={{ fontSize: 13, fontWeight: 600, color: isOpen ? 'var(--brand-600)' : 'var(--text-primary)' }}>
-                    {section.title}
-                  </span>
-                  <span style={{
-                    fontSize: 12, color: 'var(--text-tertiary)',
-                    transform: isOpen ? 'rotate(180deg)' : 'none',
-                    transition: 'transform 180ms', display: 'inline-block',
-                  }}>▾</span>
-                </button>
-                {isOpen && (
-                  <div style={{ padding: '14px 18px', background: 'var(--bg-primary)', borderTop: '1px solid var(--stroke-primary)' }}>
-                    <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 7 }}>
-                      {section.items.map(item => (
-                        <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                          <span style={{ color: 'var(--brand-600)', flexShrink: 0 }}>·</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <div style={{
+                  padding: '12px 18px',
+                  background: 'var(--bg-secondary)',
+                  borderBottom: '1px solid var(--stroke-primary)',
+                  fontSize: 13, fontWeight: 600, color: 'var(--text-primary)',
+                }}>
+                  {section.title}
+                </div>
+                <div style={{ padding: '14px 18px' }}>
+                  <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    {section.items.map(item => (
+                      <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                        <span style={{ color: 'var(--brand-600)', flexShrink: 0, fontWeight: 700 }}>·</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            )
-          })}
+            </div>
+          ))}
         </div>
       </div>
+      </article>
+
+      {/* ── Right TOC aside ─────────────────────────────────────────── */}
+      <aside style={{ width: 200, flexShrink: 0, position: 'sticky', top: 20, alignSelf: 'flex-start', paddingTop: 48 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 10 }}>
+          On this page
+        </div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {TOC.map(item => {
+            const isActive = activeSection === item.id
+            const isChild = GOVERNANCE_IDS.includes(item.id)
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={e => {
+                  e.preventDefault()
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  padding: '5px 10px',
+                  paddingLeft: isChild ? 20 : 10,
+                  borderRadius: 6,
+                  borderLeft: isActive ? '2px solid var(--brand-600)' : '2px solid transparent',
+                  color: isActive ? 'var(--brand-600)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--brand-50)' : 'transparent',
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: 'none',
+                  transition: 'all .12s',
+                  lineHeight: 1.5,
+                }}
+              >
+                {item.label}
+              </a>
+            )
+          })}
+        </nav>
+      </aside>
     </div>
   )
 }
