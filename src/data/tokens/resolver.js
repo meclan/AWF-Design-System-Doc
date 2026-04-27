@@ -43,13 +43,33 @@ export function resolveValue(value, flatMap, maxDepth = 8) {
 }
 
 /**
+ * Convert a "Xrem" string to a px Number.
+ *
+ * The V0.5 token export stores every numeric primitive as "X rem" where
+ * X = (intended px value) / 16 — including values that conceptually are
+ * not dimensions (font-weight, line-height multipliers, opacity, etc.).
+ * Multiplying by 16 uniformly recovers the original numeric value.
+ *
+ * Non-rem strings (hex colors, shadow recipes, font names) pass through.
+ */
+function remToPx(v) {
+  if (typeof v !== 'string') return v
+  const m = /^(-?[\d.]+)rem$/.exec(v.trim())
+  if (!m) return v
+  const n = parseFloat(m[1]) * 16
+  // Round tiny floating-point noise (e.g. 1.504 → 1.5 kept as-is, 24.000000001 → 24)
+  return Math.abs(n - Math.round(n)) < 1e-6 ? Math.round(n) : n
+}
+
+/**
  * Fully resolve all values in a flat token map.
- * Handles chained references (semantic → primitive → hex).
+ * Handles chained references (semantic → primitive → hex),
+ * then converts any residual rem strings to px numbers.
  */
 export function resolveAll(flatMap) {
   const resolved = {}
   for (const [key, value] of Object.entries(flatMap)) {
-    resolved[key] = resolveValue(value, flatMap)
+    resolved[key] = remToPx(resolveValue(value, flatMap))
   }
   return resolved
 }

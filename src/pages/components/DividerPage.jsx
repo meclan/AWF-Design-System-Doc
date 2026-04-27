@@ -2,54 +2,20 @@ import React, { useState, useEffect } from 'react'
 import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
 import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
+import { SectionAnchor, H2, H3, Lead, P, Code, Divider, DoBox, DontBox } from '../../components/ComponentPagePrims.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
 
-// ─── Shared primitives ────────────────────────────────────────────────────────
 
-function SectionAnchor({ id }) {
-  return <span id={id} style={{ display: 'block', marginTop: -80, paddingTop: 80 }} />
-}
-function H2({ children }) {
-  return <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-.4px', color: 'var(--text-primary)', marginBottom: 12, marginTop: 56 }}>{children}</h2>
-}
-function H3({ children }) {
-  return <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8, marginTop: 24 }}>{children}</h3>
-}
-function Lead({ children }) {
-  return <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 20 }}>{children}</p>
-}
-function P({ children }) {
-  return <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>
-}
-function Code({ children }) {
-  return <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--brand-600)', padding: '1px 6px', borderRadius: 4 }}>{children}</code>
-}
-function Divider() {
-  return <hr style={{ border: 'none', borderTop: '1px solid var(--stroke-primary)', margin: '48px 0' }} />
-}
-function DoBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '24px 20px', background: '#f8fafc', borderBottom: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 80 }}>{visual}</div>}
-      <div style={{ padding: '12px 16px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#16a34a', marginBottom: 5 }}>✓ Do</div>
-        <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
-function DontBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #fecaca', background: '#fef2f2', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '24px 20px', background: '#f8fafc', borderBottom: '1px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 80 }}>{visual}</div>}
-      <div style={{ padding: '12px 16px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#dc2626', marginBottom: 5 }}>✗ Don't</div>
-        <div style={{ fontSize: 13, color: '#7f1d1d', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
+
+
+
+
+
+
+
+
+
 
 // ─── Token extractor ──────────────────────────────────────────────────────────
 
@@ -230,29 +196,35 @@ export default function DividerPage() {
       {/* ── Main content ──────────────────────────────────────────────────────── */}
       <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px' }}>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <SectionAnchor id="top" />
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 8 }}>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 8 }}>LAYOUT & OVERLAY</div>
-          <h1 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-.8px', color: 'var(--text-primary)', margin: 0 }}>Divider</h1>
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>Components · Layout & Overlay</span>
+          <span style={{ fontSize: 11, color: 'var(--stroke-primary)' }}>·</span>
+          <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, background: '#dcfce7', color: '#166534' }}>Stable</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'Poppins, sans-serif' }}>Theme:</span>
-          {VISIBLE_THEMES.map((t, i) => (
-            <button key={t.id} onClick={() => setActiveTheme(t.id)} title={t.label} style={{
-              width: 22, height: 22, borderRadius: '50%', background: THEME_COLORS[i], cursor: 'pointer', padding: 0, boxSizing: 'border-box',
-              border: t.id === activeTheme ? '2px solid var(--text-primary)' : '2px solid transparent',
-              outline: t.id === activeTheme ? '2px solid var(--bg-primary)' : 'none', outlineOffset: -4,
-              transition: 'border-color .15s',
-            }} />
+        <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: '0 0 16px' }}>Divider</h1>
+        <Lead>
+          Divider is a thin line that creates visual separation between content sections. It exists in two orientations — horizontal and vertical — and supports styling variants for weight, line style, and spacing. It can optionally carry a text label to introduce the sections it divides.
+        </Lead>
+        {/* Theme switcher */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', paddingTop: 4 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>Preview theme:</span>
+          {VISIBLE_THEMES.map(th => (
+            <button key={th.id} onClick={() => setActiveTheme(th.id)} style={{
+              padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 500, cursor: 'pointer', border: '2px solid',
+              borderColor: activeTheme === th.id ? th.color : 'var(--stroke-primary)',
+              background:  activeTheme === th.id ? th.color + '18' : 'transparent',
+              color:       activeTheme === th.id ? th.color : 'var(--text-secondary)',
+              transition: 'all 120ms',
+            }}>
+              <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: th.color, marginRight: 5, verticalAlign: 'middle' }} />
+              {th.label}
+            </button>
           ))}
         </div>
       </div>
-
-      <Lead>
-        Divider is a thin line that creates visual separation between content sections. It exists in two orientations — horizontal and vertical — and supports styling variants for weight, line style, and spacing. It can optionally carry a text label to introduce the sections it divides.
-      </Lead>
 
       <Divider />
 

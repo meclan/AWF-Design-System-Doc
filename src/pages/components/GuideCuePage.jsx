@@ -2,74 +2,45 @@ import React, { useState, useEffect } from 'react'
 import { useBrandTheme } from '../../contexts/BrandThemeContext.jsx'
 import BrandThemeSwitcher from '../../components/BrandThemeSwitcher.jsx'
 import { THEMES, getComponentTokens } from '../../data/tokens/index.js'
+import { SectionAnchor, H2, H3, Lead, P, Code, DoBox, DontBox } from '../../components/ComponentPagePrims.jsx'
 
 const VISIBLE_THEMES = THEMES.filter(t => !t.id.startsWith('variant'))
 
 // ─── Token extractor ──────────────────────────────────────────────────────────
-// No dedicated guidecue tokens — derived from tooltip + button + brand
+// V0.5: dedicated guidecue.* tokens cover container; CTA falls back to button.size.xs
 
 function getGuideCueColors(t) {
   return {
-    bg:          t['tooltip.bg']                    || '#1c252e',
-    title:       '#ffffff',
-    body:        '#c4cdd5',   // color/text/subtlest from Figma
-    counter:     '#919eab',   // color/text/subtle from Figma
+    bg:          t['guidecue.bg']                   || t['tooltip.bg']         || '#1c252e',
+    title:       t['guidecue.title']                || '#ffffff',
+    body:        t['guidecue.description']          || '#c4cdd5',
+    counter:     t['guidecue.pagination']           || '#919eab',
+    closeIcon:   t['guidecue.close-icon']           || '#919eab',
     brand:       t['tabs.indicator']                || '#07a2b6',
+    fontSize:    (typeof t['guidecue.font-size'] === 'number' ? t['guidecue.font-size'] : null) ?? 12,
     btnRadius:   (typeof t['button.size.xs.radius'] === 'number' ? t['button.size.xs.radius'] : null) ?? 6,
-    btnPadX:     t['button.size.xs.padding-x']      || 12,
-    btnPadY:     t['button.size.xs.padding-y']      || 6,
-    btnFontSize: t['button.size.xs.font-size']      || 12,
-    radius:      12,
-    padding:     12,
+    btnPadX:     (typeof t['button.size.xs.padding-x'] === 'number' ? t['button.size.xs.padding-x'] : null) ?? 12,
+    btnPadY:     (typeof t['button.size.xs.padding-y'] === 'number' ? t['button.size.xs.padding-y'] : null) ?? 6,
+    btnFontSize: (typeof t['button.size.xs.font-size'] === 'number' ? t['button.size.xs.font-size'] : null) ?? 12,
+    radius:      (typeof t['guidecue.radius'] === 'number' ? t['guidecue.radius'] : null) ?? 12,
+    padding:     (typeof t['guidecue.padding-x'] === 'number' ? t['guidecue.padding-x'] : null) ?? 12,
     shadow:      '0px 2px 4px rgba(171,190,209,0.6)',
   }
 }
 
 // ─── Shared layout primitives ─────────────────────────────────────────────────
 
-function SectionAnchor({ id }) {
-  return <span id={id} style={{ display: 'block', marginTop: -80, paddingTop: 80 }} />
-}
-function H2({ children }) {
-  return <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-.4px', color: 'var(--text-primary)', marginBottom: 12, marginTop: 56 }}>{children}</h2>
-}
-function H3({ children }) {
-  return <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8, marginTop: 28 }}>{children}</h3>
-}
-function Lead({ children }) {
-  return <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 20 }}>{children}</p>
-}
-function P({ children }) {
-  return <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>
-}
-function Code({ children }) {
-  return <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, background: 'var(--bg-secondary)', color: 'var(--brand-600)', padding: '1px 6px', borderRadius: 4 }}>{children}</code>
-}
+
+
+
+
+
+
 function Rule() {
   return <hr style={{ border: 'none', borderTop: '1px solid var(--stroke-primary)', margin: '48px 0' }} />
 }
-function DoBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #bbf7d0', background: '#f0fdf4', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '28px 20px', background: '#f8fafc', borderBottom: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 100 }}>{visual}</div>}
-      <div style={{ padding: '12px 16px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#16a34a', marginBottom: 5 }}>✓ Do</div>
-        <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
-function DontBox({ children, visual }) {
-  return (
-    <div style={{ border: '1px solid #fecaca', background: '#fef2f2', borderRadius: 8, overflow: 'hidden' }}>
-      {visual && <div style={{ padding: '28px 20px', background: '#f8fafc', borderBottom: '1px solid #fecaca', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 100 }}>{visual}</div>}
-      <div style={{ padding: '12px 16px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#dc2626', marginBottom: 5 }}>✗ Don't</div>
-        <div style={{ fontSize: 13, color: '#7f1d1d', lineHeight: 1.65 }}>{children}</div>
-      </div>
-    </div>
-  )
-}
+
+
 
 // ─── GuideCue bubble ──────────────────────────────────────────────────────────
 
@@ -98,7 +69,7 @@ function GuideCueBubble({ C, title, body, step = 1, totalSteps = 1, onDismiss, o
             onClick={onDismiss}
             style={{
               background: 'transparent', border: 'none', cursor: 'pointer',
-              color: C.counter, padding: 0, lineHeight: 1,
+              color: C.closeIcon, padding: 0, lineHeight: 1,
               fontSize: 14, flexShrink: 0, marginTop: -1,
             }}
             aria-label="Dismiss"
@@ -325,16 +296,35 @@ export default function GuideCuePage() {
       {/* ── Main content ──────────────────────────────────────────────────────── */}
       <div style={{ flex: 1, minWidth: 0, padding: '40px 56px 96px', fontFamily: 'Inter, sans-serif' }}>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <SectionAnchor id="top" />
-      <div style={{ marginBottom: 8 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--text-secondary)', marginBottom: 8 }}>LAYOUT & OVERLAY</div>
-        <h1 style={{ fontSize: 40, fontWeight: 800, letterSpacing: '-.8px', color: 'var(--text-primary)', margin: 0 }}>Guide Cue</h1>
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>Components · Layout & Overlay</span>
+          <span style={{ fontSize: 11, color: 'var(--stroke-primary)' }}>·</span>
+          <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, background: '#dcfce7', color: '#166534' }}>Stable</span>
+        </div>
+        <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-.6px', color: 'var(--text-primary)', margin: '0 0 16px' }}>Guide Cue</h1>
+        <Lead>
+          Guide Cues are contextual onboarding overlays that introduce users to new features or guide them through multi-step flows. They anchor to a specific UI element, highlight it with an optional beacon, and walk users through steps without interrupting the full page.
+        </Lead>
+        {/* Theme switcher */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', paddingTop: 4 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-tertiary)', marginRight: 4 }}>Preview theme:</span>
+          {VISIBLE_THEMES.map(th => (
+            <button key={th.id} onClick={() => setActiveTheme(th.id)} style={{
+              padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 500, cursor: 'pointer', border: '2px solid',
+              borderColor: activeTheme === th.id ? th.color : 'var(--stroke-primary)',
+              background:  activeTheme === th.id ? th.color + '18' : 'transparent',
+              color:       activeTheme === th.id ? th.color : 'var(--text-secondary)',
+              transition: 'all 120ms',
+            }}>
+              <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: th.color, marginRight: 5, verticalAlign: 'middle' }} />
+              {th.label}
+            </button>
+          ))}
+        </div>
       </div>
-
-      <Lead>
-        Guide Cues are contextual onboarding overlays that introduce users to new features or guide them through multi-step flows. They anchor to a specific UI element, highlight it with an optional beacon, and walk users through steps without interrupting the full page.
-      </Lead>
 
       <Rule />
 
@@ -770,7 +760,7 @@ export default function GuideCuePage() {
       {/* ── Token reference ── */}
       <SectionAnchor id="tokens" />
       <H2>Token reference</H2>
-      <P>Guide Cue has no dedicated component tokens. It borrows from the tooltip and button token sets, supplemented by Figma-specified neutral color values.</P>
+      <P>Guide Cue exposes dedicated <Code>guidecue.*</Code> container tokens in V0.5. The CTA buttons borrow from the <Code>button.size.xs.*</Code> set and the accent colour from <Code>tabs.indicator</Code>.</P>
       <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--stroke-primary)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
@@ -782,15 +772,20 @@ export default function GuideCuePage() {
           </thead>
           <tbody>
             {[
-              ['tooltip.bg',                 tokens['tooltip.bg'] || '#1c252e',  'Container background'],
-              ['tabs.indicator',             tokens['tabs.indicator'] || '#07a2b6', 'CTA button & beacon color'],
+              ['guidecue.bg',                tokens['guidecue.bg'] || '#1c252e',   'Container background'],
+              ['guidecue.title',             tokens['guidecue.title'] || '#ffffff','Title text colour'],
+              ['guidecue.description',       tokens['guidecue.description'] || '#c4cdd5', 'Body text colour'],
+              ['guidecue.pagination',        tokens['guidecue.pagination'] || '#919eab',  'Step counter colour'],
+              ['guidecue.close-icon',        tokens['guidecue.close-icon'] || '#919eab',  'Dismiss icon colour'],
+              ['guidecue.radius',            tokens['guidecue.radius'] ?? 12,             'Container corner radius'],
+              ['guidecue.padding-x',         tokens['guidecue.padding-x'] ?? 12,          'Container horizontal padding'],
+              ['guidecue.padding-y',         tokens['guidecue.padding-y'] ?? 12,          'Container vertical padding'],
+              ['guidecue.font-size',         tokens['guidecue.font-size'] ?? 12,          'Base font size'],
+              ['tabs.indicator',             tokens['tabs.indicator'] || '#07a2b6', 'CTA button & beacon colour'],
               ['button.size.xs.radius',      tokens['button.size.xs.radius'],     'CTA button corner radius'],
               ['button.size.xs.padding-x',   tokens['button.size.xs.padding-x'],  'CTA button horizontal padding'],
               ['button.size.xs.padding-y',   tokens['button.size.xs.padding-y'],  'CTA button vertical padding'],
               ['button.size.xs.font-size',   tokens['button.size.xs.font-size'],  'CTA button font size'],
-              ['—',                          '#ffffff',    'Title text (Figma spec)'],
-              ['—',                          '#c4cdd5',    'Body text — color/text/subtlest (Figma spec)'],
-              ['—',                          '#919eab',    'Step counter — color/text/subtle (Figma spec)'],
             ].map(([key, val, role]) => (
               <tr key={key + role} style={{ borderBottom: '1px solid var(--stroke-primary)' }}>
                 <td style={{ padding: '9px 14px' }}><Code>{key}</Code></td>

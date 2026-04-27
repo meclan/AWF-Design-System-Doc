@@ -8290,7 +8290,7 @@
         "com.figma.hiddenFromPublishing": false
       },
       "$type": "dimension",
-      "$value": "{radius.sm}"
+      "$value": "{numbers.radius.sm}"
     },
     "padding-x": {
       "$extensions": {
@@ -8352,7 +8352,7 @@
             "com.figma.hiddenFromPublishing": false
           },
           "$type": "dimension",
-          "$value": "{radius.sm}"
+          "$value": "{numbers.radius.sm}"
         },
         "padding-x": {
           "$extensions": {
@@ -8394,7 +8394,7 @@
             "com.figma.hiddenFromPublishing": false
           },
           "$type": "dimension",
-          "$value": "{radius.sm}"
+          "$value": "{numbers.radius.sm}"
         },
         "padding-x": {
           "$extensions": {
@@ -8436,7 +8436,7 @@
             "com.figma.hiddenFromPublishing": false
           },
           "$type": "dimension",
-          "$value": "{radius.md}"
+          "$value": "{numbers.radius.md}"
         },
         "padding-x": {
           "$extensions": {
@@ -14076,7 +14076,7 @@
         "com.figma.hiddenFromPublishing": false
       },
       "$type": "dimension",
-      "$value": "{radius.lg}"
+      "$value": "{numbers.radius.lg}"
     },
     "padding-x": {
       "$extensions": {
